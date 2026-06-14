@@ -138,12 +138,6 @@ export function RoutePanel({
               locationError={locationError}
               routeDrafts={routeDrafts}
               activeRouteTarget={activeRouteTarget}
-              selectedPlace={selectedPlace}
-              searchResults={searchResults}
-              recentSearches={recentSearches}
-              activeQuery={activeQuery}
-              searchState={searchState}
-              searchError={searchError}
               onModeChange={onModeChange}
               onRouteSubmit={onRouteSubmit}
               onRoutePointFocus={onRoutePointFocus}
@@ -152,9 +146,6 @@ export function RoutePanel({
               onSwapRoutePoints={onSwapRoutePoints}
               onAddWaypoint={onAddWaypoint}
               onRemoveWaypoint={onRemoveWaypoint}
-              onQueryChange={onQueryChange}
-              onSearchSubmit={onSearchSubmit}
-              onSelectPlace={onSelectPlace}
             />
           ) : null}
 
@@ -225,12 +216,6 @@ function RoutePlanner({
   locationError,
   routeDrafts,
   activeRouteTarget,
-  selectedPlace,
-  searchResults,
-  recentSearches,
-  activeQuery,
-  searchState,
-  searchError,
   onModeChange,
   onRouteSubmit,
   onRoutePointFocus,
@@ -239,9 +224,6 @@ function RoutePlanner({
   onSwapRoutePoints,
   onAddWaypoint,
   onRemoveWaypoint,
-  onQueryChange,
-  onSearchSubmit,
-  onSelectPlace,
 }: {
   plan: RoutePlan;
   routeState: RouteState;
@@ -249,12 +231,6 @@ function RoutePlanner({
   locationError: string | null;
   routeDrafts: { origin: string; destination: string; waypoints: string[] };
   activeRouteTarget: RoutePointTarget;
-  selectedPlace: SearchResult;
-  searchResults: SearchResult[];
-  recentSearches: SearchResult[];
-  activeQuery: string;
-  searchState: SearchState;
-  searchError: string | null;
   onModeChange: (mode: TravelMode) => void;
   onRouteSubmit: () => void;
   onRoutePointFocus: (target: RoutePointTarget) => void;
@@ -263,9 +239,6 @@ function RoutePlanner({
   onSwapRoutePoints: () => void;
   onAddWaypoint: () => void;
   onRemoveWaypoint: (index: number) => void;
-  onQueryChange: (value: string) => void;
-  onSearchSubmit: () => void;
-  onSelectPlace: (place: SearchResult) => void;
 }) {
   const { t } = useTranslation();
   const [showOptions, setShowOptions] = useState(false);
@@ -400,18 +373,6 @@ function RoutePlanner({
 
       <RouteSummaryCard plan={plan} />
       <StepsSection instructions={plan.route.instructions} />
-      <SearchSection
-        selectedPlace={selectedPlace}
-        searchResults={searchResults}
-        activeQuery={activeQuery}
-        searchState={searchState}
-        searchError={searchError}
-        onQueryChange={onQueryChange}
-        onSearchSubmit={onSearchSubmit}
-        onSelectPlace={onSelectPlace}
-        compact
-      />
-      <RecentsSection recentSearches={recentSearches} onSelectPlace={onSelectPlace} compact />
     </>
   );
 }
