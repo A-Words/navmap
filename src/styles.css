@@ -416,7 +416,7 @@ button {
 
 .inline-search {
   display: grid;
-  grid-template-columns: 22px minmax(0, 1fr);
+  grid-template-columns: 22px minmax(0, 1fr) auto;
   height: 36px;
   align-items: center;
   padding: 0 10px;
@@ -424,6 +424,71 @@ button {
   border: 1px solid #e0e7f0;
   border-radius: 8px;
   background: #f8fafc;
+}
+
+.inline-search button {
+  height: 26px;
+  padding: 0 9px;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 780;
+  border: 0;
+  border-radius: 7px;
+  background: #2e78e8;
+}
+
+.inline-search button:disabled {
+  cursor: progress;
+  background: #8ab5f4;
+}
+
+.place-detail {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 8px;
+  padding: 11px 10px;
+  border: 1px solid #e0e7f0;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.place-detail-pin {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  color: #ffffff;
+  border-radius: 8px;
+  background: #2e78e8;
+}
+
+.place-detail strong {
+  display: block;
+  color: #1f2937;
+  font-size: 13px;
+  font-weight: 790;
+}
+
+.place-detail p {
+  display: -webkit-box;
+  margin: 3px 0 5px;
+  overflow: hidden;
+  color: #536173;
+  font-size: 11px;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.place-detail small,
+.panel-message {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 620;
+}
+
+.panel-message {
+  margin: 0;
 }
 
 .place-row {

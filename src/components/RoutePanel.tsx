@@ -16,22 +16,32 @@ import {
 } from "lucide-react";
 import type { RouteInstruction, RoutePlan, SearchResult, TravelMode } from "../types";
 
+type SearchState = "idle" | "loading" | "success" | "empty" | "error";
+
 type RoutePanelProps = {
   plan: RoutePlan;
+  selectedPlace: SearchResult;
   searchResults: SearchResult[];
   recentSearches: SearchResult[];
   activeQuery: string;
+  searchState: SearchState;
+  searchError: string | null;
   onQueryChange: (value: string) => void;
+  onSearchSubmit: () => void;
   onModeChange: (mode: TravelMode) => void;
   onSelectPlace: (place: SearchResult) => void;
 };
 
 export function RoutePanel({
   plan,
+  selectedPlace,
   searchResults,
   recentSearches,
   activeQuery,
+  searchState,
+  searchError,
   onQueryChange,
+  onSearchSubmit,
   onModeChange,
   onSelectPlace,
 }: RoutePanelProps) {
@@ -108,14 +118,26 @@ export function RoutePanel({
           <h2>Search Results</h2>
           <button type="button">More</button>
         </div>
-        <div className="inline-search">
+        <form
+          className="inline-search"
+          onSubmit={(event) => {
+            event.preventDefault();
+            onSearchSubmit();
+          }}
+        >
           <Search size={16} aria-hidden="true" />
           <input
             value={activeQuery}
             onChange={(event) => onQueryChange(event.target.value)}
             placeholder="Search nearby places"
           />
-        </div>
+          <button type="submit" disabled={searchState === "loading"}>
+            {searchState === "loading" ? "Searching" : "Search"}
+          </button>
+        </form>
+        <PlaceDetail place={selectedPlace} />
+        {searchState === "error" ? <p className="panel-message">{searchError}</p> : null}
+        {searchState === "empty" ? <p className="panel-message">No places found. Try a broader search.</p> : null}
         <div className="place-list">
           {searchResults.map((place) => (
             <button key={place.id} className="place-row" type="button" onClick={() => onSelectPlace(place)}>
@@ -145,6 +167,23 @@ export function RoutePanel({
         </div>
       </section>
     </aside>
+  );
+}
+
+function PlaceDetail({ place }: { place: SearchResult }) {
+  return (
+    <article className="place-detail" aria-label="Selected place">
+      <span className="place-detail-pin">
+        <MapPin size={16} aria-hidden="true" />
+      </span>
+      <div>
+        <strong>{place.name}</strong>
+        <p>{place.address}</p>
+        <small>
+          {place.coordinate.lat.toFixed(5)}, {place.coordinate.lng.toFixed(5)}
+        </small>
+      </div>
+    </article>
   );
 }
 
@@ -180,4 +219,3 @@ const instructionIcon = {
   highway: Car,
   arrive: Flag,
 } satisfies Record<RouteInstruction["icon"], typeof Circle>;
-
