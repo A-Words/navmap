@@ -412,13 +412,13 @@ export default function App() {
     setLocationError(null);
 
     try {
-      const nextOrigin = await locateCurrentPosition();
-      setOrigin(nextOrigin);
-      setRecentSearches((current) => addRecentSearch(nextOrigin, current));
+      const location = await locateCurrentPosition();
+      applyPlaceToRouteTarget(location, activeRouteTarget);
+      setRecentSearches((current) => addRecentSearch(location, current));
     } catch (error) {
       setLocationError(error instanceof Error ? error.message : t("route.locationDenied"));
     }
-  }, [t]);
+  }, [activeRouteTarget, applyPlaceToRouteTarget, t]);
 
   const handleRouteSubmit = useCallback(async () => {
     routeAbortRef.current?.abort();
