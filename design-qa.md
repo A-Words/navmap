@@ -5,6 +5,7 @@ reference visual paths:
 - C:\Users\A_Words\AppData\Local\Temp\codex-clipboard-27468ed5-d25e-41f5-b0e4-047614ad8dbd.png
 
 implementation target: Apple Maps-inspired route-first desktop shell using shadcn/ui components.
+live reference: Browser visited `https://maps.apple.com.cn/search?query=%E5%B9%BF%E5%B7%9E%E7%AB%99` for the current Apple Maps search UI.
 viewport target: 1440 x 1024 and narrower desktop widths.
 state: default Chinese route planning screen, compact left icon rail, independently open/collapsible route/search panels, OSM map canvas, active route overlay, right map controls, bottom OSM attribution/status.
 
@@ -20,6 +21,7 @@ state: default Chinese route planning screen, compact left icon rail, independen
 - Navigation: primary rail now emphasizes Search, Layers, and Route with Apple Maps-like treatment in both light and dark appearances, active rounded icon buttons, and a functional panel toggle.
 - Route panel: route mode uses shadcn ToggleGroup, route points use compact input rows, route options use shadcn Collapsible/Switch, and the route summary/search/results use shadcn Card/Input/Button patterns.
 - Search results: search view now uses an Apple Maps-style rounded results card with a featured top result, blue category icon, compact address/distance metadata, clear-query affordance, and `路线` / `详情` actions. The same component has dedicated light and dark surface, text, divider, hover, and action-button styles.
+- Apple Maps live reference: the `广州站` search page presents a dark left search panel with rail navigation, black search input, a continuous rounded results list, row dividers, bold place names, compact category/city/rating metadata, and right-side photo/icon thumbnails on richer places.
 - Map controls: right controls and bottom layer switcher remain compact floating controls over the map; OSM attribution remains visible in the bottom status surface.
 - Theme/i18n: default Chinese copy remains in `src/i18n/locales/zh.json`; new visible labels have Chinese and English strings; shadcn dark styling is synchronized through the document `.dark` class. Light mode now uses the pale rail/panel surfaces, white route card, blue active state, and white map controls shown in the latest reference.
 
@@ -28,6 +30,7 @@ state: default Chinese route planning screen, compact left icon rail, independen
 - `npm run build`: passed.
 - `npm run build` emitted the expected MapLibre large chunk warning; this remains non-blocking under the project guide.
 - Browser check: passed for dark search results layout with a real `广州站` query; result card rendered with featured result and `路线` / `详情` actions.
+- Browser reference check: visited Apple Maps China directly and captured the live `广州站` search result layout for comparison.
 - `cargo check` was not rerun because no Tauri/Rust files changed.
 
 **Follow-up Polish**
