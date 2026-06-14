@@ -456,6 +456,8 @@ export default function App() {
           selectedPlace={selectedPlace}
           onCenterChange={handleCenterChange}
           onLocate={handleLocate}
+          railCollapsed={railCollapsed}
+          panelOpen={panelOpen}
         />
         <div className="layer-switcher" aria-label={copy.layers.baseMap}>
           {(["standard", "terrain", "transit"] as const).map((layer) => (

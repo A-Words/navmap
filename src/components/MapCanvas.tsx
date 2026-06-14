@@ -13,6 +13,8 @@ type MapCanvasProps = {
   selectedPlace: SearchResult;
   onCenterChange: (center: LngLat, zoom: number) => void;
   onLocate: () => void;
+  railCollapsed: boolean;
+  panelOpen: boolean;
 };
 
 export function MapCanvas({
@@ -22,6 +24,8 @@ export function MapCanvas({
   selectedPlace,
   onCenterChange,
   onLocate,
+  railCollapsed,
+  panelOpen,
 }: MapCanvasProps) {
   const copy = translations[language];
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -141,7 +145,8 @@ export function MapCanvas({
           number,
         ]),
       );
-      map.fitBounds(bounds, { padding: { top: 84, right: 124, bottom: 90, left: 430 }, maxZoom: 13.4 });
+      const sidebarWidth = (railCollapsed ? 68 : 208) + (panelOpen ? 400 : 0);
+      map.fitBounds(bounds, { padding: { top: 84, right: 124, bottom: 90, left: sidebarWidth + 20 }, maxZoom: 13.4 });
       window.requestAnimationFrame(() => {
         setRoutePath(projectRoutePath(map, routeCoordinates));
       });
