@@ -25,6 +25,7 @@ export function MapCanvas({
   const markersRef = useRef<Marker[]>([]);
   const [zoom, setZoom] = useState(12);
   const [center, setCenter] = useState<LngLat>(DEFAULT_CENTER);
+  const [routePath, setRoutePath] = useState("");
 
   const routeCoordinates = useMemo(
     () => plan.route.geometry.map((point) => [point.lng, point.lat]),
@@ -92,7 +93,7 @@ export function MapCanvas({
           source: "active-route",
           paint: {
             "line-color": "#ffffff",
-            "line-width": 9,
+            "line-width": 12,
             "line-opacity": 0.95,
           },
         });
@@ -102,7 +103,7 @@ export function MapCanvas({
           source: "active-route",
           paint: {
             "line-color": "#2d7be8",
-            "line-width": 5,
+            "line-width": 7,
             "line-opacity": 0.96,
           },
         });
@@ -111,6 +112,13 @@ export function MapCanvas({
         if (source && "setData" in source) {
           (source as GeoJSONSource).setData(routeData);
         }
+      }
+
+      if (map.getLayer("active-route-casing")) {
+        map.moveLayer("active-route-casing");
+      }
+      if (map.getLayer("active-route")) {
+        map.moveLayer("active-route");
       }
 
       markersRef.current.forEach((marker) => marker.remove());
@@ -127,6 +135,9 @@ export function MapCanvas({
         ]),
       );
       map.fitBounds(bounds, { padding: { top: 84, right: 124, bottom: 90, left: 430 }, maxZoom: 13.4 });
+      window.requestAnimationFrame(() => {
+        setRoutePath(projectRoutePath(map, routeCoordinates));
+      });
     };
 
     if (map.isStyleLoaded()) {
@@ -135,6 +146,25 @@ export function MapCanvas({
       map.once("load", applyRoute);
     }
   }, [plan.origin.coordinate, routeCoordinates, selectedPlace.coordinate]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) {
+      return;
+    }
+
+    const updateRoutePath = () => setRoutePath(projectRoutePath(map, routeCoordinates));
+    updateRoutePath();
+    map.on("move", updateRoutePath);
+    map.on("zoom", updateRoutePath);
+    map.on("resize", updateRoutePath);
+
+    return () => {
+      map.off("move", updateRoutePath);
+      map.off("zoom", updateRoutePath);
+      map.off("resize", updateRoutePath);
+    };
+  }, [routeCoordinates]);
 
   const zoomIn = () => mapRef.current?.zoomIn();
   const zoomOut = () => mapRef.current?.zoomOut();
@@ -155,6 +185,14 @@ export function MapCanvas({
         <kbd>⌘ K</kbd>
       </div>
       <div className="map-frame" ref={containerRef} />
+      <svg className="route-overlay" aria-hidden="true">
+        {routePath ? (
+          <>
+            <path className="route-overlay-casing" d={routePath} />
+            <path className="route-overlay-line" d={routePath} />
+          </>
+        ) : null}
+      </svg>
       <div className="map-toolbar" aria-label="Map controls">
         <button type="button" aria-label="Reset compass">
           <Compass size={18} aria-hidden="true" />
@@ -199,4 +237,13 @@ function createMapMarker(label: "A" | "B", variant: "origin" | "destination", co
     coordinate.lng,
     coordinate.lat,
   ]);
+}
+
+function projectRoutePath(map: MapLibreMap, routeCoordinates: number[][]) {
+  return routeCoordinates
+    .map((coordinate, index) => {
+      const point = map.project(coordinate as [number, number]);
+      return `${index === 0 ? "M" : "L"} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`;
+    })
+    .join(" ");
 }
