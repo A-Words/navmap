@@ -95,33 +95,22 @@ button {
 }
 
 .app-shell {
-  display: grid;
-  grid-template-columns: 208px minmax(370px, 420px) minmax(0, 1fr);
+  position: relative;
   width: 100vw;
   height: 100vh;
   min-width: 960px;
   color: var(--foreground);
   background: #0a141d;
-  transition: grid-template-columns 180ms ease;
-}
-
-.app-shell.is-panel-collapsed {
-  grid-template-columns: 208px 0 minmax(0, 1fr);
-}
-
-.app-shell.is-rail-collapsed {
-  grid-template-columns: 68px minmax(370px, 420px) minmax(0, 1fr);
-}
-
-.app-shell.is-rail-collapsed.is-panel-collapsed {
-  grid-template-columns: 68px 0 minmax(0, 1fr);
 }
 
 .app-rail {
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
   z-index: 5;
+  width: 208px;
   display: flex;
-  min-width: 0;
   flex-direction: column;
   gap: 22px;
   padding: 24px 10px 18px;
@@ -130,6 +119,11 @@ button {
   background:
     linear-gradient(180deg, rgba(8, 29, 31, 0.95), rgba(11, 20, 34, 0.97)),
     var(--panel-bg);
+  transition: width 180ms ease;
+}
+
+.app-shell.is-rail-collapsed .app-rail {
+  width: 68px;
 }
 
 .rail-brand {
@@ -345,9 +339,12 @@ button {
 }
 
 .route-panel {
-  position: relative;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 208px;
   z-index: 4;
-  min-width: 0;
+  width: 400px;
   overflow: hidden;
   color: var(--panel-text);
   border-right: 1px solid rgba(255, 255, 255, 0.08);
@@ -355,9 +352,16 @@ button {
     radial-gradient(circle at 100% 0%, rgba(47, 130, 255, 0.16), transparent 28rem),
     linear-gradient(180deg, rgba(10, 24, 29, 0.98), rgba(15, 20, 37, 0.98));
   box-shadow: 16px 0 36px rgba(0, 0, 0, 0.22);
+  transition: left 180ms ease, transform 180ms ease, opacity 180ms ease;
+}
+
+.app-shell.is-rail-collapsed .route-panel {
+  left: 68px;
 }
 
 .app-shell.is-panel-collapsed .route-panel {
+  transform: translateX(-100%);
+  opacity: 0;
   pointer-events: none;
 }
 
@@ -847,9 +851,11 @@ button {
 }
 
 .map-area {
-  position: relative;
+  position: absolute;
+  inset: 0;
   min-width: 0;
   background: #d7ecfb;
+  z-index: 0;
 }
 
 .map-frame {
@@ -1315,18 +1321,20 @@ button {
 }
 
 @media (max-width: 1180px) {
-  .app-shell {
-    grid-template-columns: 86px minmax(332px, 390px) minmax(0, 1fr);
-  }
-
-  .app-shell.is-panel-collapsed {
-    grid-template-columns: 86px 0 minmax(0, 1fr);
-  }
-
   .app-rail {
+    width: 86px;
     align-items: center;
     padding-right: 8px;
     padding-left: 8px;
+  }
+
+  .route-panel {
+    left: 86px;
+    width: 360px;
+  }
+
+  .app-shell.is-rail-collapsed .route-panel {
+    left: 68px;
   }
 
   .rail-brand {
