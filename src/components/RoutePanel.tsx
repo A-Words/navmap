@@ -279,6 +279,7 @@ function RoutePlanner({
 }) {
   const { t } = useTranslation();
   const [showOptions, setShowOptions] = useState(false);
+  const [routeFieldFocused, setRouteFieldFocused] = useState(false);
   const [routeOptions, setRouteOptions] = useState({
     avoidHighways: false,
     avoidTolls: false,
@@ -318,7 +319,8 @@ function RoutePlanner({
             value={routeDrafts.origin}
             placeholder={t("routeFields.origin")}
             active={activeRouteTarget === "origin"}
-            onFocus={() => onRoutePointFocus("origin")}
+            onFocus={() => { onRoutePointFocus("origin"); setRouteFieldFocused(true); }}
+            onBlur={() => setRouteFieldFocused(false)}
             onChange={(value) => onRoutePointChange("origin", value)}
             onSubmit={() => onRoutePointSubmit("origin")}
           />
@@ -333,7 +335,8 @@ function RoutePlanner({
                 placeholder={`${t("route.waypoint")} ${index + 1}`}
                 active={activeRouteTarget === target}
                 removable
-                onFocus={() => onRoutePointFocus(target)}
+                onFocus={() => { onRoutePointFocus(target); setRouteFieldFocused(true); }}
+                onBlur={() => setRouteFieldFocused(false)}
                 onChange={(value) => onRoutePointChange(target, value)}
                 onSubmit={() => onRoutePointSubmit(target)}
                 onRemove={() => onRemoveWaypoint(index)}
@@ -346,7 +349,8 @@ function RoutePlanner({
             value={routeDrafts.destination}
             placeholder={t("routeFields.destination")}
             active={activeRouteTarget === "destination"}
-            onFocus={() => onRoutePointFocus("destination")}
+            onFocus={() => { onRoutePointFocus("destination"); setRouteFieldFocused(true); }}
+            onBlur={() => setRouteFieldFocused(false)}
             onChange={(value) => onRoutePointChange("destination", value)}
             onSubmit={() => onRoutePointSubmit("destination")}
           />
@@ -360,8 +364,9 @@ function RoutePlanner({
         </CardContent>
       </Card>
 
-      {(activeRouteTarget === "origin" && !routeDrafts.origin.trim()) ||
-      (activeRouteTarget === "destination" && !routeDrafts.destination.trim()) ? (
+      {routeFieldFocused &&
+      ((activeRouteTarget === "origin" && !routeDrafts.origin.trim()) ||
+        (activeRouteTarget === "destination" && !routeDrafts.destination.trim())) ? (
         <Button className="route-locate-btn" variant="ghost" type="button" onClick={onLocate}>
           <LocateFixed data-icon="inline-start" aria-hidden="true" />
           {t("route.currentLocation")}
@@ -987,6 +992,7 @@ function RouteField({
   active,
   removable = false,
   onFocus,
+  onBlur,
   onChange,
   onSubmit,
   onRemove,
@@ -998,6 +1004,7 @@ function RouteField({
   active: boolean;
   removable?: boolean;
   onFocus: () => void;
+  onBlur?: () => void;
   onChange: (value: string) => void;
   onSubmit: () => void;
   onRemove?: () => void;
@@ -1009,6 +1016,7 @@ function RouteField({
         value={value}
         placeholder={placeholder}
         onFocus={onFocus}
+        onBlur={onBlur}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={(event) => {
           if (event.key === "Enter") {
