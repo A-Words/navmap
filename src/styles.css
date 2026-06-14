@@ -106,7 +106,7 @@ button {
 }
 
 .app-shell.is-panel-collapsed {
-  grid-template-columns: 68px 0 minmax(0, 1fr);
+  grid-template-columns: 208px 0 minmax(0, 1fr);
 }
 
 .app-shell.is-rail-collapsed {
@@ -1320,7 +1320,7 @@ button {
   }
 
   .app-shell.is-panel-collapsed {
-    grid-template-columns: 68px 0 minmax(0, 1fr);
+    grid-template-columns: 86px 0 minmax(0, 1fr);
   }
 
   .app-rail {

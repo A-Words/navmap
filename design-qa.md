@@ -15,7 +15,7 @@ state: default Chinese route planning screen, compact left icon rail, independen
   Follow-up: reopen the local app manually or in an allowed browser session to inspect the 1440 x 1024 and narrow desktop layouts.
 
 **Required Fidelity Surfaces**
-- Layout: implemented a fixed compact left app rail, an adjacent route/search panel, and a full-height central map canvas. The rail collapsed state is separate from panel visibility, so Search, Layers, Route, and Recents can reopen their panels while the rail remains icon-only.
+- Layout: implemented a fixed compact left app rail, an adjacent route/search panel, and a full-height central map canvas. The rail collapsed state is separate from panel visibility, so Search, Layers, Route, and Recents can reopen their panels while the rail remains icon-only. The top rail toggle controls rail width only, leaving the active Search/Route panel state unchanged.
 - Navigation: primary rail now emphasizes Search, Layers, and Route with Apple Maps-like treatment in both light and dark appearances, active rounded icon buttons, and a functional panel toggle.
 - Route panel: route mode uses shadcn ToggleGroup, route points use compact input rows, route options use shadcn Collapsible/Switch, and the route summary/search/results use shadcn Card/Input/Button patterns.
 - Map controls: right controls and bottom layer switcher remain compact floating controls over the map; OSM attribution remains visible in the bottom status surface.

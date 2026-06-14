@@ -408,12 +408,9 @@ export default function App() {
         <AppRail
           active={activeRail}
           language={language}
-          panelCollapsed={!panelOpen}
+          railCollapsed={railCollapsed}
           onSelect={handleRailSelect}
-          onTogglePanel={() => {
-            setPanelOpen((current) => !current);
-            setRailCollapsed(true);
-          }}
+          onToggleRail={() => setRailCollapsed((current) => !current)}
         />
         <RoutePanel
           plan={routePlan}

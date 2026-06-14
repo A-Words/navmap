@@ -17,9 +17,9 @@ import type { Language, PanelId } from "../types";
 type AppRailProps = {
   active: PanelId;
   language: Language;
-  panelCollapsed: boolean;
+  railCollapsed: boolean;
   onSelect: (item: PanelId) => void;
-  onTogglePanel: () => void;
+  onToggleRail: () => void;
 };
 
 const primaryItems = [
@@ -28,9 +28,9 @@ const primaryItems = [
   { id: "route", icon: Route },
 ] as const;
 
-export function AppRail({ active, language, panelCollapsed, onSelect, onTogglePanel }: AppRailProps) {
+export function AppRail({ active, language, railCollapsed, onSelect, onToggleRail }: AppRailProps) {
   const copy = translations[language];
-  const PanelIcon = panelCollapsed ? PanelLeftOpen : PanelLeftClose;
+  const PanelIcon = railCollapsed ? PanelLeftOpen : PanelLeftClose;
 
   return (
     <aside className="app-rail" aria-label={copy.nav.primary}>
@@ -46,13 +46,13 @@ export function AppRail({ active, language, panelCollapsed, onSelect, onTogglePa
               variant="ghost"
               size="icon-sm"
               type="button"
-              aria-label={panelCollapsed ? copy.nav.expand : copy.nav.collapse}
-              onClick={onTogglePanel}
+              aria-label={railCollapsed ? copy.nav.expand : copy.nav.collapse}
+              onClick={onToggleRail}
             >
               <PanelIcon aria-hidden="true" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="right">{panelCollapsed ? copy.nav.expand : copy.nav.collapse}</TooltipContent>
+          <TooltipContent side="right">{railCollapsed ? copy.nav.expand : copy.nav.collapse}</TooltipContent>
         </Tooltip>
       </div>
 
