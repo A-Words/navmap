@@ -943,6 +943,164 @@ button {
   -webkit-line-clamp: 2;
 }
 
+.place-detail-view {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.place-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.place-detail-header-title {
+  color: rgba(255, 255, 255, 0.52);
+  font-size: 13px;
+  font-weight: 660;
+}
+
+.place-detail-back {
+  color: var(--navmap-blue);
+  background: rgba(47, 130, 255, 0.12);
+}
+
+.place-detail-back:hover {
+  color: #ffffff;
+  background: rgba(47, 130, 255, 0.22);
+}
+
+.place-detail-hero {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.place-detail-hero .place-glyph {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+}
+
+.place-detail-hero .place-glyph svg {
+  width: 24px;
+  height: 24px;
+}
+
+.place-detail-hero-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.place-detail-hero-text h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 820;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.place-detail-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--panel-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.place-detail-dot {
+  color: rgba(255, 255, 255, 0.28);
+}
+
+.place-detail-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.place-detail-directions-btn {
+  flex: 1;
+  height: 42px;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 760;
+  background: var(--navmap-blue);
+  border-radius: 10px;
+}
+
+.place-detail-directions-btn:hover {
+  background: #1f73f3;
+}
+
+.place-detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+}
+
+.place-detail-info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  color: var(--panel-text);
+  font-size: 13px;
+  font-weight: 560;
+  line-height: 1.4;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.place-detail-info-row:last-child {
+  border-bottom: 0;
+}
+
+.place-detail-info-row svg {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  color: var(--panel-muted);
+}
+
+.place-detail-info-row span {
+  min-width: 0;
+  word-break: break-word;
+}
+
+.detail-marker {
+  width: 28px;
+  height: 28px;
+  background: var(--navmap-blue);
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.3);
+  position: relative;
+}
+
+.detail-marker::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 8px solid #ffffff;
+}
+
 .place-row,
 .recent-row {
   display: grid;
@@ -1437,6 +1595,64 @@ button {
   color: #6f7778;
   border-color: rgba(52, 65, 54, 0.12);
   background: rgba(255, 255, 255, 0.7);
+}
+
+.app-shell[data-color-scheme="light"] .place-detail-header-title {
+  color: rgba(17, 24, 39, 0.42);
+}
+
+.app-shell[data-color-scheme="light"] .place-detail-back {
+  color: #0a7cff;
+  background: rgba(10, 124, 255, 0.1);
+}
+
+.app-shell[data-color-scheme="light"] .place-detail-back:hover {
+  color: #111827;
+  background: rgba(10, 124, 255, 0.18);
+}
+
+.app-shell[data-color-scheme="light"] .place-detail-hero-text h2 {
+  color: #111827;
+}
+
+.app-shell[data-color-scheme="light"] .place-detail-meta {
+  color: #7a8282;
+}
+
+.app-shell[data-color-scheme="light"] .place-detail-dot {
+  color: rgba(17, 24, 39, 0.2);
+}
+
+.app-shell[data-color-scheme="light"] .place-detail-directions-btn {
+  color: #ffffff;
+  background: #0a7cff;
+}
+
+.app-shell[data-color-scheme="light"] .place-detail-directions-btn:hover {
+  background: #006ae0;
+}
+
+.app-shell[data-color-scheme="light"] .place-detail-info {
+  border-color: rgba(52, 65, 54, 0.1);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.app-shell[data-color-scheme="light"] .place-detail-info-row {
+  color: #111827;
+  border-color: rgba(17, 24, 39, 0.06);
+}
+
+.app-shell[data-color-scheme="light"] .place-detail-info-row svg {
+  color: #7a8282;
+}
+
+.app-shell[data-color-scheme="light"] .detail-marker {
+  border-color: #ffffff;
+  box-shadow: 0 6px 16px rgba(17, 24, 39, 0.18);
+}
+
+.app-shell[data-color-scheme="light"] .detail-marker::after {
+  border-top-color: #ffffff;
 }
 
 .app-shell[data-color-scheme="light"] .search-clear-button {
