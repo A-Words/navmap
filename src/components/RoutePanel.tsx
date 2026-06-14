@@ -19,6 +19,7 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,7 +38,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { getLayerLabel, LANGUAGES, translations } from "../i18n";
+import { LANGUAGES } from "../i18n/index";
 import type {
   ColorScheme,
   Language,
@@ -67,7 +68,6 @@ type RoutePanelProps = {
   locationError: string | null;
   activePanel: PanelId;
   activeLayer: LayerId;
-  language: Language;
   themePreference: ThemePreference;
   colorScheme: ColorScheme;
   routeDrafts: { origin: string; destination: string; waypoints: string[] };
@@ -102,7 +102,6 @@ export function RoutePanel({
   locationError,
   activePanel,
   activeLayer,
-  language,
   themePreference,
   colorScheme,
   routeDrafts,
@@ -123,18 +122,17 @@ export function RoutePanel({
   onRemoveWaypoint,
   onClosePanel,
 }: RoutePanelProps) {
-  const copy = translations[language];
-  const title = getPanelTitle(language, activePanel);
+  const { t } = useTranslation();
+  const title = getPanelTitle(t, activePanel);
 
   return (
     <aside className="route-panel" aria-label={title}>
-      <PanelTopbar title={title} language={language} onClosePanel={onClosePanel} />
+      <PanelTopbar title={title} onClosePanel={onClosePanel} />
       <ScrollArea className="panel-scroll">
         <div className="panel-content">
           {activePanel === "route" ? (
             <RoutePlanner
               plan={plan}
-              language={language}
               routeState={routeState}
               routeError={routeError}
               locationError={locationError}
@@ -162,7 +160,6 @@ export function RoutePanel({
 
           {activePanel === "search" ? (
             <SearchView
-              language={language}
               selectedPlace={selectedPlace}
               searchResults={searchResults}
               recentSearches={recentSearches}
@@ -176,13 +173,12 @@ export function RoutePanel({
           ) : null}
 
           {activePanel === "recents" ? (
-            <RecentsSection recentSearches={recentSearches} language={language} onSelectPlace={onSelectPlace} />
+            <RecentsSection recentSearches={recentSearches} onSelectPlace={onSelectPlace} />
           ) : null}
 
           {activePanel === "settings" ? (
             <SettingsView
               activeLayer={activeLayer}
-              language={language}
               themePreference={themePreference}
               colorScheme={colorScheme}
               recentSearches={recentSearches}
@@ -191,7 +187,7 @@ export function RoutePanel({
             />
           ) : null}
 
-          {activePanel === "about" ? <AboutView language={language} /> : null}
+          {activePanel === "about" ? <AboutView /> : null}
         </div>
       </ScrollArea>
     </aside>
@@ -200,23 +196,21 @@ export function RoutePanel({
 
 function PanelTopbar({
   title,
-  language,
   onClosePanel,
 }: {
   title: string;
-  language: Language;
   onClosePanel: () => void;
 }) {
-  const copy = translations[language];
+  const { t } = useTranslation();
 
   return (
     <header className="panel-topbar">
       <h1>{title}</h1>
       <div className="panel-actions">
-        <Button variant="ghost" size="icon-sm" type="button" aria-label={copy.panel.share}>
+        <Button variant="ghost" size="icon-sm" type="button" aria-label={t("panel.share")}>
           <Share2 aria-hidden="true" />
         </Button>
-        <Button variant="ghost" size="icon-sm" type="button" aria-label={copy.nav.collapse} onClick={onClosePanel}>
+        <Button variant="ghost" size="icon-sm" type="button" aria-label={t("nav.collapse")} onClick={onClosePanel}>
           <X aria-hidden="true" />
         </Button>
       </div>
@@ -226,7 +220,6 @@ function PanelTopbar({
 
 function RoutePlanner({
   plan,
-  language,
   routeState,
   routeError,
   locationError,
@@ -251,7 +244,6 @@ function RoutePlanner({
   onSelectPlace,
 }: {
   plan: RoutePlan;
-  language: Language;
   routeState: RouteState;
   routeError: string | null;
   locationError: string | null;
@@ -275,7 +267,7 @@ function RoutePlanner({
   onSearchSubmit: () => void;
   onSelectPlace: (place: SearchResult) => void;
 }) {
-  const copy = translations[language];
+  const { t } = useTranslation();
   const [showOptions, setShowOptions] = useState(false);
   const [routeOptions, setRouteOptions] = useState({
     avoidHighways: false,
@@ -296,13 +288,13 @@ function RoutePlanner({
           }
         }}
       >
-        <ToggleGroupItem value="driving" aria-label={copy.modes.driving}>
+        <ToggleGroupItem value="driving" aria-label={t("modes.driving")}>
           <Car aria-hidden="true" />
         </ToggleGroupItem>
-        <ToggleGroupItem value="walking" aria-label={copy.modes.walking}>
+        <ToggleGroupItem value="walking" aria-label={t("modes.walking")}>
           <Footprints aria-hidden="true" />
         </ToggleGroupItem>
-        <ToggleGroupItem value="cycling" aria-label={copy.modes.cycling}>
+        <ToggleGroupItem value="cycling" aria-label={t("modes.cycling")}>
           <Bike aria-hidden="true" />
         </ToggleGroupItem>
       </ToggleGroup>
@@ -314,7 +306,7 @@ function RoutePlanner({
             label="A"
             tone="origin"
             value={routeDrafts.origin}
-            placeholder={copy.routeFields.origin}
+            placeholder={t("routeFields.origin")}
             active={activeRouteTarget === "origin"}
             onFocus={() => onRoutePointFocus("origin")}
             onChange={(value) => onRoutePointChange("origin", value)}
@@ -328,7 +320,7 @@ function RoutePlanner({
                 label={String(index + 1)}
                 tone="waypoint"
                 value={routeDrafts.waypoints[index] || waypoint.name}
-                placeholder={`${copy.route.waypoint} ${index + 1}`}
+                placeholder={`${t("route.waypoint")} ${index + 1}`}
                 active={activeRouteTarget === target}
                 removable
                 onFocus={() => onRoutePointFocus(target)}
@@ -342,7 +334,7 @@ function RoutePlanner({
             label="B"
             tone="destination"
             value={routeDrafts.destination}
-            placeholder={copy.routeFields.destination}
+            placeholder={t("routeFields.destination")}
             active={activeRouteTarget === "destination"}
             onFocus={() => onRoutePointFocus("destination")}
             onChange={(value) => onRoutePointChange("destination", value)}
@@ -350,9 +342,9 @@ function RoutePlanner({
           />
           <Button className="route-add-stop" variant="ghost" type="button" onClick={onAddWaypoint}>
             <Plus data-icon="inline-start" aria-hidden="true" />
-            {copy.route.addWaypoint}
+            {t("route.addWaypoint")}
           </Button>
-          <Button className="route-swap" variant="ghost" size="icon-sm" type="button" aria-label={copy.routeFields.swap} onClick={onSwapRoutePoints}>
+          <Button className="route-swap" variant="ghost" size="icon-sm" type="button" aria-label={t("routeFields.swap")} onClick={onSwapRoutePoints}>
             <ArrowDownUp aria-hidden="true" />
           </Button>
         </CardContent>
@@ -360,12 +352,12 @@ function RoutePlanner({
 
       <div className="route-command-row">
         <Select defaultValue="now">
-          <SelectTrigger aria-label={copy.route.departure}>
+          <SelectTrigger aria-label={t("route.departure")}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectItem value="now">{copy.route.departNow}</SelectItem>
+              <SelectItem value="now">{t("route.departNow")}</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>
@@ -373,15 +365,15 @@ function RoutePlanner({
           <CollapsibleTrigger asChild>
             <Button variant="outline" type="button">
               <SlidersHorizontal data-icon="inline-start" aria-hidden="true" />
-              {copy.route.options}
+              {t("route.options")}
             </Button>
           </CollapsibleTrigger>
           <CollapsibleContent className="route-options-popover">
             <FieldSet>
               {([
-                ["avoidHighways", copy.route.avoidHighways],
-                ["avoidTolls", copy.route.avoidTolls],
-                ["avoidFerries", copy.route.avoidFerries],
+                ["avoidHighways", t("route.avoidHighways")],
+                ["avoidTolls", t("route.avoidTolls")],
+                ["avoidFerries", t("route.avoidFerries")],
               ] as const).map(([key, label]) => (
                 <Field key={key} orientation="horizontal">
                   <FieldLabel>{label}</FieldLabel>
@@ -393,23 +385,22 @@ function RoutePlanner({
                 </Field>
               ))}
             </FieldSet>
-            <p>{copy.route.routeOptionHint}</p>
+            <p>{t("route.routeOptionHint")}</p>
           </CollapsibleContent>
         </Collapsible>
       </div>
 
       <Button className="route-go-button" type="button" disabled={routeState === "loading"} onClick={onRouteSubmit}>
         <RouteIcon data-icon="inline-start" aria-hidden="true" />
-        {routeState === "loading" ? copy.route.routing : copy.route.go}
+        {routeState === "loading" ? t("route.routing") : t("route.go")}
       </Button>
 
       {routeState === "error" ? <p className="panel-message">{routeError}</p> : null}
       {locationError ? <p className="panel-message">{locationError}</p> : null}
 
-      <RouteSummaryCard plan={plan} language={language} />
-      <StepsSection instructions={plan.route.instructions} language={language} />
+      <RouteSummaryCard plan={plan} />
+      <StepsSection instructions={plan.route.instructions} />
       <SearchSection
-        language={language}
         selectedPlace={selectedPlace}
         searchResults={searchResults}
         activeQuery={activeQuery}
@@ -420,13 +411,12 @@ function RoutePlanner({
         onSelectPlace={onSelectPlace}
         compact
       />
-      <RecentsSection recentSearches={recentSearches} language={language} onSelectPlace={onSelectPlace} compact />
+      <RecentsSection recentSearches={recentSearches} onSelectPlace={onSelectPlace} compact />
     </>
   );
 }
 
 function SearchView({
-  language,
   selectedPlace,
   searchResults,
   recentSearches,
@@ -437,7 +427,6 @@ function SearchView({
   onSearchSubmit,
   onSelectPlace,
 }: {
-  language: Language;
   selectedPlace: SearchResult;
   searchResults: SearchResult[];
   recentSearches: SearchResult[];
@@ -451,7 +440,6 @@ function SearchView({
   return (
     <>
       <SearchSection
-        language={language}
         selectedPlace={selectedPlace}
         searchResults={searchResults}
         activeQuery={activeQuery}
@@ -461,20 +449,20 @@ function SearchView({
         onSearchSubmit={onSearchSubmit}
         onSelectPlace={onSelectPlace}
       />
-      <RecentsSection recentSearches={recentSearches} language={language} onSelectPlace={onSelectPlace} />
+      <RecentsSection recentSearches={recentSearches} onSelectPlace={onSelectPlace} />
     </>
   );
 }
 
-function RouteSummaryCard({ plan, language }: { plan: RoutePlan; language: Language }) {
-  const copy = translations[language];
+function RouteSummaryCard({ plan }: { plan: RoutePlan }) {
+  const { t } = useTranslation();
 
   return (
     <Card className="route-summary-card" size="sm">
       <CardHeader>
         <CardTitle>
           <Car aria-hidden="true" />
-          <span>{copy.route.fastest}</span>
+          <span>{t("route.fastest")}</span>
         </CardTitle>
         <CardDescription>{plan.route.description}</CardDescription>
       </CardHeader>
@@ -488,12 +476,12 @@ function RouteSummaryCard({ plan, language }: { plan: RoutePlan; language: Langu
   );
 }
 
-function StepsSection({ instructions, language }: { instructions: RouteInstruction[]; language: Language }) {
-  const copy = translations[language];
+function StepsSection({ instructions }: { instructions: RouteInstruction[] }) {
+  const { t } = useTranslation();
   return (
     <Card className="panel-card" size="sm">
       <CardHeader>
-        <CardTitle>{copy.route.stepByStep}</CardTitle>
+        <CardTitle>{t("route.stepByStep")}</CardTitle>
       </CardHeader>
       <CardContent className="instruction-list">
         {instructions.map((instruction) => (
@@ -505,7 +493,6 @@ function StepsSection({ instructions, language }: { instructions: RouteInstructi
 }
 
 function SearchSection({
-  language,
   selectedPlace,
   searchResults,
   activeQuery,
@@ -516,7 +503,6 @@ function SearchSection({
   onSelectPlace,
   compact = false,
 }: {
-  language: Language;
   selectedPlace: SearchResult;
   searchResults: SearchResult[];
   activeQuery: string;
@@ -527,12 +513,12 @@ function SearchSection({
   onSelectPlace: (place: SearchResult) => void;
   compact?: boolean;
 }) {
-  const copy = translations[language];
+  const { t } = useTranslation();
 
   return (
     <Card className="panel-card" size="sm">
       <CardHeader>
-        <CardTitle>{compact ? copy.route.searchResults : copy.route.places}</CardTitle>
+        <CardTitle>{compact ? t("route.searchResults") : t("route.places")}</CardTitle>
       </CardHeader>
       <CardContent className="search-section-content">
         <form
@@ -546,16 +532,16 @@ function SearchSection({
           <Input
             value={activeQuery}
             onChange={(event) => onQueryChange(event.target.value)}
-            placeholder={copy.search.inputPlaceholder}
+            placeholder={t("search.inputPlaceholder")}
           />
           <Button type="submit" disabled={searchState === "loading"}>
-            {searchState === "loading" ? copy.search.searching : copy.search.submit}
+            {searchState === "loading" ? t("search.searching") : t("search.submit")}
           </Button>
         </form>
         <PlaceDetail place={selectedPlace} />
         {searchState === "error" ? <p className="panel-message">{searchError}</p> : null}
-        {searchState === "empty" ? <p className="panel-message">{copy.route.noPlaces}</p> : null}
-        {compact ? <p className="panel-hint">{copy.route.useSearchResult}</p> : null}
+        {searchState === "empty" ? <p className="panel-message">{t("route.noPlaces")}</p> : null}
+        {compact ? <p className="panel-hint">{t("route.useSearchResult")}</p> : null}
         <div className="place-list">
           {searchResults.map((place) => (
             <PlaceRow key={place.id} place={place} onSelectPlace={onSelectPlace} />
@@ -568,16 +554,14 @@ function SearchSection({
 
 function RecentsSection({
   recentSearches,
-  language,
   onSelectPlace,
   compact = false,
 }: {
   recentSearches: SearchResult[];
-  language: Language;
   onSelectPlace: (place: SearchResult) => void;
   compact?: boolean;
 }) {
-  const copy = translations[language];
+  const { t } = useTranslation();
 
   if (recentSearches.length === 0) {
     return null;
@@ -586,7 +570,7 @@ function RecentsSection({
   return (
     <Card className="panel-card recent-section" size="sm">
       <CardHeader>
-        <CardTitle>{compact ? copy.route.recentSearches : copy.route.recentPlaces}</CardTitle>
+        <CardTitle>{compact ? t("route.recentSearches") : t("route.recentPlaces")}</CardTitle>
       </CardHeader>
       <CardContent className="place-list">
         {recentSearches.map((place) => (
@@ -602,7 +586,6 @@ function RecentsSection({
 
 function SettingsView({
   activeLayer,
-  language,
   themePreference,
   colorScheme,
   recentSearches,
@@ -610,27 +593,26 @@ function SettingsView({
   onThemePreferenceChange,
 }: {
   activeLayer: LayerId;
-  language: Language;
   themePreference: ThemePreference;
   colorScheme: ColorScheme;
   recentSearches: SearchResult[];
   onLanguageChange: (language: Language) => void;
   onThemePreferenceChange: (preference: ThemePreference) => void;
 }) {
-  const copy = translations[language];
+  const { t, i18n } = useTranslation();
 
   return (
     <Card className="panel-card" size="sm">
       <CardContent className="settings-list">
-        <InfoRow title={copy.settings.defaultLayer} description={getLayerLabel(language, activeLayer)} value={copy.settings.auto} />
+        <InfoRow title={t("settings.defaultLayer")} description={t(`layers.${activeLayer}`)} value={t("settings.auto")} />
         <div className="setting-control-row">
           <span>
-            <strong>{copy.settings.language}</strong>
-            <small>{copy.settings.languageDescription}</small>
+            <strong>{t("settings.language")}</strong>
+            <small>{t("settings.languageDescription")}</small>
           </span>
           <ToggleGroup
             type="single"
-            value={language}
+            value={i18n.language}
             variant="outline"
             size="sm"
             onValueChange={(value) => {
@@ -648,10 +630,10 @@ function SettingsView({
         </div>
         <div className="setting-control-row is-stacked">
           <span>
-            <strong>{copy.settings.appearance}</strong>
+            <strong>{t("settings.appearance")}</strong>
             <small>
-              {copy.settings.appearanceDescription} ·{" "}
-              {colorScheme === "dark" ? copy.settings.themeDark : copy.settings.themeLight}
+              {t("settings.appearanceDescription")} ·{" "}
+              {colorScheme === "dark" ? t("settings.themeDark") : t("settings.themeLight")}
             </small>
           </span>
           <ToggleGroup
@@ -666,34 +648,34 @@ function SettingsView({
               }
             }}
           >
-            <ToggleGroupItem value="system">{copy.settings.themeSystem}</ToggleGroupItem>
-            <ToggleGroupItem value="light">{copy.settings.themeLight}</ToggleGroupItem>
-            <ToggleGroupItem value="dark">{copy.settings.themeDark}</ToggleGroupItem>
+            <ToggleGroupItem value="system">{t("settings.themeSystem")}</ToggleGroupItem>
+            <ToggleGroupItem value="light">{t("settings.themeLight")}</ToggleGroupItem>
+            <ToggleGroupItem value="dark">{t("settings.themeDark")}</ToggleGroupItem>
           </ToggleGroup>
         </div>
         <InfoRow
-          title={copy.settings.recentSearches}
-          description={`${recentSearches.length} ${copy.settings.savedLocally}`}
-          value={copy.settings.auto}
+          title={t("settings.recentSearches")}
+          description={`${recentSearches.length} ${t("settings.savedLocally")}`}
+          value={t("settings.auto")}
         />
-        <InfoRow title={copy.settings.location} description={copy.settings.locationDescription} value={copy.settings.ask} />
+        <InfoRow title={t("settings.location")} description={t("settings.locationDescription")} value={t("settings.ask")} />
       </CardContent>
     </Card>
   );
 }
 
-function AboutView({ language }: { language: Language }) {
-  const copy = translations[language];
+function AboutView() {
+  const { t } = useTranslation();
 
   return (
     <Card className="panel-card" size="sm">
       <CardHeader>
         <CardTitle>NavMap</CardTitle>
-        <CardDescription>{copy.about.body}</CardDescription>
+        <CardDescription>{t("about.body")}</CardDescription>
       </CardHeader>
       <CardContent className="settings-list">
-        <InfoRow title={copy.about.mapData} description={copy.about.attribution} value="OSM" />
-        <InfoRow title={copy.about.version} description="Desktop preview" value="0.1.0" />
+        <InfoRow title={t("about.mapData")} description={t("about.attribution")} value="OSM" />
+        <InfoRow title={t("about.version")} description="Desktop preview" value="0.1.0" />
       </CardContent>
     </Card>
   );
@@ -807,23 +789,16 @@ function InstructionRow({ instruction }: { instruction: RouteInstruction }) {
   );
 }
 
-function getPanelTitle(language: Language, activePanel: PanelId) {
-  const copy = translations[language];
+function getPanelTitle(t: (key: string) => string, activePanel: PanelId) {
+  const panelKeys: Record<PanelId, string> = {
+    route: "panel.routePlanning",
+    search: "panel.searchTitle",
+    recents: "panel.recentsTitle",
+    settings: "panel.settingsTitle",
+    about: "panel.aboutTitle",
+  };
 
-  if (activePanel === "route") {
-    return copy.panel.routePlanning;
-  }
-  if (activePanel === "search") {
-    return copy.panel.searchTitle;
-  }
-  if (activePanel === "recents") {
-    return copy.panel.recentsTitle;
-  }
-  if (activePanel === "settings") {
-    return copy.panel.settingsTitle;
-  }
-
-  return copy.panel.aboutTitle;
+  return t(panelKeys[activePanel]);
 }
 
 const instructionIcon = {

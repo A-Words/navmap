@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { AppRail } from "./components/AppRail";
 import { MapCanvas } from "./components/MapCanvas";
 import { RoutePanel } from "./components/RoutePanel";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { getSeedRouteData } from "./data/seedRoute";
-import { DEFAULT_LANGUAGE, getLayerLabel, translations } from "./i18n";
+import i18next, { DEFAULT_LANGUAGE } from "./i18n/index";
 import { searchPlaces } from "./services/geocoding";
 import { locateCurrentPosition } from "./services/location";
 import { getRoute } from "./services/routing";
@@ -37,13 +38,13 @@ function getSystemColorScheme(): ColorScheme {
 }
 
 export default function App() {
+  const { t } = useTranslation();
   const [activeRail, setActiveRail] = useState<PanelId>("route");
   const [railCollapsed, setRailCollapsed] = useState(true);
   const [panelOpen, setPanelOpen] = useState(true);
   const [activeLayer, setActiveLayer] = useState<LayerId>("standard");
   const [systemColorScheme, setSystemColorScheme] = useState<ColorScheme>(() => getSystemColorScheme());
   const [themePreference, setThemePreference] = useState<ThemePreference>("system");
-  const [language, setLanguage] = useState<Language>(DEFAULT_LANGUAGE);
   const [query, setQuery] = useState("联合广场");
   const [mode, setMode] = useState<TravelMode>("driving");
   const [origin, setOrigin] = useState<SearchResult>(DEFAULT_SEED.origin);
@@ -78,7 +79,6 @@ export default function App() {
     [mode, origin, route, selectedPlace, waypoints],
   );
 
-  const copy = translations[language];
   const colorScheme = themePreference === "system" ? systemColorScheme : themePreference;
 
   useEffect(() => {
@@ -111,21 +111,9 @@ export default function App() {
         if (!isMounted) {
           return;
         }
-        setLanguage(settings.language);
         setThemePreference(settings.themePreference);
         if (settings.language !== DEFAULT_LANGUAGE) {
-          const seed = getSeedRouteData(settings.language);
-          setQuery("Union Square");
-          setOrigin(seed.origin);
-          setSelectedPlace(seed.destination);
-          setWaypoints(seed.routePlan.waypoints);
-          setRouteDrafts({
-            origin: seed.origin.name,
-            destination: seed.destination.name,
-            waypoints: seed.routePlan.waypoints.map((waypoint) => waypoint.name),
-          });
-          setSearchResults(seed.searchResults);
-          setRoute(seed.routePlan.route);
+          void i18next.changeLanguage(settings.language);
         }
         setActiveLayer(settings.activeLayer);
         if (settings.recentSearches.length) {
@@ -151,6 +139,43 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    const handleLanguageChanged = (lng: string) => {
+      const seed = getSeedRouteData(lng);
+      setQuery(lng === "zh" ? "联合广场" : "Union Square");
+      setOrigin((current) => (current.id === "my-location" ? seed.origin : current));
+      setSelectedPlace((current) => seed.searchResults.find((place) => place.id === current.id) || current);
+      setWaypoints(seed.routePlan.waypoints);
+      setRouteDrafts({
+        origin: seed.origin.name,
+        destination: seed.destination.name,
+        waypoints: seed.routePlan.waypoints.map((waypoint) => waypoint.name),
+      });
+      setSearchResults((current) =>
+        current.every((place) => seed.searchResults.some((seedPlace) => seedPlace.id === place.id))
+          ? seed.searchResults
+          : current,
+      );
+      setRecentSearches((current) =>
+        current.every((place) => seed.recentSearches.some((seedPlace) => seedPlace.id === place.id))
+          ? seed.recentSearches
+          : current,
+      );
+      setRoute((current) =>
+        current.instructions.every((instruction) =>
+          seed.routePlan.route.instructions.some((seedInstruction) => seedInstruction.id === instruction.id),
+        )
+          ? seed.routePlan.route
+          : current,
+      );
+    };
+
+    i18next.on("languageChanged", handleLanguageChanged);
+    return () => {
+      i18next.off("languageChanged", handleLanguageChanged);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!lastViewport) {
       return;
     }
@@ -158,7 +183,7 @@ export default function App() {
     const timeout = window.setTimeout(() => {
       void saveSettings({
         activeLayer,
-        language,
+        language: i18next.language as Language,
         themePreference,
         showTrafficHints: true,
         lastCenter: lastViewport.center,
@@ -168,37 +193,10 @@ export default function App() {
     }, 250);
 
     return () => window.clearTimeout(timeout);
-  }, [activeLayer, language, lastViewport, recentSearches, themePreference]);
+  }, [activeLayer, lastViewport, recentSearches, themePreference, i18next.language]);
 
-  const handleLanguageChange = useCallback((nextLanguage: Language) => {
-    const seed = getSeedRouteData(nextLanguage);
-    setLanguage(nextLanguage);
-    setQuery(nextLanguage === "zh" ? "联合广场" : "Union Square");
-    setOrigin((current) => (current.id === "my-location" ? seed.origin : current));
-    setSelectedPlace((current) => seed.searchResults.find((place) => place.id === current.id) || current);
-    setWaypoints(seed.routePlan.waypoints);
-    setRouteDrafts({
-      origin: seed.origin.name,
-      destination: seed.destination.name,
-      waypoints: seed.routePlan.waypoints.map((waypoint) => waypoint.name),
-    });
-    setSearchResults((current) =>
-      current.every((place) => seed.searchResults.some((seedPlace) => seedPlace.id === place.id))
-        ? seed.searchResults
-        : current,
-    );
-    setRecentSearches((current) =>
-      current.every((place) => seed.recentSearches.some((seedPlace) => seedPlace.id === place.id))
-        ? seed.recentSearches
-        : current,
-    );
-    setRoute((current) =>
-      current.instructions.every((instruction) =>
-        seed.routePlan.route.instructions.some((seedInstruction) => seedInstruction.id === instruction.id),
-      )
-        ? seed.routePlan.route
-        : current,
-    );
+  const handleLanguageChange = useCallback((nextLanguage: string) => {
+    void i18next.changeLanguage(nextLanguage);
   }, []);
 
   const handleCenterChange = useCallback((center: LngLat, zoom: number) => {
@@ -271,7 +269,6 @@ export default function App() {
 
     try {
       const results = await searchPlaces(trimmedQuery, {
-        language,
         origin: routePlan.origin.coordinate,
         signal: controller.signal,
       });
@@ -287,9 +284,9 @@ export default function App() {
         return;
       }
       setSearchState("error");
-      setSearchError(error instanceof Error ? error.message : copy.route.searchFailed);
+      setSearchError(error instanceof Error ? error.message : t("route.searchFailed"));
     }
-  }, [applyPlaceToRouteTarget, copy.route.searchFailed, language, routeDrafts, routePlan.origin.coordinate]);
+  }, [applyPlaceToRouteTarget, routeDrafts, routePlan.origin.coordinate, t]);
 
   const handleSwapRoutePoints = useCallback(() => {
     setOrigin(selectedPlace);
@@ -332,7 +329,6 @@ export default function App() {
 
     try {
       const results = await searchPlaces(trimmedQuery, {
-        language,
         origin: routePlan.origin.coordinate,
         signal: controller.signal,
       });
@@ -348,9 +344,9 @@ export default function App() {
         return;
       }
       setSearchState("error");
-      setSearchError(error instanceof Error ? error.message : copy.route.searchFailed);
+      setSearchError(error instanceof Error ? error.message : t("route.searchFailed"));
     }
-  }, [copy.route.searchFailed, language, query, routePlan.origin.coordinate]);
+  }, [query, routePlan.origin.coordinate, t]);
 
   const handleSelectPlace = useCallback((place: SearchResult) => {
     applyPlaceToRouteTarget(place, activeRouteTarget);
@@ -365,9 +361,9 @@ export default function App() {
       setOrigin(nextOrigin);
       setRecentSearches((current) => addRecentSearch(nextOrigin, current));
     } catch (error) {
-      setLocationError(error instanceof Error ? error.message : copy.route.locationDenied);
+      setLocationError(error instanceof Error ? error.message : t("route.locationDenied"));
     }
-  }, [copy.route.locationDenied]);
+  }, [t]);
 
   const handleRouteSubmit = useCallback(async () => {
     routeAbortRef.current?.abort();
@@ -378,7 +374,6 @@ export default function App() {
 
     try {
       const nextRoute = await getRoute(routePlan.origin.coordinate, selectedPlace.coordinate, mode, {
-        language,
         waypoints: waypoints.map((waypoint) => waypoint.coordinate),
         signal: controller.signal,
       });
@@ -389,9 +384,9 @@ export default function App() {
         return;
       }
       setRouteState("error");
-      setRouteError(error instanceof Error ? error.message : copy.route.routeFailed);
+      setRouteError(error instanceof Error ? error.message : t("route.routeFailed"));
     }
-  }, [copy.route.routeFailed, language, mode, routePlan.origin.coordinate, selectedPlace.coordinate, waypoints]);
+  }, [mode, routePlan.origin.coordinate, selectedPlace.coordinate, t, waypoints]);
 
   const handleRailSelect = useCallback((panel: PanelId) => {
     setActiveRail(panel);
@@ -406,7 +401,6 @@ export default function App() {
       >
         <AppRail
           active={activeRail}
-          language={language}
           railCollapsed={railCollapsed}
           onSelect={handleRailSelect}
           onToggleRail={() => setRailCollapsed((current) => !current)}
@@ -424,7 +418,6 @@ export default function App() {
           locationError={locationError}
           activePanel={activeRail}
           activeLayer={activeLayer}
-          language={language}
           themePreference={themePreference}
           colorScheme={colorScheme}
           routeDrafts={routeDrafts}
@@ -450,7 +443,6 @@ export default function App() {
         />
         <MapCanvas
           activeLayer={activeLayer}
-          language={language}
           plan={routePlan}
           selectedPlace={selectedPlace}
           onCenterChange={handleCenterChange}
@@ -458,7 +450,7 @@ export default function App() {
           railCollapsed={railCollapsed}
           panelOpen={panelOpen}
         />
-        <div className="layer-switcher" aria-label={copy.layers.baseMap}>
+        <div className="layer-switcher" aria-label={t("layers.baseMap")}>
           {(["standard", "terrain", "transit"] as const).map((layer) => (
             <button
               key={layer}
@@ -466,16 +458,16 @@ export default function App() {
               type="button"
               onClick={() => setActiveLayer(layer)}
             >
-              {getLayerLabel(language, layer)}
+              {t(`layers.${layer}`)}
             </button>
           ))}
         </div>
         <span className="sr-only" aria-live="polite">
           {lastViewport
-            ? `${copy.map.centered} ${lastViewport.center.lat.toFixed(4)}, ${lastViewport.center.lng.toFixed(
+            ? `${t("map.centered")} ${lastViewport.center.lat.toFixed(4)}, ${lastViewport.center.lng.toFixed(
                 4,
               )}, zoom ${lastViewport.zoom.toFixed(1)}`
-            : copy.map.ready}
+            : t("map.ready")}
         </span>
       </main>
     </TooltipProvider>

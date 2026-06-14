@@ -2,13 +2,12 @@ import maplibregl, { GeoJSONSource, Map as MapLibreMap, Marker } from "maplibre-
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Compass, Crosshair, Layers, LocateFixed, Minus, Plus } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { DEFAULT_CENTER, osmRasterStyle } from "../config/mapServices";
-import { translations } from "../i18n";
-import type { Language, LayerId, LngLat, RoutePlan, SearchResult } from "../types";
+import type { LayerId, LngLat, RoutePlan, SearchResult } from "../types";
 
 type MapCanvasProps = {
   activeLayer: LayerId;
-  language: Language;
   plan: RoutePlan;
   selectedPlace: SearchResult;
   onCenterChange: (center: LngLat, zoom: number) => void;
@@ -19,7 +18,6 @@ type MapCanvasProps = {
 
 export function MapCanvas({
   activeLayer,
-  language,
   plan,
   selectedPlace,
   onCenterChange,
@@ -27,7 +25,7 @@ export function MapCanvas({
   railCollapsed,
   panelOpen,
 }: MapCanvasProps) {
-  const copy = translations[language];
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const markersRef = useRef<Marker[]>([]);
@@ -190,7 +188,7 @@ export function MapCanvas({
   };
 
   return (
-    <section className={`map-area layer-${activeLayer}`} aria-label={copy.map.interactive}>
+    <section className={`map-area layer-${activeLayer}`} aria-label={t("map.interactive")}>
       <div className="map-frame" ref={containerRef} />
       <svg className="route-overlay" aria-hidden="true">
         {routePath ? (
@@ -200,32 +198,32 @@ export function MapCanvas({
           </>
         ) : null}
       </svg>
-      <div className="map-toolbar" aria-label={copy.map.controls}>
-        <button type="button" aria-label={copy.map.resetCompass}>
+      <div className="map-toolbar" aria-label={t("map.controls")}>
+        <button type="button" aria-label={t("map.resetCompass")}>
           <Compass size={18} aria-hidden="true" />
         </button>
-        <div className="toolbar-group" role="group" aria-label={copy.map.zoomControls}>
-          <button type="button" aria-label={copy.map.zoomIn} onClick={zoomIn}>
+        <div className="toolbar-group" role="group" aria-label={t("map.zoomControls")}>
+          <button type="button" aria-label={t("map.zoomIn")} onClick={zoomIn}>
             <Plus size={19} aria-hidden="true" />
           </button>
-          <button type="button" aria-label={copy.map.zoomOut} onClick={zoomOut}>
+          <button type="button" aria-label={t("map.zoomOut")} onClick={zoomOut}>
             <Minus size={19} aria-hidden="true" />
           </button>
         </div>
-        <button type="button" aria-label={copy.map.currentLocation} onClick={recenter}>
+        <button type="button" aria-label={t("map.currentLocation")} onClick={recenter}>
           <LocateFixed size={18} aria-hidden="true" />
         </button>
-        <button type="button" aria-label={copy.map.recenterRoute}>
+        <button type="button" aria-label={t("map.recenterRoute")}>
           <Crosshair size={18} aria-hidden="true" />
         </button>
-        <button type="button" aria-label={copy.layers.open}>
+        <button type="button" aria-label={t("layers.open")}>
           <Layers size={18} aria-hidden="true" />
         </button>
       </div>
       <footer className="map-status">
         <span className="online-dot" aria-hidden="true" />
-        <span>{copy.map.online}</span>
-        <span>{copy.map.mapData}</span>
+        <span>{t("map.online")}</span>
+        <span>{t("map.mapData")}</span>
         <strong>
           {center.lat.toFixed(4)}° N, {Math.abs(center.lng).toFixed(4)}° W
         </strong>
