@@ -4,7 +4,6 @@ import { AppRail } from "./components/AppRail";
 import { MapCanvas } from "./components/MapCanvas";
 import { RoutePanel } from "./components/RoutePanel";
 import { TooltipProvider } from "./components/ui/tooltip";
-import { DEFAULT_CENTER } from "./config/mapServices";
 import i18next, { DEFAULT_LANGUAGE } from "./i18n/index";
 import { searchPlaces } from "./services/geocoding";
 import { locateCurrentPosition } from "./services/location";
@@ -26,15 +25,7 @@ import type {
 type SearchState = "idle" | "loading" | "success" | "empty" | "error";
 type RouteState = "idle" | "loading" | "success" | "error";
 
-const EMPTY_ORIGIN: SearchResult = {
-  id: "my-location",
-  name: "",
-  address: "",
-  coordinate: DEFAULT_CENTER,
-  type: "location",
-};
-
-const EMPTY_DESTINATION: SearchResult = {
+const EMPTY_PLACE: SearchResult = {
   id: "",
   name: "",
   address: "",
@@ -70,8 +61,8 @@ export default function App() {
   const [themePreference, setThemePreference] = useState<ThemePreference>("system");
   const [query, setQuery] = useState("");
   const [mode, setMode] = useState<TravelMode>("driving");
-  const [origin, setOrigin] = useState<SearchResult>(EMPTY_ORIGIN);
-  const [selectedPlace, setSelectedPlace] = useState<SearchResult>(EMPTY_DESTINATION);
+  const [origin, setOrigin] = useState<SearchResult>(EMPTY_PLACE);
+  const [selectedPlace, setSelectedPlace] = useState<SearchResult>(EMPTY_PLACE);
   const [waypoints, setWaypoints] = useState<SearchResult[]>([]);
   const [routeDrafts, setRouteDrafts] = useState({
     origin: "",
