@@ -79,18 +79,6 @@ export function AppRail({ active, railCollapsed, onSelect, onToggleRail }: AppRa
           <span>{t("nav.recents")}</span>
           <Clock3 data-icon="inline-end" aria-hidden="true" />
         </Button>
-        <Button
-          className="rail-recent-item"
-          data-active={active === "recents"}
-          variant="ghost"
-          type="button"
-          onClick={() => onSelect("recents")}
-        >
-          <span className="rail-recent-icon">
-            <MapPinned aria-hidden="true" />
-          </span>
-          <span>{t("seed.recentsItem")}</span>
-        </Button>
       </section>
 
       <div className="rail-footer">

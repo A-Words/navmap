@@ -4,7 +4,7 @@ import { AppRail } from "./components/AppRail";
 import { MapCanvas } from "./components/MapCanvas";
 import { RoutePanel } from "./components/RoutePanel";
 import { TooltipProvider } from "./components/ui/tooltip";
-import { getSeedRouteData } from "./data/seedRoute";
+import { DEFAULT_CENTER } from "./config/mapServices";
 import i18next, { DEFAULT_LANGUAGE } from "./i18n/index";
 import { searchPlaces } from "./services/geocoding";
 import { locateCurrentPosition } from "./services/location";
@@ -26,7 +26,22 @@ import type {
 type SearchState = "idle" | "loading" | "success" | "empty" | "error";
 type RouteState = "idle" | "loading" | "success" | "error";
 
-const DEFAULT_SEED = getSeedRouteData(DEFAULT_LANGUAGE);
+const EMPTY_ORIGIN: SearchResult = {
+  id: "my-location",
+  name: "",
+  address: "",
+  coordinate: DEFAULT_CENTER,
+  type: "location",
+};
+
+const EMPTY_ROUTE: RouteSummary = {
+  distanceLabel: "",
+  durationLabel: "",
+  description: "",
+  geometry: [],
+  instructions: [],
+};
+
 const DARK_SCHEME_QUERY = "(prefers-color-scheme: dark)";
 
 function getSystemColorScheme(): ColorScheme {
@@ -45,23 +60,23 @@ export default function App() {
   const [activeLayer, setActiveLayer] = useState<LayerId>("standard");
   const [systemColorScheme, setSystemColorScheme] = useState<ColorScheme>(() => getSystemColorScheme());
   const [themePreference, setThemePreference] = useState<ThemePreference>("system");
-  const [query, setQuery] = useState("联合广场");
+  const [query, setQuery] = useState("");
   const [mode, setMode] = useState<TravelMode>("driving");
-  const [origin, setOrigin] = useState<SearchResult>(DEFAULT_SEED.origin);
-  const [selectedPlace, setSelectedPlace] = useState<SearchResult>(DEFAULT_SEED.destination);
-  const [waypoints, setWaypoints] = useState<SearchResult[]>(DEFAULT_SEED.routePlan.waypoints);
+  const [origin, setOrigin] = useState<SearchResult>(EMPTY_ORIGIN);
+  const [selectedPlace, setSelectedPlace] = useState<SearchResult>(EMPTY_ORIGIN);
+  const [waypoints, setWaypoints] = useState<SearchResult[]>([]);
   const [routeDrafts, setRouteDrafts] = useState({
-    origin: DEFAULT_SEED.origin.name,
-    destination: DEFAULT_SEED.destination.name,
-    waypoints: DEFAULT_SEED.routePlan.waypoints.map((waypoint) => waypoint.name),
+    origin: "",
+    destination: "",
+    waypoints: [] as string[],
   });
   const [activeRouteTarget, setActiveRouteTarget] = useState<RoutePointTarget>("destination");
-  const [route, setRoute] = useState<RouteSummary>(DEFAULT_SEED.routePlan.route);
+  const [route, setRoute] = useState<RouteSummary>(EMPTY_ROUTE);
   const [routeState, setRouteState] = useState<RouteState>("idle");
   const [routeError, setRouteError] = useState<string | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
-  const [searchResults, setSearchResults] = useState<SearchResult[]>(DEFAULT_SEED.searchResults);
-  const [recentSearches, setRecentSearches] = useState<SearchResult[]>(DEFAULT_SEED.recentSearches);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [recentSearches, setRecentSearches] = useState<SearchResult[]>([]);
   const [searchState, setSearchState] = useState<SearchState>("idle");
   const [searchError, setSearchError] = useState<string | null>(null);
   const [lastViewport, setLastViewport] = useState<{ center: LngLat; zoom: number } | null>(null);
@@ -135,43 +150,6 @@ export default function App() {
 
     return () => {
       isMounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleLanguageChanged = (lng: string) => {
-      const seed = getSeedRouteData(lng);
-      setQuery(lng === "zh" ? "联合广场" : "Union Square");
-      setOrigin((current) => (current.id === "my-location" ? seed.origin : current));
-      setSelectedPlace((current) => seed.searchResults.find((place) => place.id === current.id) || current);
-      setWaypoints(seed.routePlan.waypoints);
-      setRouteDrafts({
-        origin: seed.origin.name,
-        destination: seed.destination.name,
-        waypoints: seed.routePlan.waypoints.map((waypoint) => waypoint.name),
-      });
-      setSearchResults((current) =>
-        current.every((place) => seed.searchResults.some((seedPlace) => seedPlace.id === place.id))
-          ? seed.searchResults
-          : current,
-      );
-      setRecentSearches((current) =>
-        current.every((place) => seed.recentSearches.some((seedPlace) => seedPlace.id === place.id))
-          ? seed.recentSearches
-          : current,
-      );
-      setRoute((current) =>
-        current.instructions.every((instruction) =>
-          seed.routePlan.route.instructions.some((seedInstruction) => seedInstruction.id === instruction.id),
-        )
-          ? seed.routePlan.route
-          : current,
-      );
-    };
-
-    i18next.on("languageChanged", handleLanguageChanged);
-    return () => {
-      i18next.off("languageChanged", handleLanguageChanged);
     };
   }, []);
 

@@ -143,23 +143,5 @@
     "kilometers": "km",
     "minutes": "min",
     "hours": "hr"
-  },
-  "seed": {
-    "myLocation": "My Location",
-    "myLocationAddress": "7th Street, San Francisco, CA",
-    "unionSquare": "Union Square",
-    "unionSquareAddress": "San Francisco, CA 94108, USA",
-    "unionSquarePark": "Union Square Park",
-    "unionSquareParkAddress": "333 Post St, San Francisco, CA 94108, USA",
-    "unionSquareGarage": "Union Square Garage",
-    "unionSquareGarageAddress": "333 Post St, San Francisco, CA 94108, USA",
-    "recentsItem": "Baiyun Airport Zhaoqing Terminal",
-    "routeDescription": "via US-101 S and I-80 E",
-    "headNortheast": "Head northeast on 7th St",
-    "turnRightBrannan": "Turn right onto Brannan St",
-    "turnLeftKing": "Turn left onto King St",
-    "mergeUS101": "Use the ramp to merge onto US-101 S",
-    "keepRightI80": "Keep right to continue on I-80 E",
-    "exit2C": "Take exit 2C toward 7th St"
   }
 }

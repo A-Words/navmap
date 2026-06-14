@@ -143,23 +143,5 @@
     "kilometers": "公里",
     "minutes": "分钟",
     "hours": "小时"
-  },
-  "seed": {
-    "myLocation": "我的位置",
-    "myLocationAddress": "旧金山 7th Street",
-    "unionSquare": "联合广场",
-    "unionSquareAddress": "美国加利福尼亚州旧金山 94108",
-    "unionSquarePark": "联合广场公园",
-    "unionSquareParkAddress": "旧金山 Post St 333 号",
-    "unionSquareGarage": "联合广场车库",
-    "unionSquareGarageAddress": "旧金山 Post St 333 号",
-    "recentsItem": "白云机场肇庆候机楼",
-    "routeDescription": "经由 US-101 S 和 I-80 E",
-    "headNortheast": "沿 7th St 向东北行驶",
-    "turnRightBrannan": "右转进入 Brannan St",
-    "turnLeftKing": "左转进入 King St",
-    "mergeUS101": "通过匝道汇入 US-101 S",
-    "keepRightI80": "靠右继续沿 I-80 E 行驶",
-    "exit2C": "从 2C 出口驶向 7th St"
   }
 }
