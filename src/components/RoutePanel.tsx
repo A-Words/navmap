@@ -19,6 +19,7 @@ import {
   Search,
   Share2,
   SlidersHorizontal,
+  Star,
   TrainFront,
   Utensils,
   X,
@@ -467,6 +468,7 @@ function SearchSection({
 }) {
   const { t } = useTranslation();
   const visibleResults = searchResults.length ? searchResults : selectedPlace.name ? [selectedPlace] : [];
+  const [featuredPlace, ...resultRows] = visibleResults;
 
   return (
     <section className="search-section-content" aria-label={compact ? t("route.searchResults") : t("route.places")}>
@@ -493,8 +495,10 @@ function SearchSection({
 
       {visibleResults.length ? (
         <div className="search-results-card">
+          {featuredPlace ? <FeaturedSearchResult place={featuredPlace} onSelectPlace={onSelectPlace} /> : null}
+          {resultRows.length ? <Separator /> : null}
           <div className="place-list">
-            {visibleResults.map((place) => (
+            {resultRows.map((place) => (
               <SearchResultRow key={place.id} place={place} onSelectPlace={onSelectPlace} />
             ))}
           </div>
@@ -652,6 +656,32 @@ function InfoRow({ title, description, value }: { title: string; description: st
   );
 }
 
+function FeaturedSearchResult({ place, onSelectPlace }: { place: SearchResult; onSelectPlace: (place: SearchResult) => void }) {
+  const { i18n, t } = useTranslation();
+  const primaryMeta = formatPlacePrimaryMeta(place, i18n.language);
+  const secondaryMeta = formatPlaceSecondaryMeta(place);
+  const actions = getFeaturedActions(getPlaceKind(place), t);
+
+  return (
+    <article className="featured-search-result" aria-label={place.name}>
+      <button className="featured-search-main" type="button" onClick={() => onSelectPlace(place)}>
+        <PlaceGlyph place={place} featured />
+        <span className="place-row-copy">
+          <strong>{place.name}</strong>
+          {secondaryMeta || primaryMeta ? <small>{secondaryMeta || primaryMeta}</small> : null}
+        </span>
+      </button>
+      <div className="featured-search-actions" role="group" aria-label={place.name}>
+        {actions.map((action) => (
+          <Button key={action} variant="secondary" type="button" onClick={() => onSelectPlace(place)}>
+            {action}
+          </Button>
+        ))}
+      </div>
+    </article>
+  );
+}
+
 function SearchResultRow({ place, onSelectPlace }: { place: SearchResult; onSelectPlace: (place: SearchResult) => void }) {
   const { i18n } = useTranslation();
   const primaryMeta = formatPlacePrimaryMeta(place, i18n.language);
@@ -659,42 +689,58 @@ function SearchResultRow({ place, onSelectPlace }: { place: SearchResult; onSele
 
   return (
     <Button className="place-row apple-place-row" variant="ghost" type="button" onClick={() => onSelectPlace(place)}>
+      <PlaceGlyph place={place} />
       <span className="place-row-copy">
         <strong>{place.name}</strong>
         {primaryMeta ? <small>{primaryMeta}</small> : null}
         {secondaryMeta ? <small className="place-row-secondary">{secondaryMeta}</small> : null}
+        <PlaceBadges place={place} />
       </span>
-      <PlaceThumbnail place={place} />
     </Button>
   );
 }
 
-function PlaceThumbnail({ place }: { place: SearchResult }) {
-  const { i18n } = useTranslation();
+function PlaceGlyph({ place, featured = false }: { place: SearchResult; featured?: boolean }) {
   const kind = getPlaceKind(place);
   const Icon = getPlaceIcon(place);
-  const label = getThumbnailLabel(kind, i18n.language);
 
   return (
-    <span className={`place-thumbnail ${kind}`} aria-hidden="true">
-      {label ? (
-        <span>{label}</span>
-      ) : (
-        <span>
-          <Icon aria-hidden="true" />
-        </span>
-      )}
+    <span className={`place-glyph ${kind} ${featured ? "featured" : ""}`} aria-hidden="true">
+      <Icon aria-hidden="true" />
     </span>
   );
 }
 
-type PlaceKind = "station" | "entrance" | "parking" | "food" | "coffee" | "building" | "place";
+function PlaceBadges({ place }: { place: SearchResult }) {
+  const { t } = useTranslation();
+  const badges = getPlaceBadges(getPlaceKind(place), t);
+
+  if (!badges.length) {
+    return null;
+  }
+
+  return (
+    <span className="place-badges" aria-hidden="true">
+      {badges.map((badge) => (
+        <span key={badge.label} className={`place-badge ${badge.tone}`}>
+          {badge.label}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+type PlaceKind = "landmark" | "station" | "entrance" | "parking" | "food" | "coffee" | "building" | "place";
+type PlaceBadge = { label: string; tone: "red" | "orange" | "blue" | "green" | "neutral" };
 
 function getPlaceIcon(place: SearchResult) {
   const kind = getPlaceKind(place);
 
   if (kind === "station") {
     return TrainFront;
+  }
+  if (kind === "landmark") {
+    return Star;
   }
   if (kind === "parking") {
     return ParkingCircle;
@@ -733,16 +779,40 @@ function getPlaceKind(place: SearchResult): PlaceKind {
   if (/(building|commercial|office|shop|mall|plaza|广场|楼|大厦)/i.test(type)) {
     return "building";
   }
+  if (/(tower|attraction|tourism|viewpoint|monument|museum|景点|塔$)/i.test(type)) {
+    return "landmark";
+  }
 
   return "place";
 }
 
-function getThumbnailLabel(kind: PlaceKind, language: string) {
-  if (kind !== "entrance") {
-    return null;
+function getFeaturedActions(kind: PlaceKind, t: (key: string) => string) {
+  if (kind === "landmark" || kind === "station" || kind === "building") {
+    return [t("search.nearbyParking"), t("search.entrance")];
   }
 
-  return language.startsWith("zh") ? "入口" : "Entry";
+  return [t("search.directions"), t("search.details")];
+}
+
+function getPlaceBadges(kind: PlaceKind, t: (key: string) => string): PlaceBadge[] {
+  if (kind === "station" || kind === "entrance") {
+    return [
+      { label: "Y", tone: "red" },
+      { label: "3", tone: "orange" },
+      { label: "APM", tone: "blue" },
+    ];
+  }
+  if (kind === "parking") {
+    return [{ label: "P", tone: "blue" }];
+  }
+  if (kind === "coffee") {
+    return [{ label: t("search.badgeCoffee"), tone: "orange" }];
+  }
+  if (kind === "food") {
+    return [{ label: t("search.badgeFood"), tone: "orange" }];
+  }
+
+  return [];
 }
 
 function formatPlacePrimaryMeta(place: SearchResult, language: string) {
@@ -756,6 +826,7 @@ function formatPlaceSecondaryMeta(place: SearchResult) {
 function getPlaceTypeLabel(place: SearchResult, language: string) {
   const kind = getPlaceKind(place);
   const zhLabels: Record<PlaceKind, string> = {
+    landmark: "景点",
     station: "车站",
     entrance: "车站入口",
     parking: "停车场",
@@ -765,6 +836,7 @@ function getPlaceTypeLabel(place: SearchResult, language: string) {
     place: "地点",
   };
   const enLabels: Record<PlaceKind, string> = {
+    landmark: "Landmark",
     station: "Station",
     entrance: "Station entrance",
     parking: "Parking",

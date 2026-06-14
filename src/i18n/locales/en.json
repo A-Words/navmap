@@ -60,7 +60,11 @@
     "searching": "Searching",
     "clearInput": "Clear search",
     "directions": "Directions",
-    "details": "Details"
+    "details": "Details",
+    "nearbyParking": "Parking",
+    "entrance": "Entrance",
+    "badgeCoffee": "Coffee",
+    "badgeFood": "Food"
   },
   "layers": {
     "baseMap": "Base map",
