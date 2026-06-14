@@ -326,6 +326,21 @@ export default function App() {
     }
   }, [query, routePlan.origin.coordinate, t]);
 
+  useEffect(() => {
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) {
+      setSearchResults([]);
+      setSearchState("idle");
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      handleSearchSubmit();
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [query, handleSearchSubmit]);
+
   const handleSelectPlace = useCallback((place: SearchResult) => {
     applyPlaceToRouteTarget(place, activeRouteTarget);
     setRecentSearches((current) => addRecentSearch(place, current));
@@ -401,7 +416,6 @@ export default function App() {
           routeDrafts={routeDrafts}
           activeRouteTarget={activeRouteTarget}
           onQueryChange={setQuery}
-          onSearchSubmit={handleSearchSubmit}
           onRouteSubmit={handleRouteSubmit}
           onModeChange={setMode}
           onSelectPlace={handleSelectPlace}

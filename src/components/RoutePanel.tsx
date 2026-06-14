@@ -73,7 +73,6 @@ type RoutePanelProps = {
   routeDrafts: { origin: string; destination: string; waypoints: string[] };
   activeRouteTarget: RoutePointTarget;
   onQueryChange: (value: string) => void;
-  onSearchSubmit: () => void;
   onRouteSubmit: () => void;
   onModeChange: (mode: TravelMode) => void;
   onSelectPlace: (place: SearchResult) => void;
@@ -107,7 +106,6 @@ export function RoutePanel({
   routeDrafts,
   activeRouteTarget,
   onQueryChange,
-  onSearchSubmit,
   onRouteSubmit,
   onModeChange,
   onSelectPlace,
@@ -157,7 +155,6 @@ export function RoutePanel({
               searchState={searchState}
               searchError={searchError}
               onQueryChange={onQueryChange}
-              onSearchSubmit={onSearchSubmit}
               onSelectPlace={onSelectPlace}
             />
           ) : null}
@@ -383,7 +380,6 @@ function SearchView({
   searchState,
   searchError,
   onQueryChange,
-  onSearchSubmit,
   onSelectPlace,
 }: {
   selectedPlace: SearchResult;
@@ -392,7 +388,6 @@ function SearchView({
   searchState: SearchState;
   searchError: string | null;
   onQueryChange: (value: string) => void;
-  onSearchSubmit: () => void;
   onSelectPlace: (place: SearchResult) => void;
 }) {
   return (
@@ -403,7 +398,6 @@ function SearchView({
       searchState={searchState}
       searchError={searchError}
       onQueryChange={onQueryChange}
-      onSearchSubmit={onSearchSubmit}
       onSelectPlace={onSelectPlace}
     />
   );
@@ -454,7 +448,6 @@ function SearchSection({
   searchState,
   searchError,
   onQueryChange,
-  onSearchSubmit,
   onSelectPlace,
   compact = false,
 }: {
@@ -464,7 +457,6 @@ function SearchSection({
   searchState: SearchState;
   searchError: string | null;
   onQueryChange: (value: string) => void;
-  onSearchSubmit: () => void;
   onSelectPlace: (place: SearchResult) => void;
   compact?: boolean;
 }) {
@@ -476,23 +468,14 @@ function SearchSection({
         <CardTitle>{compact ? t("route.searchResults") : t("route.places")}</CardTitle>
       </CardHeader>
       <CardContent className="search-section-content">
-        <form
-          className="panel-search-form"
-          onSubmit={(event) => {
-            event.preventDefault();
-            onSearchSubmit();
-          }}
-        >
+        <div className="panel-search-form">
           <Search aria-hidden="true" />
           <Input
             value={activeQuery}
             onChange={(event) => onQueryChange(event.target.value)}
             placeholder={t("search.inputPlaceholder")}
           />
-          <Button type="submit" disabled={searchState === "loading"}>
-            {searchState === "loading" ? t("search.searching") : t("search.submit")}
-          </Button>
-        </form>
+        </div>
         <PlaceDetail place={selectedPlace} />
         {searchState === "error" ? <p className="panel-message">{searchError}</p> : null}
         {searchState === "empty" ? <p className="panel-message">{t("route.noPlaces")}</p> : null}
