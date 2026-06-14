@@ -986,6 +986,197 @@ button {
   line-height: 1.5;
 }
 
+.app-shell[data-color-scheme="dark"] {
+  color: #d7e3f3;
+  background: #07111f;
+}
+
+.app-shell[data-color-scheme="dark"] .app-rail,
+.app-shell[data-color-scheme="dark"] .route-panel {
+  border-color: #26364c;
+  background: rgba(11, 20, 34, 0.96);
+  box-shadow: 8px 0 26px rgba(0, 0, 0, 0.28);
+}
+
+.app-shell[data-color-scheme="dark"] .brand {
+  border-color: #223047;
+}
+
+.app-shell[data-color-scheme="dark"] .brand-name,
+.app-shell[data-color-scheme="dark"] .panel-header h1,
+.app-shell[data-color-scheme="dark"] .panel-section h2,
+.app-shell[data-color-scheme="dark"] .route-options-panel h2,
+.app-shell[data-color-scheme="dark"] .route-card-metrics,
+.app-shell[data-color-scheme="dark"] .place-detail strong,
+.app-shell[data-color-scheme="dark"] .layer-option-row strong,
+.app-shell[data-color-scheme="dark"] .setting-row strong,
+.app-shell[data-color-scheme="dark"] .about-stat strong {
+  color: #edf4ff;
+}
+
+.app-shell[data-color-scheme="dark"] .rail-item,
+.app-shell[data-color-scheme="dark"] .collapse-button,
+.app-shell[data-color-scheme="dark"] .drag-dots,
+.app-shell[data-color-scheme="dark"] .swap-button,
+.app-shell[data-color-scheme="dark"] .instruction-row,
+.app-shell[data-color-scheme="dark"] .place-row,
+.app-shell[data-color-scheme="dark"] .recent-row,
+.app-shell[data-color-scheme="dark"] .mode-select,
+.app-shell[data-color-scheme="dark"] .mode-select select,
+.app-shell[data-color-scheme="dark"] .route-option-toggle,
+.app-shell[data-color-scheme="dark"] .route-field input,
+.app-shell[data-color-scheme="dark"] .inline-search input,
+.app-shell[data-color-scheme="dark"] .map-toolbar button {
+  color: #c8d4e5;
+}
+
+.app-shell[data-color-scheme="dark"] .panel-header p,
+.app-shell[data-color-scheme="dark"] .route-card p,
+.app-shell[data-color-scheme="dark"] .route-card span,
+.app-shell[data-color-scheme="dark"] .route-options-panel p,
+.app-shell[data-color-scheme="dark"] .panel-hint,
+.app-shell[data-color-scheme="dark"] .instruction-row small,
+.app-shell[data-color-scheme="dark"] .place-row small,
+.app-shell[data-color-scheme="dark"] .instruction-row em,
+.app-shell[data-color-scheme="dark"] .place-row em,
+.app-shell[data-color-scheme="dark"] .place-detail p,
+.app-shell[data-color-scheme="dark"] .place-detail small,
+.app-shell[data-color-scheme="dark"] .panel-message,
+.app-shell[data-color-scheme="dark"] .layer-option-row small,
+.app-shell[data-color-scheme="dark"] .setting-row small,
+.app-shell[data-color-scheme="dark"] .about-stat span,
+.app-shell[data-color-scheme="dark"] .about-panel p {
+  color: #8fa2ba;
+}
+
+.app-shell[data-color-scheme="dark"] .route-field,
+.app-shell[data-color-scheme="dark"] .remove-waypoint-button,
+.app-shell[data-color-scheme="dark"] .mode-select,
+.app-shell[data-color-scheme="dark"] .route-card,
+.app-shell[data-color-scheme="dark"] .inline-search,
+.app-shell[data-color-scheme="dark"] .place-detail,
+.app-shell[data-color-scheme="dark"] .layer-panel,
+.app-shell[data-color-scheme="dark"] .settings-panel,
+.app-shell[data-color-scheme="dark"] .about-panel,
+.app-shell[data-color-scheme="dark"] .panel-segmented,
+.app-shell[data-color-scheme="dark"] .language-toggle,
+.app-shell[data-color-scheme="dark"] .route-options-panel {
+  border-color: #28384f;
+  background: #111c2d;
+}
+
+.app-shell[data-color-scheme="dark"] .route-field.is-active {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.22);
+}
+
+.app-shell[data-color-scheme="dark"] .instruction-row,
+.app-shell[data-color-scheme="dark"] .place-row,
+.app-shell[data-color-scheme="dark"] .recent-row,
+.app-shell[data-color-scheme="dark"] .layer-option-row,
+.app-shell[data-color-scheme="dark"] .setting-row,
+.app-shell[data-color-scheme="dark"] .about-stat {
+  border-color: #25354b;
+}
+
+.app-shell[data-color-scheme="dark"] .route-card {
+  border-left-color: #60a5fa;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.24);
+}
+
+.app-shell[data-color-scheme="dark"] .map-area {
+  background: #08111f;
+}
+
+.app-shell[data-color-scheme="dark"] .map-frame {
+  filter: invert(0.9) hue-rotate(180deg) saturate(0.72) brightness(0.78) contrast(1.05);
+}
+
+.app-shell[data-color-scheme="dark"] .map-area.layer-terrain .map-frame {
+  filter: invert(0.9) hue-rotate(180deg) saturate(0.62) brightness(0.76) contrast(1.04) sepia(0.08);
+}
+
+.app-shell[data-color-scheme="dark"] .map-area.layer-transit .map-frame {
+  filter: invert(0.9) hue-rotate(188deg) saturate(0.86) brightness(0.8) contrast(1.06);
+}
+
+.app-shell[data-color-scheme="dark"] .route-overlay-casing {
+  stroke: rgba(12, 20, 34, 0.96);
+}
+
+.app-shell[data-color-scheme="dark"] .route-overlay-line {
+  stroke: #60a5fa;
+}
+
+.app-shell[data-color-scheme="dark"] .map-top-search,
+.app-shell[data-color-scheme="dark"] .map-toolbar button,
+.app-shell[data-color-scheme="dark"] .map-status,
+.app-shell[data-color-scheme="dark"] .layer-switcher {
+  color: #c8d4e5;
+  border-color: rgba(66, 82, 108, 0.86);
+  background: rgba(13, 24, 39, 0.92);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.28);
+}
+
+.app-shell[data-color-scheme="dark"] .map-top-search kbd {
+  color: #9badc4;
+  border-color: #33445d;
+  background: #18263a;
+}
+
+.app-shell[data-color-scheme="dark"] .map-status strong {
+  color: #d7e3f3;
+}
+
+.app-shell[data-color-scheme="dark"] .maplibregl-ctrl-scale {
+  color: #d7e3f3;
+  border-color: #d7e3f3 !important;
+  background: rgba(13, 24, 39, 0.82);
+}
+
+.app-shell[data-color-scheme="dark"] .layer-status {
+  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.16);
+}
+
+.app-shell[data-color-scheme="dark"] .place-row:hover,
+.app-shell[data-color-scheme="dark"] .recent-row:hover,
+.app-shell[data-color-scheme="dark"] .rail-item:hover,
+.app-shell[data-color-scheme="dark"] .map-toolbar button:hover,
+.app-shell[data-color-scheme="dark"] .layer-switcher button:hover {
+  background: rgba(96, 165, 250, 0.11);
+}
+
+.app-shell[data-color-scheme="dark"] .rail-item.is-active,
+.app-shell[data-color-scheme="dark"] .waypoint-row button,
+.app-shell[data-color-scheme="dark"] .section-heading-row button,
+.app-shell[data-color-scheme="dark"] .route-card button,
+.app-shell[data-color-scheme="dark"] .layer-switcher button.is-active,
+.app-shell[data-color-scheme="dark"] .panel-segmented button.is-active,
+.app-shell[data-color-scheme="dark"] .language-toggle button.is-active {
+  color: #ffffff;
+}
+
+.app-shell[data-color-scheme="dark"] .rail-item.is-active {
+  color: #60a5fa;
+}
+
+.app-shell[data-color-scheme="dark"] .rail-item.is-active::before,
+.app-shell[data-color-scheme="dark"] .layer-switcher button.is-active,
+.app-shell[data-color-scheme="dark"] .panel-segmented button.is-active,
+.app-shell[data-color-scheme="dark"] .language-toggle button.is-active,
+.app-shell[data-color-scheme="dark"] .go-button,
+.app-shell[data-color-scheme="dark"] .inline-search button,
+.app-shell[data-color-scheme="dark"] .place-detail-pin {
+  background: #3b82f6;
+}
+
+.app-shell[data-color-scheme="dark"] .layer-switcher button,
+.app-shell[data-color-scheme="dark"] .panel-segmented button,
+.app-shell[data-color-scheme="dark"] .language-toggle button {
+  color: #9badc4;
+}
+
 @media (max-width: 1100px) {
   .app-shell {
     grid-template-columns: 76px 318px minmax(0, 1fr);

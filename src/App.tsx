@@ -9,6 +9,7 @@ import { locateCurrentPosition } from "./services/location";
 import { getRoute } from "./services/routing";
 import { defaultSettings, loadSettings, saveSettings } from "./services/settings";
 import type {
+  ColorScheme,
   Language,
   LayerId,
   LngLat,
@@ -23,10 +24,20 @@ type SearchState = "idle" | "loading" | "success" | "empty" | "error";
 type RouteState = "idle" | "loading" | "success" | "error";
 
 const DEFAULT_SEED = getSeedRouteData(DEFAULT_LANGUAGE);
+const DARK_SCHEME_QUERY = "(prefers-color-scheme: dark)";
+
+function getSystemColorScheme(): ColorScheme {
+  if (typeof window === "undefined" || !window.matchMedia) {
+    return "light";
+  }
+
+  return window.matchMedia(DARK_SCHEME_QUERY).matches ? "dark" : "light";
+}
 
 export default function App() {
   const [activeRail, setActiveRail] = useState<PanelId>("route");
   const [activeLayer, setActiveLayer] = useState<LayerId>("standard");
+  const [colorScheme, setColorScheme] = useState<ColorScheme>(() => getSystemColorScheme());
   const [language, setLanguage] = useState<Language>(DEFAULT_LANGUAGE);
   const [query, setQuery] = useState("联合广场");
   const [mode, setMode] = useState<TravelMode>("driving");
@@ -64,6 +75,26 @@ export default function App() {
   );
 
   const copy = translations[language];
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(DARK_SCHEME_QUERY);
+    const updateColorScheme = () => setColorScheme(mediaQuery.matches ? "dark" : "light");
+
+    updateColorScheme();
+    mediaQuery.addEventListener("change", updateColorScheme);
+
+    return () => mediaQuery.removeEventListener("change", updateColorScheme);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset.colorScheme = colorScheme;
+    document.documentElement.style.colorScheme = colorScheme;
+
+    return () => {
+      delete document.documentElement.dataset.colorScheme;
+      document.documentElement.style.colorScheme = "";
+    };
+  }, [colorScheme]);
 
   useEffect(() => {
     let isMounted = true;
@@ -359,7 +390,7 @@ export default function App() {
   }, [copy.route.routeFailed, language, mode, routePlan.origin.coordinate, selectedPlace.coordinate, waypoints]);
 
   return (
-    <main className="app-shell">
+    <main className="app-shell" data-color-scheme={colorScheme}>
       <AppRail active={activeRail} language={language} onSelect={setActiveRail} />
       <RoutePanel
         plan={routePlan}

@@ -11,6 +11,8 @@ export type PanelId = "route" | "search" | "recents" | "layers" | "settings" | "
 
 export type Language = "zh" | "en";
 
+export type ColorScheme = "light" | "dark";
+
 export type RoutePointTarget = "origin" | "destination" | `waypoint-${number}`;
 
 export type SearchResult = {
