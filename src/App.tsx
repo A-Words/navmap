@@ -396,7 +396,6 @@ export default function App() {
   const handleRailSelect = useCallback((panel: PanelId) => {
     setActiveRail(panel);
     setPanelOpen(true);
-    setRailCollapsed(true);
   }, []);
 
   return (
