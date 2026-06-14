@@ -17,6 +17,7 @@ import {
 import type { RouteInstruction, RoutePlan, SearchResult, TravelMode } from "../types";
 
 type SearchState = "idle" | "loading" | "success" | "empty" | "error";
+type RouteState = "idle" | "loading" | "success" | "error";
 
 type RoutePanelProps = {
   plan: RoutePlan;
@@ -26,8 +27,11 @@ type RoutePanelProps = {
   activeQuery: string;
   searchState: SearchState;
   searchError: string | null;
+  routeState: RouteState;
+  routeError: string | null;
   onQueryChange: (value: string) => void;
   onSearchSubmit: () => void;
+  onRouteSubmit: () => void;
   onModeChange: (mode: TravelMode) => void;
   onSelectPlace: (place: SearchResult) => void;
 };
@@ -40,8 +44,11 @@ export function RoutePanel({
   activeQuery,
   searchState,
   searchError,
+  routeState,
+  routeError,
   onQueryChange,
   onSearchSubmit,
+  onRouteSubmit,
   onModeChange,
   onSelectPlace,
 }: RoutePanelProps) {
@@ -81,10 +88,16 @@ export function RoutePanel({
           </select>
           <ChevronDown size={16} aria-hidden="true" />
         </label>
-        <button className="go-button" type="button">
-          Go
+        <button
+          className="go-button"
+          type="button"
+          disabled={routeState === "loading"}
+          onClick={onRouteSubmit}
+        >
+          {routeState === "loading" ? "Routing" : "Go"}
         </button>
       </div>
+      {routeState === "error" ? <p className="panel-message">{routeError}</p> : null}
 
       <div className="route-card" aria-label="Active route summary">
         <div className="route-card-icon">

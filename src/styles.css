@@ -292,6 +292,12 @@ button {
   box-shadow: 0 10px 18px rgba(46, 120, 232, 0.24);
 }
 
+.go-button:disabled {
+  cursor: progress;
+  background: #8ab5f4;
+  box-shadow: none;
+}
+
 .route-card {
   display: grid;
   grid-template-columns: 30px minmax(0, 1fr) auto;

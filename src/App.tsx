@@ -4,9 +4,11 @@ import { MapCanvas } from "./components/MapCanvas";
 import { RoutePanel } from "./components/RoutePanel";
 import { seedRecentSearches, seedRoutePlan, seedSearchResults } from "./data/seedRoute";
 import { searchPlaces } from "./services/geocoding";
-import type { LayerId, LngLat, SearchResult, TravelMode } from "./types";
+import { getRoute } from "./services/routing";
+import type { LayerId, LngLat, RouteSummary, SearchResult, TravelMode } from "./types";
 
 type SearchState = "idle" | "loading" | "success" | "empty" | "error";
+type RouteState = "idle" | "loading" | "success" | "error";
 
 export default function App() {
   const [activeRail, setActiveRail] = useState<"route" | "search" | "recents" | "layers">("route");
@@ -14,20 +16,25 @@ export default function App() {
   const [query, setQuery] = useState("Union Square");
   const [mode, setMode] = useState<TravelMode>("driving");
   const [selectedPlace, setSelectedPlace] = useState<SearchResult>(seedRoutePlan.destination);
+  const [route, setRoute] = useState<RouteSummary>(seedRoutePlan.route);
+  const [routeState, setRouteState] = useState<RouteState>("idle");
+  const [routeError, setRouteError] = useState<string | null>(null);
   const [searchResults, setSearchResults] = useState<SearchResult[]>(seedSearchResults);
   const [recentSearches, setRecentSearches] = useState<SearchResult[]>(seedRecentSearches);
   const [searchState, setSearchState] = useState<SearchState>("idle");
   const [searchError, setSearchError] = useState<string | null>(null);
   const [lastViewport, setLastViewport] = useState<{ center: LngLat; zoom: number } | null>(null);
   const searchAbortRef = useRef<AbortController | null>(null);
+  const routeAbortRef = useRef<AbortController | null>(null);
 
   const routePlan = useMemo(
     () => ({
       ...seedRoutePlan,
       destination: selectedPlace,
       mode,
+      route,
     }),
-    [mode, selectedPlace],
+    [mode, route, selectedPlace],
   );
 
   const handleCenterChange = useCallback((center: LngLat, zoom: number) => {
@@ -72,6 +79,28 @@ export default function App() {
     setRecentSearches((current) => addRecentSearch(place, current));
   }, []);
 
+  const handleRouteSubmit = useCallback(async () => {
+    routeAbortRef.current?.abort();
+    const controller = new AbortController();
+    routeAbortRef.current = controller;
+    setRouteState("loading");
+    setRouteError(null);
+
+    try {
+      const nextRoute = await getRoute(routePlan.origin.coordinate, selectedPlace.coordinate, mode, {
+        signal: controller.signal,
+      });
+      setRoute(nextRoute);
+      setRouteState("success");
+    } catch (error) {
+      if (controller.signal.aborted) {
+        return;
+      }
+      setRouteState("error");
+      setRouteError(error instanceof Error ? error.message : "Route planning failed");
+    }
+  }, [mode, routePlan.origin.coordinate, selectedPlace.coordinate]);
+
   return (
     <main className="app-shell">
       <AppRail active={activeRail} onSelect={setActiveRail} />
@@ -83,8 +112,11 @@ export default function App() {
         activeQuery={query}
         searchState={searchState}
         searchError={searchError}
+        routeState={routeState}
+        routeError={routeError}
         onQueryChange={setQuery}
         onSearchSubmit={handleSearchSubmit}
+        onRouteSubmit={handleRouteSubmit}
         onModeChange={setMode}
         onSelectPlace={handleSelectPlace}
       />
