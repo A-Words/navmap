@@ -466,8 +466,7 @@ function SearchSection({
   compact?: boolean;
 }) {
   const { t } = useTranslation();
-  const featuredPlace = searchResults[0] || (selectedPlace.name ? selectedPlace : null);
-  const resultRows = featuredPlace ? searchResults.filter((place) => place.id !== featuredPlace.id) : searchResults;
+  const visibleResults = searchResults.length ? searchResults : selectedPlace.name ? [selectedPlace] : [];
 
   return (
     <section className="search-section-content" aria-label={compact ? t("route.searchResults") : t("route.places")}>
@@ -492,13 +491,11 @@ function SearchSection({
         ) : null}
       </div>
 
-      {featuredPlace ? (
+      {visibleResults.length ? (
         <div className="search-results-card">
-          <FeaturedPlace place={featuredPlace} onSelectPlace={onSelectPlace} />
-          {resultRows.length ? <Separator /> : null}
           <div className="place-list">
-            {resultRows.map((place) => (
-              <PlaceRow key={place.id} place={place} onSelectPlace={onSelectPlace} />
+            {visibleResults.map((place) => (
+              <SearchResultRow key={place.id} place={place} onSelectPlace={onSelectPlace} />
             ))}
           </div>
         </div>
@@ -655,75 +652,149 @@ function InfoRow({ title, description, value }: { title: string; description: st
   );
 }
 
-function FeaturedPlace({ place, onSelectPlace }: { place: SearchResult; onSelectPlace: (place: SearchResult) => void }) {
-  const { t } = useTranslation();
+function SearchResultRow({ place, onSelectPlace }: { place: SearchResult; onSelectPlace: (place: SearchResult) => void }) {
+  const { i18n } = useTranslation();
+  const primaryMeta = formatPlacePrimaryMeta(place, i18n.language);
+  const secondaryMeta = formatPlaceSecondaryMeta(place);
 
   return (
-    <article className="featured-place" aria-label={place.name}>
-      <button className="featured-place-main" type="button" onClick={() => onSelectPlace(place)}>
-        <PlaceIcon place={place} featured />
-        <span>
-          <strong>{place.name}</strong>
-          <small>{formatPlaceMeta(place)}</small>
-        </span>
-      </button>
-      <div className="featured-place-actions" role="group" aria-label={place.name}>
-        <Button variant="secondary" type="button" onClick={() => onSelectPlace(place)}>
-          {t("search.directions")}
-        </Button>
-        <Button variant="secondary" type="button" onClick={() => onSelectPlace(place)}>
-          {t("search.details")}
-        </Button>
-      </div>
-    </article>
-  );
-}
-
-function PlaceRow({ place, onSelectPlace }: { place: SearchResult; onSelectPlace: (place: SearchResult) => void }) {
-  return (
-    <Button className="place-row" variant="ghost" type="button" onClick={() => onSelectPlace(place)}>
-      <PlaceIcon place={place} />
-      <span>
+    <Button className="place-row apple-place-row" variant="ghost" type="button" onClick={() => onSelectPlace(place)}>
+      <span className="place-row-copy">
         <strong>{place.name}</strong>
-        <small>{formatPlaceMeta(place)}</small>
+        {primaryMeta ? <small>{primaryMeta}</small> : null}
+        {secondaryMeta ? <small className="place-row-secondary">{secondaryMeta}</small> : null}
       </span>
+      <PlaceThumbnail place={place} />
     </Button>
   );
 }
 
-function PlaceIcon({ place, featured = false }: { place: SearchResult; featured?: boolean }) {
+function PlaceThumbnail({ place }: { place: SearchResult }) {
+  const { i18n } = useTranslation();
+  const kind = getPlaceKind(place);
   const Icon = getPlaceIcon(place);
+  const label = getThumbnailLabel(kind, i18n.language);
+
   return (
-    <span className={`place-type-icon ${featured ? "featured" : ""}`}>
-      <Icon aria-hidden="true" />
+    <span className={`place-thumbnail ${kind}`} aria-hidden="true">
+      {label ? (
+        <span>{label}</span>
+      ) : (
+        <span>
+          <Icon aria-hidden="true" />
+        </span>
+      )}
     </span>
   );
 }
 
-function getPlaceIcon(place: SearchResult) {
-  const type = `${place.type || ""} ${place.name}`.toLowerCase();
+type PlaceKind = "station" | "entrance" | "parking" | "food" | "coffee" | "building" | "place";
 
-  if (/(station|rail|train|subway|metro|车站|火车|地铁|站)/i.test(type)) {
+function getPlaceIcon(place: SearchResult) {
+  const kind = getPlaceKind(place);
+
+  if (kind === "station") {
     return TrainFront;
   }
-  if (/(parking|car_park|停车|停车场)/i.test(type)) {
+  if (kind === "parking") {
     return ParkingCircle;
   }
-  if (/(cafe|coffee|luckin|咖啡|茶)/i.test(type)) {
+  if (kind === "coffee") {
     return Coffee;
   }
-  if (/(restaurant|food|餐|饭|食|茶百道)/i.test(type)) {
+  if (kind === "food") {
     return Utensils;
   }
-  if (/(building|commercial|office|shop|mall|plaza|广场|楼|大厦)/i.test(type)) {
+  if (kind === "building") {
     return Building2;
   }
 
   return MapPin;
 }
 
-function formatPlaceMeta(place: SearchResult) {
-  return [place.distanceLabel, place.address].filter(Boolean).join(" · ");
+function getPlaceKind(place: SearchResult): PlaceKind {
+  const type = `${place.type || ""} ${place.name}`.toLowerCase();
+
+  if (/(entrance|exit|gate|出入口|进站口|出站口|入口|出口)/i.test(type)) {
+    return "entrance";
+  }
+  if (/(station|rail|train|subway|metro|车站|火车|地铁|站)/i.test(type)) {
+    return "station";
+  }
+  if (/(parking|car_park|停车|停车场)/i.test(type)) {
+    return "parking";
+  }
+  if (/(cafe|coffee|luckin|咖啡|茶)/i.test(type)) {
+    return "coffee";
+  }
+  if (/(restaurant|food|餐|饭|食|茶百道)/i.test(type)) {
+    return "food";
+  }
+  if (/(building|commercial|office|shop|mall|plaza|广场|楼|大厦)/i.test(type)) {
+    return "building";
+  }
+
+  return "place";
+}
+
+function getThumbnailLabel(kind: PlaceKind, language: string) {
+  if (kind !== "entrance") {
+    return null;
+  }
+
+  return language.startsWith("zh") ? "入口" : "Entry";
+}
+
+function formatPlacePrimaryMeta(place: SearchResult, language: string) {
+  return [getPlaceTypeLabel(place, language), extractPlaceLocality(place.address)].filter(Boolean).join(" · ");
+}
+
+function formatPlaceSecondaryMeta(place: SearchResult) {
+  return [place.distanceLabel, formatShortAddress(place)].filter(Boolean).join(" · ");
+}
+
+function getPlaceTypeLabel(place: SearchResult, language: string) {
+  const kind = getPlaceKind(place);
+  const zhLabels: Record<PlaceKind, string> = {
+    station: "车站",
+    entrance: "车站入口",
+    parking: "停车场",
+    food: "餐饮",
+    coffee: "咖啡店",
+    building: "地点",
+    place: "地点",
+  };
+  const enLabels: Record<PlaceKind, string> = {
+    station: "Station",
+    entrance: "Station entrance",
+    parking: "Parking",
+    food: "Food",
+    coffee: "Coffee",
+    building: "Place",
+    place: "Place",
+  };
+
+  return language.startsWith("zh") ? zhLabels[kind] : enLabels[kind];
+}
+
+function extractPlaceLocality(address: string) {
+  const parts = address
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  const city = parts.find((part) => /市$|city$/i.test(part));
+  const locality = city || parts.find((part) => /区$|县$|镇$|town$|village$|county$/i.test(part));
+
+  return locality || parts[1] || "";
+}
+
+function formatShortAddress(place: SearchResult) {
+  const parts = place.address
+    .split(",")
+    .map((part) => part.trim())
+    .filter((part) => part && part !== place.name);
+
+  return parts.slice(0, 2).join(" · ");
 }
 
 function RouteField({
