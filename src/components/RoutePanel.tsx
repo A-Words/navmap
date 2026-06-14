@@ -183,6 +183,7 @@ export function RoutePanel({
               activeQuery={activeQuery}
               searchState={searchState}
               searchError={searchError}
+              recentSearches={recentSearches}
               onQueryChange={onQueryChange}
               onSearchSubmit={onSearchSubmit}
               onSelectPlace={onSelectPlace}
@@ -439,6 +440,7 @@ function SearchView({
   activeQuery,
   searchState,
   searchError,
+  recentSearches,
   onQueryChange,
   onSearchSubmit,
   onSelectPlace,
@@ -447,20 +449,26 @@ function SearchView({
   activeQuery: string;
   searchState: SearchState;
   searchError: string | null;
+  recentSearches: SearchResult[];
   onQueryChange: (value: string) => void;
   onSearchSubmit: () => void;
   onSelectPlace: (place: SearchResult) => void;
 }) {
   return (
-    <SearchSection
-      searchResults={searchResults}
-      activeQuery={activeQuery}
-      searchState={searchState}
-      searchError={searchError}
-      onQueryChange={onQueryChange}
-      onSearchSubmit={onSearchSubmit}
-      onSelectPlace={onSelectPlace}
-    />
+    <>
+      <SearchSection
+        searchResults={searchResults}
+        activeQuery={activeQuery}
+        searchState={searchState}
+        searchError={searchError}
+        onQueryChange={onQueryChange}
+        onSearchSubmit={onSearchSubmit}
+        onSelectPlace={onSelectPlace}
+      />
+      {!activeQuery.trim() && recentSearches.length ? (
+        <RecentsSection recentSearches={recentSearches} onSelectPlace={onSelectPlace} />
+      ) : null}
+    </>
   );
 }
 
