@@ -156,7 +156,6 @@ export function RoutePanel({
               searchResults={searchResults}
               searchState={searchState}
               searchError={searchError}
-              recentSearches={recentSearches}
               onModeChange={onModeChange}
               onRouteSubmit={onRouteSubmit}
               onRoutePointFocus={onRoutePointFocus}
@@ -246,7 +245,6 @@ function RoutePlanner({
   searchResults,
   searchState,
   searchError,
-  recentSearches,
   onModeChange,
   onRouteSubmit,
   onRoutePointFocus,
@@ -267,7 +265,6 @@ function RoutePlanner({
   searchResults: SearchResult[];
   searchState: SearchState;
   searchError: string | null;
-  recentSearches: SearchResult[];
   onModeChange: (mode: TravelMode) => void;
   onRouteSubmit: () => void;
   onRoutePointFocus: (target: RoutePointTarget) => void;
@@ -367,22 +364,6 @@ function RoutePlanner({
           <LocateFixed data-icon="inline-start" aria-hidden="true" />
           {t("route.currentLocation")}
         </Button>
-      ) : null}
-
-      {activeRouteTarget === "origin" && !routeDrafts.origin.trim() && recentSearches.length ? (
-        <Card className="panel-card" size="sm">
-          <CardHeader>
-            <CardTitle>{t("route.recentPlaces")}</CardTitle>
-          </CardHeader>
-          <CardContent className="place-list">
-            {recentSearches.map((place) => (
-              <Button key={place.id} className="recent-row" variant="ghost" type="button" onClick={() => onSelectPlace(place)}>
-                <LocateFixed data-icon="inline-start" aria-hidden="true" />
-                <span>{place.name}</span>
-              </Button>
-            ))}
-          </CardContent>
-        </Card>
       ) : null}
 
       {getActiveDraft(routeDrafts, activeRouteTarget).trim() && searchResults.length ? (
