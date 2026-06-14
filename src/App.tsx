@@ -1,10 +1,12 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppRail } from "./components/AppRail";
 import { MapCanvas } from "./components/MapCanvas";
 import { RoutePanel } from "./components/RoutePanel";
 import { seedRecentSearches, seedRoutePlan, seedSearchResults } from "./data/seedRoute";
 import { searchPlaces } from "./services/geocoding";
+import { locateCurrentPosition } from "./services/location";
 import { getRoute } from "./services/routing";
+import { defaultSettings, loadSettings, saveSettings } from "./services/settings";
 import type { LayerId, LngLat, RouteSummary, SearchResult, TravelMode } from "./types";
 
 type SearchState = "idle" | "loading" | "success" | "empty" | "error";
@@ -15,10 +17,12 @@ export default function App() {
   const [activeLayer, setActiveLayer] = useState<LayerId>("standard");
   const [query, setQuery] = useState("Union Square");
   const [mode, setMode] = useState<TravelMode>("driving");
+  const [origin, setOrigin] = useState<SearchResult>(seedRoutePlan.origin);
   const [selectedPlace, setSelectedPlace] = useState<SearchResult>(seedRoutePlan.destination);
   const [route, setRoute] = useState<RouteSummary>(seedRoutePlan.route);
   const [routeState, setRouteState] = useState<RouteState>("idle");
   const [routeError, setRouteError] = useState<string | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
   const [searchResults, setSearchResults] = useState<SearchResult[]>(seedSearchResults);
   const [recentSearches, setRecentSearches] = useState<SearchResult[]>(seedRecentSearches);
   const [searchState, setSearchState] = useState<SearchState>("idle");
@@ -30,12 +34,62 @@ export default function App() {
   const routePlan = useMemo(
     () => ({
       ...seedRoutePlan,
+      origin,
       destination: selectedPlace,
       mode,
       route,
     }),
-    [mode, route, selectedPlace],
+    [mode, origin, route, selectedPlace],
   );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    loadSettings()
+      .then((settings) => {
+        if (!isMounted) {
+          return;
+        }
+        setActiveLayer(settings.activeLayer);
+        if (settings.recentSearches.length) {
+          setRecentSearches(settings.recentSearches);
+        }
+        setLastViewport({
+          center: settings.lastCenter,
+          zoom: settings.lastZoom,
+        });
+      })
+      .catch(() => {
+        if (isMounted) {
+          setLastViewport({
+            center: defaultSettings.lastCenter,
+            zoom: defaultSettings.lastZoom,
+          });
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!lastViewport) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      void saveSettings({
+        activeLayer,
+        showTrafficHints: true,
+        lastCenter: lastViewport.center,
+        lastZoom: lastViewport.zoom,
+        recentSearches,
+      });
+    }, 250);
+
+    return () => window.clearTimeout(timeout);
+  }, [activeLayer, lastViewport, recentSearches]);
 
   const handleCenterChange = useCallback((center: LngLat, zoom: number) => {
     setLastViewport({ center, zoom });
@@ -79,6 +133,18 @@ export default function App() {
     setRecentSearches((current) => addRecentSearch(place, current));
   }, []);
 
+  const handleLocate = useCallback(async () => {
+    setLocationError(null);
+
+    try {
+      const nextOrigin = await locateCurrentPosition();
+      setOrigin(nextOrigin);
+      setRecentSearches((current) => addRecentSearch(nextOrigin, current));
+    } catch (error) {
+      setLocationError(error instanceof Error ? error.message : "Location permission was denied");
+    }
+  }, []);
+
   const handleRouteSubmit = useCallback(async () => {
     routeAbortRef.current?.abort();
     const controller = new AbortController();
@@ -114,6 +180,7 @@ export default function App() {
         searchError={searchError}
         routeState={routeState}
         routeError={routeError}
+        locationError={locationError}
         onQueryChange={setQuery}
         onSearchSubmit={handleSearchSubmit}
         onRouteSubmit={handleRouteSubmit}
@@ -125,7 +192,7 @@ export default function App() {
         plan={routePlan}
         selectedPlace={selectedPlace}
         onCenterChange={handleCenterChange}
-        onLocate={() => setActiveLayer("standard")}
+        onLocate={handleLocate}
       />
       <div className="layer-switcher" aria-label="Layer switcher">
         {(["standard", "terrain", "transit"] as const).map((layer) => (

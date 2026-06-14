@@ -29,6 +29,7 @@ type RoutePanelProps = {
   searchError: string | null;
   routeState: RouteState;
   routeError: string | null;
+  locationError: string | null;
   onQueryChange: (value: string) => void;
   onSearchSubmit: () => void;
   onRouteSubmit: () => void;
@@ -46,6 +47,7 @@ export function RoutePanel({
   searchError,
   routeState,
   routeError,
+  locationError,
   onQueryChange,
   onSearchSubmit,
   onRouteSubmit,
@@ -98,6 +100,7 @@ export function RoutePanel({
         </button>
       </div>
       {routeState === "error" ? <p className="panel-message">{routeError}</p> : null}
+      {locationError ? <p className="panel-message">{locationError}</p> : null}
 
       <div className="route-card" aria-label="Active route summary">
         <div className="route-card-icon">
