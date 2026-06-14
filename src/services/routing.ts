@@ -1,6 +1,7 @@
 import { MAP_SERVICE_CONFIG } from "../config/mapServices";
-import { formatDistanceLabel, formatDurationLabel, translations } from "../i18n";
-import type { Language, LngLat, RouteInstruction, RouteSummary, TravelMode } from "../types";
+import { formatDistanceLabel, formatDurationLabel } from "../i18n";
+import i18next from "../i18n/index";
+import type { LngLat, RouteInstruction, RouteSummary, TravelMode } from "../types";
 
 type OsrmRouteResponse = {
   code: string;
@@ -40,7 +41,7 @@ export async function getRoute(
   origin: LngLat,
   destination: LngLat,
   mode: TravelMode,
-  options: { language: Language; waypoints?: LngLat[]; signal?: AbortSignal },
+  options: { waypoints?: LngLat[]; signal?: AbortSignal },
 ): Promise<RouteSummary> {
   const profile = profileByMode[mode];
   const coordinates = [origin, ...(options.waypoints || []), destination]
@@ -70,27 +71,25 @@ export async function getRoute(
     throw new Error(payload.message || "No route found");
   }
 
-  const copy = translations[options.language];
   return {
-    distanceLabel: formatDistanceLabel(route.distance, options.language),
-    durationLabel: formatDurationLabel(route.duration, options.language),
+    distanceLabel: formatDistanceLabel(route.distance),
+    durationLabel: formatDurationLabel(route.duration),
     description: route.legs[0]?.summary
-      ? `${copy.route.via} ${route.legs[0].summary}`
-      : `${copy.modes[mode]} ${copy.route.routeDescriptionFallback}`,
+      ? `${i18next.t("route.via")} ${route.legs[0].summary}`
+      : `${i18next.t(`modes.${mode}`)} ${i18next.t("route.routeDescriptionFallback")}`,
     geometry: route.geometry.coordinates.map(([lng, lat]) => ({ lng, lat })),
-    instructions: mapSteps(route.legs.flatMap((leg) => leg.steps), options.language),
+    instructions: mapSteps(route.legs.flatMap((leg) => leg.steps)),
   };
 }
 
-function mapSteps(steps: OsrmStep[], language: Language): RouteInstruction[] {
-  const copy = translations[language];
+function mapSteps(steps: OsrmStep[]): RouteInstruction[] {
   const mappedSteps = steps
     .filter((step) => step.distance > 1 || step.maneuver.type === "arrive")
     .map((step, index) => ({
       id: `${step.maneuver.type}-${index}`,
       icon: getInstructionIcon(step.maneuver.type, step.maneuver.modifier),
-      title: getInstructionTitle(step, language),
-      distanceLabel: formatDistanceLabel(step.distance, language),
+      title: getInstructionTitle(step),
+      distanceLabel: formatDistanceLabel(step.distance),
     }));
 
   if (!mappedSteps.length) {
@@ -98,7 +97,7 @@ function mapSteps(steps: OsrmStep[], language: Language): RouteInstruction[] {
       {
         id: "route-ready",
         icon: "straight",
-        title: copy.route.routeReady,
+        title: i18next.t("route.routeReady"),
         distanceLabel: "--",
       },
     ];
@@ -129,63 +128,62 @@ function getInstructionIcon(
   return "straight";
 }
 
-function getInstructionTitle(step: OsrmStep, language: Language) {
-  const copy = translations[language].routeSteps;
+function getInstructionTitle(step: OsrmStep) {
+  const language = i18next.language;
   if (step.maneuver.type === "depart") {
-    return step.name ? copy.startOn.replace("{road}", step.name) : copy.start;
+    return step.name
+      ? i18next.t("routeSteps.startOn", { road: step.name })
+      : i18next.t("routeSteps.start");
   }
   if (step.maneuver.type === "arrive") {
-    return copy.arrive;
+    return i18next.t("routeSteps.arrive");
   }
 
   if (language === "zh") {
-    const direction = getModifierLabel(step.maneuver.modifier, language);
-    const verb = getManeuverVerb(step.maneuver.type, language);
-    const road = step.name ? `${copy.onto} ${step.name}` : "";
+    const direction = getModifierLabel(step.maneuver.modifier);
+    const verb = getManeuverVerb(step.maneuver.type);
+    const road = step.name ? `${i18next.t("routeSteps.onto")} ${step.name}` : "";
     return [direction || verb, road].filter(Boolean).join("");
   }
 
-  const direction = step.maneuver.modifier ? ` ${getModifierLabel(step.maneuver.modifier, language)}` : "";
-  const road = step.name ? ` ${copy.onto} ${step.name}` : "";
-  const verb = getManeuverVerb(step.maneuver.type, language);
+  const direction = step.maneuver.modifier ? ` ${getModifierLabel(step.maneuver.modifier)}` : "";
+  const road = step.name ? ` ${i18next.t("routeSteps.onto")} ${step.name}` : "";
+  const verb = getManeuverVerb(step.maneuver.type);
   return `${verb}${direction}${road}`;
 }
 
-function getManeuverVerb(type: string, language: Language) {
-  const copy = translations[language].routeSteps;
-  if (type === "turn") {
-    return copy.turn;
+function getManeuverVerb(type: string) {
+  const language = i18next.language;
+  const verbs: Record<string, string> = {
+    turn: i18next.t("routeSteps.turn"),
+    merge: i18next.t("routeSteps.merge"),
+    "on ramp": i18next.t("routeSteps.onRamp"),
+    depart: i18next.t("routeSteps.depart"),
+    continue: i18next.t("routeSteps.continue"),
+  };
+
+  const verb = verbs[type];
+  if (verb) {
+    return verb;
   }
-  if (type === "merge") {
-    return copy.merge;
-  }
-  if (type === "on ramp") {
-    return copy.onRamp;
-  }
-  if (type === "depart") {
-    return copy.depart;
-  }
-  if (type === "continue") {
-    return copy.continue;
-  }
-  return language === "zh" ? copy.continue : capitalize(type);
+
+  return language === "zh" ? i18next.t("routeSteps.continue") : capitalize(type);
 }
 
-function getModifierLabel(modifier: string | undefined, language: Language) {
+function getModifierLabel(modifier: string | undefined) {
   if (!modifier) {
     return "";
   }
 
-  const copy = translations[language].routeSteps;
   const normalized = modifier.replace(/ /g, "");
   const labels: Record<string, string> = {
-    left: copy.left,
-    right: copy.right,
-    slightleft: copy.slightLeft,
-    slightright: copy.slightRight,
-    sharpleft: copy.sharpLeft,
-    sharpright: copy.sharpRight,
-    straight: copy.straight,
+    left: i18next.t("routeSteps.left"),
+    right: i18next.t("routeSteps.right"),
+    slightleft: i18next.t("routeSteps.slightLeft"),
+    slightright: i18next.t("routeSteps.slightRight"),
+    sharpleft: i18next.t("routeSteps.sharpLeft"),
+    sharpright: i18next.t("routeSteps.sharpRight"),
+    straight: i18next.t("routeSteps.straight"),
   };
 
   return labels[normalized] || modifier;
