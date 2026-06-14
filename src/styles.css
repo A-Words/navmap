@@ -691,7 +691,7 @@ button {
 .search-section-content {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 8px;
 }
 
 .panel-search-form {
