@@ -2,8 +2,8 @@ import type { StyleSpecification } from "maplibre-gl";
 import type { LngLat } from "../types";
 
 export const DEFAULT_CENTER: LngLat = {
-  lng: -122.4194,
-  lat: 37.7749,
+  lng: 113.2644,
+  lat: 23.1291,
 };
 
 export const MAP_SERVICE_CONFIG = {
