@@ -8,6 +8,7 @@ import {
   Coffee,
   CornerDownRight,
   CornerUpLeft,
+  Crosshair,
   Flag,
   Footprints,
   LocateFixed,
@@ -64,6 +65,7 @@ type RouteState = "idle" | "loading" | "success" | "error";
 type RoutePanelProps = {
   plan: RoutePlan;
   selectedPlace: SearchResult;
+  detailPlace: SearchResult | null;
   searchResults: SearchResult[];
   recentSearches: SearchResult[];
   activeQuery: string;
@@ -83,6 +85,8 @@ type RoutePanelProps = {
   onRouteSubmit: () => void;
   onModeChange: (mode: TravelMode) => void;
   onSelectPlace: (place: SearchResult) => void;
+  onDirectionsFromDetail: () => void;
+  onCloseDetail: () => void;
   onLayerChange: (layer: LayerId) => void;
   onLanguageChange: (language: Language) => void;
   onThemePreferenceChange: (preference: ThemePreference) => void;
@@ -98,6 +102,7 @@ type RoutePanelProps = {
 export function RoutePanel({
   plan,
   selectedPlace,
+  detailPlace,
   searchResults,
   recentSearches,
   activeQuery,
@@ -117,6 +122,8 @@ export function RoutePanel({
   onRouteSubmit,
   onModeChange,
   onSelectPlace,
+  onDirectionsFromDetail,
+  onCloseDetail,
   onLayerChange,
   onLanguageChange,
   onThemePreferenceChange,
@@ -155,7 +162,15 @@ export function RoutePanel({
             />
           ) : null}
 
-          {activePanel === "search" ? (
+          {activePanel === "search" && detailPlace ? (
+            <PlaceDetailView
+              place={detailPlace}
+              onBack={onCloseDetail}
+              onDirections={onDirectionsFromDetail}
+            />
+          ) : null}
+
+          {activePanel === "search" && !detailPlace ? (
             <SearchView
               searchResults={searchResults}
               activeQuery={activeQuery}
@@ -408,6 +423,82 @@ function SearchView({
       onSearchSubmit={onSearchSubmit}
       onSelectPlace={onSelectPlace}
     />
+  );
+}
+
+function PlaceDetailView({
+  place,
+  onBack,
+  onDirections,
+}: {
+  place: SearchResult;
+  onBack: () => void;
+  onDirections: () => void;
+}) {
+  const { t, i18n } = useTranslation();
+  const typeLabel = getPlaceTypeLabel(place, i18n.language);
+  const locality = extractPlaceLocality(place.address);
+
+  return (
+    <div className="place-detail-view">
+      <div className="place-detail-header">
+        <Button
+          className="place-detail-back"
+          variant="ghost"
+          size="icon-sm"
+          type="button"
+          onClick={onBack}
+          aria-label={t("search.backToResults")}
+        >
+          <ChevronRight aria-hidden="true" style={{ transform: "rotate(180deg)" }} />
+        </Button>
+        <span className="place-detail-header-title">{t("search.details")}</span>
+      </div>
+
+      <div className="place-detail-hero">
+        <PlaceGlyph place={place} featured />
+        <div className="place-detail-hero-text">
+          <h2>{place.name}</h2>
+          <p className="place-detail-meta">
+            {typeLabel ? <span>{typeLabel}</span> : null}
+            {typeLabel && locality ? <span className="place-detail-dot">·</span> : null}
+            {locality ? <span>{locality}</span> : null}
+          </p>
+        </div>
+      </div>
+
+      <div className="place-detail-actions">
+        <Button
+          className="place-detail-directions-btn"
+          type="button"
+          onClick={onDirections}
+        >
+          <RouteIcon data-icon="inline-start" aria-hidden="true" />
+          {t("search.directions")}
+        </Button>
+      </div>
+
+      <div className="place-detail-info">
+        {place.address ? (
+          <div className="place-detail-info-row">
+            <MapPin aria-hidden="true" />
+            <span>{place.address}</span>
+          </div>
+        ) : null}
+        <div className="place-detail-info-row">
+          <LocateFixed aria-hidden="true" />
+          <span>
+            {place.coordinate.lat.toFixed(5)}, {place.coordinate.lng.toFixed(5)}
+          </span>
+        </div>
+        {place.distanceLabel ? (
+          <div className="place-detail-info-row">
+            <Crosshair aria-hidden="true" />
+            <span>{place.distanceLabel}</span>
+          </div>
+        ) : null}
+      </div>
+    </div>
   );
 }
 

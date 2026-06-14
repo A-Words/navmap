@@ -79,6 +79,7 @@ export default function App() {
   const [recentSearches, setRecentSearches] = useState<SearchResult[]>([]);
   const [searchState, setSearchState] = useState<SearchState>("idle");
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [detailPlace, setDetailPlace] = useState<SearchResult | null>(null);
   const [lastViewport, setLastViewport] = useState<{ center: LngLat; zoom: number } | null>(null);
   const searchAbortRef = useRef<AbortController | null>(null);
   const routeAbortRef = useRef<AbortController | null>(null);
@@ -343,8 +344,11 @@ export default function App() {
     if (!trimmedQuery) {
       setSearchResults([]);
       setSearchState("idle");
+      setDetailPlace(null);
       return;
     }
+
+    setDetailPlace(null);
 
     const timer = setTimeout(() => {
       void performSearch(trimmedQuery);
@@ -354,9 +358,30 @@ export default function App() {
   }, [query, performSearch]);
 
   const handleSelectPlace = useCallback((place: SearchResult) => {
+    if (activeRail === "search") {
+      setDetailPlace(place);
+      setRecentSearches((current) => addRecentSearch(place, current));
+      return;
+    }
     applyPlaceToRouteTarget(place, activeRouteTarget);
     setRecentSearches((current) => addRecentSearch(place, current));
-  }, [activeRouteTarget, applyPlaceToRouteTarget]);
+  }, [activeRail, activeRouteTarget, applyPlaceToRouteTarget]);
+
+  const handleDirectionsFromDetail = useCallback(() => {
+    if (!detailPlace) {
+      return;
+    }
+    setSelectedPlace(detailPlace);
+    setRouteDrafts((current) => ({ ...current, destination: detailPlace.name }));
+    setActiveRouteTarget("destination");
+    setActiveRail("route");
+    setPanelOpen(true);
+    setDetailPlace(null);
+  }, [detailPlace]);
+
+  const handleCloseDetail = useCallback(() => {
+    setDetailPlace(null);
+  }, []);
 
   const handleLocate = useCallback(async () => {
     setLocationError(null);
@@ -413,6 +438,7 @@ export default function App() {
         <RoutePanel
           plan={routePlan}
           selectedPlace={selectedPlace}
+          detailPlace={detailPlace}
           searchResults={searchResults}
           recentSearches={recentSearches}
           activeQuery={query}
@@ -432,6 +458,8 @@ export default function App() {
           onRouteSubmit={handleRouteSubmit}
           onModeChange={setMode}
           onSelectPlace={handleSelectPlace}
+          onDirectionsFromDetail={handleDirectionsFromDetail}
+          onCloseDetail={handleCloseDetail}
           onLayerChange={setActiveLayer}
           onLanguageChange={handleLanguageChange}
           onThemePreferenceChange={setThemePreference}
@@ -450,6 +478,7 @@ export default function App() {
           activeLayer={activeLayer}
           plan={routePlan}
           selectedPlace={selectedPlace}
+          detailPlace={detailPlace}
           onCenterChange={handleCenterChange}
           onLocate={handleLocate}
           railCollapsed={railCollapsed}

@@ -10,6 +10,7 @@ type MapCanvasProps = {
   activeLayer: LayerId;
   plan: RoutePlan;
   selectedPlace: SearchResult;
+  detailPlace: SearchResult | null;
   onCenterChange: (center: LngLat, zoom: number) => void;
   onLocate: () => void;
   railCollapsed: boolean;
@@ -20,6 +21,7 @@ export function MapCanvas({
   activeLayer,
   plan,
   selectedPlace,
+  detailPlace,
   onCenterChange,
   onLocate,
   railCollapsed,
@@ -29,6 +31,7 @@ export function MapCanvas({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const markersRef = useRef<Marker[]>([]);
+  const detailMarkerRef = useRef<Marker | null>(null);
   const [zoom, setZoom] = useState(12);
   const [center, setCenter] = useState<LngLat>(DEFAULT_CENTER);
   const [routePath, setRoutePath] = useState("");
@@ -158,6 +161,39 @@ export function MapCanvas({
       map.once("load", applyRoute);
     }
   }, [plan.origin.coordinate, plan.waypoints, routeCoordinates, selectedPlace.coordinate]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) {
+      return;
+    }
+
+    if (detailPlace) {
+      detailMarkerRef.current?.remove();
+      const element = document.createElement("div");
+      element.className = "detail-marker";
+      const marker = new maplibregl.Marker({ element, anchor: "bottom" })
+        .setLngLat([detailPlace.coordinate.lng, detailPlace.coordinate.lat])
+        .addTo(map);
+      detailMarkerRef.current = marker;
+
+      const sidebarWidth = (railCollapsed ? 68 : 208) + (panelOpen ? 400 : 0);
+      map.flyTo({
+        center: [detailPlace.coordinate.lng, detailPlace.coordinate.lat],
+        zoom: 15,
+        offset: [sidebarWidth / 2, 0],
+        essential: true,
+      });
+    } else {
+      detailMarkerRef.current?.remove();
+      detailMarkerRef.current = null;
+    }
+
+    return () => {
+      detailMarkerRef.current?.remove();
+      detailMarkerRef.current = null;
+    };
+  }, [detailPlace, railCollapsed, panelOpen]);
 
   useEffect(() => {
     const map = mapRef.current;
