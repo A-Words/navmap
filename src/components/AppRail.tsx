@@ -9,7 +9,6 @@ import {
   Search,
   Settings,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getPanelLabel, translations } from "../i18n";
@@ -40,9 +39,6 @@ export function AppRail({ active, language, panelCollapsed, onSelect, onTogglePa
           <MapPinned aria-hidden="true" />
           <span>NavMap</span>
         </span>
-        <Badge variant="secondary" className="rail-beta">
-          BETA
-        </Badge>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button

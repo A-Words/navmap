@@ -15,7 +15,7 @@ state: default Chinese route planning screen, collapsible left sidebar, OSM map 
 
 **Required Fidelity Surfaces**
 - Layout: implemented a fixed left app rail, an adjacent collapsible route/search panel, and a full-height central map canvas. Collapsing the panel keeps the rail visible and expands the map area.
-- Navigation: primary rail now emphasizes Search, Layers, and Route with Apple Maps-like dark treatment, active rounded rows, a beta badge, and a functional panel toggle.
+- Navigation: primary rail now emphasizes Search, Layers, and Route with Apple Maps-like dark treatment, active rounded rows, and a functional panel toggle.
 - Route panel: route mode uses shadcn ToggleGroup, route points use compact input rows, route options use shadcn Collapsible/Switch, and the route summary/search/results use shadcn Card/Input/Button patterns.
 - Map controls: right controls and bottom layer switcher remain compact floating controls over the map; OSM attribution remains visible in the bottom status surface.
 - Theme/i18n: default Chinese copy remains in `src/i18n.ts`; new visible labels have Chinese and English strings; shadcn dark styling is synchronized through the document `.dark` class.
