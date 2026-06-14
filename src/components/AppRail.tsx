@@ -1,7 +1,6 @@
 import {
   Clock3,
   Info,
-  Layers,
   MapPinned,
   PanelLeftClose,
   PanelLeftOpen,
@@ -24,7 +23,6 @@ type AppRailProps = {
 
 const primaryItems = [
   { id: "search", icon: Search },
-  { id: "layers", icon: Layers },
   { id: "route", icon: Route },
 ] as const;
 

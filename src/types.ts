@@ -7,7 +7,7 @@ export type TravelMode = "driving" | "walking" | "cycling";
 
 export type LayerId = "standard" | "terrain" | "transit";
 
-export type PanelId = "route" | "search" | "recents" | "layers" | "settings" | "about";
+export type PanelId = "route" | "search" | "recents" | "settings" | "about";
 
 export type Language = "zh" | "en";
 

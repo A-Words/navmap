@@ -36,7 +36,6 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { getLayerLabel, LANGUAGES, translations } from "../i18n";
 import type {
@@ -178,14 +177,6 @@ export function RoutePanel({
 
           {activePanel === "recents" ? (
             <RecentsSection recentSearches={recentSearches} language={language} onSelectPlace={onSelectPlace} />
-          ) : null}
-
-          {activePanel === "layers" ? (
-            <LayersView
-              activeLayer={activeLayer}
-              language={language}
-              onLayerChange={onLayerChange}
-            />
           ) : null}
 
           {activePanel === "settings" ? (
@@ -609,50 +600,6 @@ function RecentsSection({
   );
 }
 
-function LayersView({
-  activeLayer,
-  language,
-  onLayerChange,
-}: {
-  activeLayer: LayerId;
-  language: Language;
-  onLayerChange: (layer: LayerId) => void;
-}) {
-  const copy = translations[language];
-  return (
-    <>
-      <Tabs value={activeLayer} onValueChange={(value) => onLayerChange(value as LayerId)}>
-        <TabsList className="layer-tabs">
-          {(["standard", "terrain", "transit"] as const).map((layer) => (
-            <TabsTrigger key={layer} value={layer}>
-              {getLayerLabel(language, layer)}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        {(["standard", "terrain", "transit"] as const).map((layer) => (
-          <TabsContent key={layer} value={layer}>
-            <Card className="panel-card" size="sm">
-              <CardHeader>
-                <CardTitle>{getLayerLabel(language, layer)}</CardTitle>
-                <CardDescription>{copy.layers.layersHint}</CardDescription>
-              </CardHeader>
-            </Card>
-          </TabsContent>
-        ))}
-      </Tabs>
-      <Card className="panel-card" size="sm">
-        <CardHeader>
-          <CardTitle>{copy.layers.visibleOverlays}</CardTitle>
-        </CardHeader>
-        <CardContent className="settings-list">
-          <InfoRow title={copy.layers.activeRoute} description={copy.layers.activeRouteDescription} value={copy.layers.on} />
-          <InfoRow title={copy.layers.scaleAttribution} description={copy.layers.scaleAttributionDescription} value={copy.layers.on} />
-        </CardContent>
-      </Card>
-    </>
-  );
-}
-
 function SettingsView({
   activeLayer,
   language,
@@ -871,9 +818,6 @@ function getPanelTitle(language: Language, activePanel: PanelId) {
   }
   if (activePanel === "recents") {
     return copy.panel.recentsTitle;
-  }
-  if (activePanel === "layers") {
-    return copy.panel.layersTitle;
   }
   if (activePanel === "settings") {
     return copy.panel.settingsTitle;
