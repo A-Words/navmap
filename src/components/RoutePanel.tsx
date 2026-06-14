@@ -87,6 +87,7 @@ type RoutePanelProps = {
   onSelectPlace: (place: SearchResult) => void;
   onDirectionsFromDetail: () => void;
   onCloseDetail: () => void;
+  onLocate: () => void;
   onLayerChange: (layer: LayerId) => void;
   onLanguageChange: (language: Language) => void;
   onThemePreferenceChange: (preference: ThemePreference) => void;
@@ -124,6 +125,7 @@ export function RoutePanel({
   onSelectPlace,
   onDirectionsFromDetail,
   onCloseDetail,
+  onLocate,
   onLayerChange,
   onLanguageChange,
   onThemePreferenceChange,
@@ -151,6 +153,10 @@ export function RoutePanel({
               locationError={locationError}
               routeDrafts={routeDrafts}
               activeRouteTarget={activeRouteTarget}
+              searchResults={searchResults}
+              searchState={searchState}
+              searchError={searchError}
+              recentSearches={recentSearches}
               onModeChange={onModeChange}
               onRouteSubmit={onRouteSubmit}
               onRoutePointFocus={onRoutePointFocus}
@@ -159,6 +165,8 @@ export function RoutePanel({
               onSwapRoutePoints={onSwapRoutePoints}
               onAddWaypoint={onAddWaypoint}
               onRemoveWaypoint={onRemoveWaypoint}
+              onLocate={onLocate}
+              onSelectPlace={onSelectPlace}
             />
           ) : null}
 
@@ -235,6 +243,10 @@ function RoutePlanner({
   locationError,
   routeDrafts,
   activeRouteTarget,
+  searchResults,
+  searchState,
+  searchError,
+  recentSearches,
   onModeChange,
   onRouteSubmit,
   onRoutePointFocus,
@@ -243,6 +255,8 @@ function RoutePlanner({
   onSwapRoutePoints,
   onAddWaypoint,
   onRemoveWaypoint,
+  onLocate,
+  onSelectPlace,
 }: {
   plan: RoutePlan;
   routeState: RouteState;
@@ -250,6 +264,10 @@ function RoutePlanner({
   locationError: string | null;
   routeDrafts: { origin: string; destination: string; waypoints: string[] };
   activeRouteTarget: RoutePointTarget;
+  searchResults: SearchResult[];
+  searchState: SearchState;
+  searchError: string | null;
+  recentSearches: SearchResult[];
   onModeChange: (mode: TravelMode) => void;
   onRouteSubmit: () => void;
   onRoutePointFocus: (target: RoutePointTarget) => void;
@@ -258,6 +276,8 @@ function RoutePlanner({
   onSwapRoutePoints: () => void;
   onAddWaypoint: () => void;
   onRemoveWaypoint: (index: number) => void;
+  onLocate: () => void;
+  onSelectPlace: (place: SearchResult) => void;
 }) {
   const { t } = useTranslation();
   const [showOptions, setShowOptions] = useState(false);
@@ -341,6 +361,43 @@ function RoutePlanner({
           </Button>
         </CardContent>
       </Card>
+
+      {activeRouteTarget === "origin" && !routeDrafts.origin.trim() ? (
+        <Button className="route-locate-btn" variant="ghost" type="button" onClick={onLocate}>
+          <LocateFixed data-icon="inline-start" aria-hidden="true" />
+          {t("route.currentLocation")}
+        </Button>
+      ) : null}
+
+      {activeRouteTarget === "origin" && !routeDrafts.origin.trim() && recentSearches.length ? (
+        <Card className="panel-card" size="sm">
+          <CardHeader>
+            <CardTitle>{t("route.recentPlaces")}</CardTitle>
+          </CardHeader>
+          <CardContent className="place-list">
+            {recentSearches.map((place) => (
+              <Button key={place.id} className="recent-row" variant="ghost" type="button" onClick={() => onSelectPlace(place)}>
+                <LocateFixed data-icon="inline-start" aria-hidden="true" />
+                <span>{place.name}</span>
+              </Button>
+            ))}
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {getActiveDraft(routeDrafts, activeRouteTarget).trim() && searchResults.length ? (
+        <div className="search-results-card route-search-results">
+          <div className="place-list">
+            {searchResults.map((place) => (
+              <SearchResultRow key={place.id} place={place} onSelectPlace={onSelectPlace} />
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {searchState === "loading" ? <p className="panel-message">{t("search.searching")}</p> : null}
+      {searchState === "error" ? <p className="panel-message">{searchError}</p> : null}
+      {searchState === "empty" ? <p className="panel-message">{t("route.noPlaces")}</p> : null}
 
       <div className="route-command-row">
         <Select defaultValue="now">
@@ -1019,3 +1076,13 @@ const instructionIcon = {
   highway: Car,
   arrive: Flag,
 } satisfies Record<RouteInstruction["icon"], typeof Circle>;
+
+function getActiveDraft(
+  routeDrafts: { origin: string; destination: string; waypoints: string[] },
+  activeRouteTarget: RoutePointTarget,
+): string {
+  if (activeRouteTarget === "origin") return routeDrafts.origin;
+  if (activeRouteTarget === "destination") return routeDrafts.destination;
+  const index = Number(activeRouteTarget.replace("waypoint-", ""));
+  return routeDrafts.waypoints[index] || "";
+}

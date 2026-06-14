@@ -339,6 +339,8 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (activeRail !== "search") return;
+
     const trimmedQuery = query.trim();
     if (!trimmedQuery) {
       setSearchResults([]);
@@ -354,7 +356,31 @@ export default function App() {
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [query, performSearch]);
+  }, [query, performSearch, activeRail]);
+
+  useEffect(() => {
+    if (activeRail !== "route") return;
+
+    const targetValue =
+      activeRouteTarget === "origin"
+        ? routeDrafts.origin
+        : activeRouteTarget === "destination"
+          ? routeDrafts.destination
+          : routeDrafts.waypoints[Number(activeRouteTarget.replace("waypoint-", ""))] || "";
+
+    const trimmed = targetValue.trim();
+    if (!trimmed) {
+      setSearchResults([]);
+      setSearchState("idle");
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      void performSearch(trimmed);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [routeDrafts, activeRouteTarget, activeRail, performSearch]);
 
   const handleSelectPlace = useCallback((place: SearchResult) => {
     if (activeRail === "search") {
@@ -459,6 +485,7 @@ export default function App() {
           onSelectPlace={handleSelectPlace}
           onDirectionsFromDetail={handleDirectionsFromDetail}
           onCloseDetail={handleCloseDetail}
+          onLocate={handleLocate}
           onLayerChange={setActiveLayer}
           onLanguageChange={handleLanguageChange}
           onThemePreferenceChange={setThemePreference}
