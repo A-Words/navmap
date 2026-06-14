@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { DEFAULT_CENTER } from "../config/mapServices";
-import { DEFAULT_LANGUAGE } from "../i18n";
+import { DEFAULT_LANGUAGE } from "../i18n/index";
 import type { AppSettings } from "../types";
 
 const SETTINGS_KEY = "navmap.settings";
