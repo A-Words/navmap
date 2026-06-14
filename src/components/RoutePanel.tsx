@@ -588,6 +588,10 @@ function RecentsSection({
 }) {
   const copy = translations[language];
 
+  if (recentSearches.length === 0) {
+    return null;
+  }
+
   return (
     <Card className="panel-card recent-section" size="sm">
       <CardHeader>

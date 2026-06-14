@@ -48,22 +48,7 @@ export function getSeedRouteData(language: Language): SeedRouteData {
     },
   ];
 
-  const recentSearches: SearchResult[] = [
-    {
-      id: "ferry-building",
-      name: language === "zh" ? "渡轮大厦" : "Ferry Building",
-      address: language === "zh" ? "旧金山 Ferry Building 1 号" : "1 Ferry Building, San Francisco, CA",
-      coordinate: { lng: -122.3937, lat: 37.7955 },
-      type: "landmark",
-    },
-    {
-      id: "golden-gate-bridge",
-      name: language === "zh" ? "金门大桥" : "Golden Gate Bridge",
-      address: language === "zh" ? "旧金山金门大桥" : "Golden Gate Bridge, San Francisco, CA",
-      coordinate: { lng: -122.4783, lat: 37.8199 },
-      type: "bridge",
-    },
-  ];
+  const recentSearches: SearchResult[] = [];
 
   const routePlan: RoutePlan = {
     origin,
