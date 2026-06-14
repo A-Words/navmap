@@ -57,7 +57,10 @@
   "search": {
     "inputPlaceholder": "Search nearby places",
     "submit": "Search",
-    "searching": "Searching"
+    "searching": "Searching",
+    "clearInput": "Clear search",
+    "directions": "Directions",
+    "details": "Details"
   },
   "layers": {
     "baseMap": "Base map",

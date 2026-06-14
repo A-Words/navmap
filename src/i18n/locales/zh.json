@@ -57,7 +57,10 @@
   "search": {
     "inputPlaceholder": "搜索附近地点",
     "submit": "搜索",
-    "searching": "搜索中"
+    "searching": "搜索中",
+    "clearInput": "清空搜索",
+    "directions": "路线",
+    "details": "详情"
   },
   "layers": {
     "baseMap": "底图",

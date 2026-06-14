@@ -1,9 +1,11 @@
 import {
   ArrowDownUp,
   Bike,
+  Building2,
   Car,
   ChevronRight,
   Circle,
+  Coffee,
   CornerDownRight,
   CornerUpLeft,
   Flag,
@@ -11,11 +13,14 @@ import {
   LocateFixed,
   MapPin,
   Menu,
+  ParkingCircle,
   Plus,
   Route as RouteIcon,
   Search,
   Share2,
   SlidersHorizontal,
+  TrainFront,
+  Utensils,
   X,
 } from "lucide-react";
 import { useState } from "react";
@@ -461,32 +466,51 @@ function SearchSection({
   compact?: boolean;
 }) {
   const { t } = useTranslation();
+  const featuredPlace = searchResults[0] || (selectedPlace.name ? selectedPlace : null);
+  const resultRows = featuredPlace ? searchResults.filter((place) => place.id !== featuredPlace.id) : searchResults;
 
   return (
-    <Card className="panel-card" size="sm">
-      <CardHeader>
-        <CardTitle>{compact ? t("route.searchResults") : t("route.places")}</CardTitle>
-      </CardHeader>
-      <CardContent className="search-section-content">
-        <div className="panel-search-form">
-          <Search aria-hidden="true" />
-          <Input
-            value={activeQuery}
-            onChange={(event) => onQueryChange(event.target.value)}
-            placeholder={t("search.inputPlaceholder")}
-          />
+    <section className="search-section-content" aria-label={compact ? t("route.searchResults") : t("route.places")}>
+      <div className="panel-search-form">
+        <Search aria-hidden="true" />
+        <Input
+          value={activeQuery}
+          onChange={(event) => onQueryChange(event.target.value)}
+          placeholder={t("search.inputPlaceholder")}
+        />
+        {activeQuery ? (
+          <Button
+            className="search-clear-button"
+            variant="ghost"
+            size="icon-xs"
+            type="button"
+            aria-label={t("search.clearInput")}
+            onClick={() => onQueryChange("")}
+          >
+            <X aria-hidden="true" />
+          </Button>
+        ) : null}
+      </div>
+
+      {featuredPlace ? (
+        <div className="search-results-card">
+          <FeaturedPlace place={featuredPlace} onSelectPlace={onSelectPlace} />
+          {resultRows.length ? <Separator /> : null}
+          <div className="place-list">
+            {resultRows.map((place) => (
+              <PlaceRow key={place.id} place={place} onSelectPlace={onSelectPlace} />
+            ))}
+          </div>
         </div>
-        <PlaceDetail place={selectedPlace} />
+      ) : null}
+
+      <div className="search-status-stack">
         {searchState === "error" ? <p className="panel-message">{searchError}</p> : null}
         {searchState === "empty" ? <p className="panel-message">{t("route.noPlaces")}</p> : null}
+        {searchState === "loading" ? <p className="panel-message">{t("search.searching")}</p> : null}
         {compact ? <p className="panel-hint">{t("route.useSearchResult")}</p> : null}
-        <div className="place-list">
-          {searchResults.map((place) => (
-            <PlaceRow key={place.id} place={place} onSelectPlace={onSelectPlace} />
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   );
 }
 
@@ -631,18 +655,25 @@ function InfoRow({ title, description, value }: { title: string; description: st
   );
 }
 
-function PlaceDetail({ place }: { place: SearchResult }) {
+function FeaturedPlace({ place, onSelectPlace }: { place: SearchResult; onSelectPlace: (place: SearchResult) => void }) {
+  const { t } = useTranslation();
+
   return (
-    <article className="place-detail" aria-label="Selected place">
-      <span className="place-detail-pin">
-        <MapPin aria-hidden="true" />
-      </span>
-      <div>
-        <strong>{place.name}</strong>
-        <p>{place.address}</p>
-        <small>
-          {place.coordinate.lat.toFixed(5)}, {place.coordinate.lng.toFixed(5)}
-        </small>
+    <article className="featured-place" aria-label={place.name}>
+      <button className="featured-place-main" type="button" onClick={() => onSelectPlace(place)}>
+        <PlaceIcon place={place} featured />
+        <span>
+          <strong>{place.name}</strong>
+          <small>{formatPlaceMeta(place)}</small>
+        </span>
+      </button>
+      <div className="featured-place-actions" role="group" aria-label={place.name}>
+        <Button variant="secondary" type="button" onClick={() => onSelectPlace(place)}>
+          {t("search.directions")}
+        </Button>
+        <Button variant="secondary" type="button" onClick={() => onSelectPlace(place)}>
+          {t("search.details")}
+        </Button>
       </div>
     </article>
   );
@@ -651,14 +682,48 @@ function PlaceDetail({ place }: { place: SearchResult }) {
 function PlaceRow({ place, onSelectPlace }: { place: SearchResult; onSelectPlace: (place: SearchResult) => void }) {
   return (
     <Button className="place-row" variant="ghost" type="button" onClick={() => onSelectPlace(place)}>
-      <MapPin data-icon="inline-start" aria-hidden="true" />
+      <PlaceIcon place={place} />
       <span>
         <strong>{place.name}</strong>
-        <small>{place.address}</small>
+        <small>{formatPlaceMeta(place)}</small>
       </span>
-      {place.distanceLabel ? <em>{place.distanceLabel}</em> : null}
     </Button>
   );
+}
+
+function PlaceIcon({ place, featured = false }: { place: SearchResult; featured?: boolean }) {
+  const Icon = getPlaceIcon(place);
+  return (
+    <span className={`place-type-icon ${featured ? "featured" : ""}`}>
+      <Icon aria-hidden="true" />
+    </span>
+  );
+}
+
+function getPlaceIcon(place: SearchResult) {
+  const type = `${place.type || ""} ${place.name}`.toLowerCase();
+
+  if (/(station|rail|train|subway|metro|车站|火车|地铁|站)/i.test(type)) {
+    return TrainFront;
+  }
+  if (/(parking|car_park|停车|停车场)/i.test(type)) {
+    return ParkingCircle;
+  }
+  if (/(cafe|coffee|luckin|咖啡|茶)/i.test(type)) {
+    return Coffee;
+  }
+  if (/(restaurant|food|餐|饭|食|茶百道)/i.test(type)) {
+    return Utensils;
+  }
+  if (/(building|commercial|office|shop|mall|plaza|广场|楼|大厦)/i.test(type)) {
+    return Building2;
+  }
+
+  return MapPin;
+}
+
+function formatPlaceMeta(place: SearchResult) {
+  return [place.distanceLabel, place.address].filter(Boolean).join(" · ");
 }
 
 function RouteField({

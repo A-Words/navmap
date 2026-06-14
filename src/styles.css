@@ -691,7 +691,7 @@ button {
 .search-section-content {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .panel-search-form {
@@ -721,6 +721,154 @@ button {
 .panel-search-form button {
   color: #ffffff;
   background: var(--navmap-blue);
+}
+
+.search-clear-button {
+  color: rgba(255, 255, 255, 0.66);
+}
+
+.search-clear-button:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.search-results-card {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  background: #030405;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.28);
+}
+
+.featured-place {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px 14px;
+}
+
+.featured-place-main {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  color: #ffffff;
+  text-align: left;
+  border: 0;
+  background: transparent;
+}
+
+.featured-place-main span {
+  min-width: 0;
+}
+
+.featured-place-main strong {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 810;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.featured-place-main small {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  color: #8b929a;
+  font-size: 14px;
+  font-weight: 620;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.featured-place-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding-left: 46px;
+}
+
+.featured-place-actions button {
+  height: 34px;
+  color: var(--navmap-blue);
+  background: rgba(255, 255, 255, 0.11);
+}
+
+.featured-place-actions button:hover {
+  color: #ffffff;
+  background: rgba(47, 130, 255, 0.24);
+}
+
+.place-type-icon {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  place-items: center;
+  color: #ffffff;
+  border-radius: 50%;
+  background: #2f72ff;
+}
+
+.place-type-icon.featured {
+  width: 32px;
+  height: 32px;
+}
+
+.place-type-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.search-results-card .place-list {
+  gap: 0;
+}
+
+.search-results-card .place-row {
+  min-height: 74px;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 12px;
+  padding: 12px 18px;
+  color: #ffffff;
+  border-radius: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.search-results-card .place-list .place-row:first-child {
+  border-top: 0;
+}
+
+.search-results-card .place-row:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.search-results-card .place-row strong {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 790;
+}
+
+.search-results-card .place-row small {
+  color: #8b929a;
+  font-size: 13px;
+  font-weight: 620;
+}
+
+.search-results-card [data-slot="separator"] {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.search-status-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .place-detail {
@@ -1260,6 +1408,56 @@ button {
   color: #6f7778;
   border-color: rgba(52, 65, 54, 0.12);
   background: rgba(255, 255, 255, 0.7);
+}
+
+.app-shell[data-color-scheme="light"] .search-clear-button {
+  color: rgba(17, 24, 39, 0.52);
+}
+
+.app-shell[data-color-scheme="light"] .search-clear-button:hover {
+  color: #111827;
+  background: rgba(17, 24, 39, 0.08);
+}
+
+.app-shell[data-color-scheme="light"] .search-results-card {
+  border-color: rgba(52, 65, 54, 0.1);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 18px 36px rgba(34, 64, 42, 0.1);
+}
+
+.app-shell[data-color-scheme="light"] .featured-place-main,
+.app-shell[data-color-scheme="light"] .featured-place-main strong,
+.app-shell[data-color-scheme="light"] .search-results-card .place-row,
+.app-shell[data-color-scheme="light"] .search-results-card .place-row strong {
+  color: #111827;
+}
+
+.app-shell[data-color-scheme="light"] .featured-place-main small,
+.app-shell[data-color-scheme="light"] .search-results-card .place-row small {
+  color: #747c7d;
+}
+
+.app-shell[data-color-scheme="light"] .featured-place-actions button {
+  color: #0a7cff;
+  background: rgba(10, 124, 255, 0.1);
+}
+
+.app-shell[data-color-scheme="light"] .featured-place-actions button:hover {
+  color: #0b63d9;
+  background: rgba(10, 124, 255, 0.16);
+}
+
+.app-shell[data-color-scheme="light"] .search-results-card .place-row {
+  border-color: rgba(17, 24, 39, 0.09);
+}
+
+.app-shell[data-color-scheme="light"] .search-results-card .place-row:hover {
+  color: #111827;
+  background: rgba(29, 37, 39, 0.04);
+}
+
+.app-shell[data-color-scheme="light"] .search-results-card [data-slot="separator"] {
+  background: rgba(17, 24, 39, 0.1);
 }
 
 .app-shell[data-color-scheme="light"] .panel-search-form input {
