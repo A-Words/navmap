@@ -1,45 +1,33 @@
-source visual truth path: C:\Users\A_Words\.codex\generated_images\019ec549-ddcd-7f20-b289-2c1ea4db9e0c\ig_0124fbf4e57df7ea016a2e6b39633081919cac1585d6cba228.png
-implementation screenshot path: E:\src\personal\navmap\navmap-desktop.png
-viewport: 1440 x 1024
-state: default route planning screen with OSM raster map, active route panel, standard layer selected
-full-view comparison evidence: source and implementation were opened with view_image and compared at the same desktop dimensions.
-focused region comparison evidence: left navigation/route panel, route summary card, right map controls, bottom attribution/status, and route overlay were inspected directly.
+reference visual paths:
+- C:\Users\A_Words\AppData\Local\Temp\codex-clipboard-3b901215-5d29-48b6-acf8-3cadbcc36248.png
+- C:\Users\A_Words\AppData\Local\Temp\codex-clipboard-4d4a5f81-5c92-4da1-821c-e191d04e8210.png
+
+implementation target: Apple Maps-inspired route-first desktop shell using shadcn/ui components.
+viewport target: 1440 x 1024 and narrower desktop widths.
+state: default Chinese route planning screen, collapsible left sidebar, OSM map canvas, active route overlay, right map controls, bottom OSM attribution/status.
 
 **Findings**
-- No actionable P0/P1/P2 findings remain.
-- [P3] OSM raster rendering is more detailed and less softened than the generated concept.
-  Location: map canvas.
-  Evidence: the concept uses a calmer stylized map texture; the implementation uses live OpenStreetMap raster tiles to satisfy the source requirement.
-  Impact: the app is slightly busier visually than the concept, but the data-source choice is intentional and functional.
-  Fix: future self-hosted vector tiles could tune color and label density while keeping OSM data.
-
-**Open Questions**
-- Automated Playwright success-path calls to Nominatim and OSRM were blocked by the local headless browser network policy with `Failed to fetch`; the UI error path rendered correctly. The services are endpoint-configured and user-triggered in code.
+- No actionable P0/P1/P2 findings remain from static implementation review and production build verification.
+- [P3] Automated in-app browser screenshot verification could not be completed in this pass.
+  Evidence: Browser reload of `http://127.0.0.1:1420` was blocked by the Browser Use URL policy after the dev server restart.
+  Impact: final visual polish was verified by code/build review rather than a fresh automated screenshot.
+  Follow-up: reopen the local app manually or in an allowed browser session to inspect the 1440 x 1024 and narrow desktop layouts.
 
 **Required Fidelity Surfaces**
-- Fonts and typography: implemented with a system UI stack close to the concept's neutral product type; labels, nav, route metrics, and list rows use explicit sizes and weights.
-- Spacing and layout rhythm: left rail, route panel, map canvas, right controls, and bottom status match the refined route-first structure; panel scrollbar was hidden after QA.
-- Colors and visual tokens: light neutral surfaces, blue active state, green/red route pins, subtle borders, and white control surfaces match the selected direction.
-- Image quality and asset fidelity: no raster decorative assets were required; map imagery comes from live OSM raster tiles with visible attribution; route overlay uses real route coordinates projected over the map.
-- Copy and content: visible app copy follows the concept's NavMap, Route/Search/Recents/Layers, route fields, step list, search results, and OSM attribution.
+- Layout: implemented a fixed left app rail, an adjacent collapsible route/search panel, and a full-height central map canvas. Collapsing the panel keeps the rail visible and expands the map area.
+- Navigation: primary rail now emphasizes Search, Layers, and Route with Apple Maps-like dark treatment, active rounded rows, a beta badge, and a functional panel toggle.
+- Route panel: route mode uses shadcn ToggleGroup, route points use compact input rows, route options use shadcn Collapsible/Switch, and the route summary/search/results use shadcn Card/Input/Button patterns.
+- Map controls: right controls and bottom layer switcher remain compact floating controls over the map; OSM attribution remains visible in the bottom status surface.
+- Theme/i18n: default Chinese copy remains in `src/i18n.ts`; new visible labels have Chinese and English strings; shadcn dark styling is synchronized through the document `.dark` class.
 
-**Patches Made Since Previous QA Pass**
-- Fixed route summary metrics so `7.4 km` and `18 min` stay on one line.
-- Added a projected route overlay so the blue route remains visible above raster tiles.
-- Hid the route panel scrollbar to better match the calm desktop concept.
-
-**Implementation Checklist**
-- Source visual opened with view_image.
-- Implementation screenshot opened with view_image.
-- Desktop viewport checked at 1440 x 1024.
-- Build checks passed with `npm run build` and `cargo check`.
-- Core UI interaction smoke test covered layer switching, search submit error state, route submit error state, and zoom controls.
-- Internationalization smoke test covered clean default Chinese, switching to English, and switching back to Chinese.
-- Route editing smoke test covered A/B field editing, adding a waypoint, opening route options, and selecting a search result into the active route point.
-- Appearance smoke test covered simulated dark and light `prefers-color-scheme`, plus Settings choices for following system, forcing light, and forcing dark.
+**Verification**
+- `npm run typecheck`: passed.
+- `npm run build`: passed.
+- `npm run build` emitted the expected MapLibre large chunk warning; this remains non-blocking under the project guide.
+- `cargo check` was not rerun because no Tauri/Rust files changed.
 
 **Follow-up Polish**
-- Replace public raster tiles with a tuned OSM vector tile style when a self-hosted or production tile service is available.
-- Add a production geocoding/routing backend proxy if stricter browser CORS or service usage policies require it.
+- Run a manual visual QA pass in the desktop app or an allowed browser surface.
+- If production visual fidelity becomes a priority, replace public raster tiles with a tuned OSM vector style so the map colors can more closely match the Apple Maps dark reference while preserving attribution and service boundaries.
 
-final result: passed
+final result: implementation checks passed; automated screenshot blocked by browser policy
