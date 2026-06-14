@@ -580,6 +580,24 @@ button {
   background: #1f73f3;
 }
 
+.route-locate-btn {
+  justify-content: flex-start;
+  height: 40px;
+  gap: 8px;
+  color: var(--navmap-blue);
+  background: rgba(47, 130, 255, 0.1);
+  border-radius: 10px;
+}
+
+.route-locate-btn:hover {
+  color: #ffffff;
+  background: rgba(47, 130, 255, 0.2);
+}
+
+.route-search-results {
+  margin-top: -4px;
+}
+
 .panel-card,
 .route-summary-card {
   color: var(--panel-text);
@@ -1545,6 +1563,16 @@ button {
   color: #111827;
   border-color: rgba(17, 24, 39, 0.2);
   background: rgba(255, 255, 255, 0.62);
+}
+
+.app-shell[data-color-scheme="light"] .route-locate-btn {
+  color: #0a7cff;
+  background: rgba(10, 124, 255, 0.08);
+}
+
+.app-shell[data-color-scheme="light"] .route-locate-btn:hover {
+  color: #111827;
+  background: rgba(10, 124, 255, 0.15);
 }
 
 .app-shell[data-color-scheme="light"] .route-options-popover {
