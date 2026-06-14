@@ -1,0 +1,202 @@
+import maplibregl, { GeoJSONSource, Map as MapLibreMap, Marker } from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
+import { Compass, Crosshair, Layers, LocateFixed, Minus, Navigation, Plus } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { DEFAULT_CENTER, osmRasterStyle } from "../config/mapServices";
+import type { LayerId, LngLat, RoutePlan, SearchResult } from "../types";
+
+type MapCanvasProps = {
+  activeLayer: LayerId;
+  plan: RoutePlan;
+  selectedPlace: SearchResult;
+  onCenterChange: (center: LngLat, zoom: number) => void;
+  onLocate: () => void;
+};
+
+export function MapCanvas({
+  activeLayer,
+  plan,
+  selectedPlace,
+  onCenterChange,
+  onLocate,
+}: MapCanvasProps) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<MapLibreMap | null>(null);
+  const markersRef = useRef<Marker[]>([]);
+  const [zoom, setZoom] = useState(12);
+  const [center, setCenter] = useState<LngLat>(DEFAULT_CENTER);
+
+  const routeCoordinates = useMemo(
+    () => plan.route.geometry.map((point) => [point.lng, point.lat]),
+    [plan.route.geometry],
+  );
+
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) {
+      return;
+    }
+
+    const map = new maplibregl.Map({
+      container: containerRef.current,
+      style: osmRasterStyle,
+      center: [DEFAULT_CENTER.lng, DEFAULT_CENTER.lat],
+      zoom: 12,
+      attributionControl: false,
+    });
+
+    map.addControl(new maplibregl.ScaleControl({ maxWidth: 170, unit: "metric" }), "bottom-left");
+
+    map.on("moveend", () => {
+      const nextCenter = map.getCenter();
+      const nextZoom = map.getZoom();
+      const lngLat = { lng: nextCenter.lng, lat: nextCenter.lat };
+      setCenter(lngLat);
+      setZoom(nextZoom);
+      onCenterChange(lngLat, nextZoom);
+    });
+
+    mapRef.current = map;
+
+    return () => {
+      markersRef.current.forEach((marker) => marker.remove());
+      markersRef.current = [];
+      map.remove();
+      mapRef.current = null;
+    };
+  }, [onCenterChange]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) {
+      return;
+    }
+
+    const applyRoute = () => {
+      const routeData: Parameters<GeoJSONSource["setData"]>[0] = {
+        type: "Feature",
+        properties: {},
+        geometry: {
+          type: "LineString",
+          coordinates: routeCoordinates,
+        },
+      };
+
+      if (!map.getSource("active-route")) {
+        map.addSource("active-route", {
+          type: "geojson",
+          data: routeData,
+        });
+        map.addLayer({
+          id: "active-route-casing",
+          type: "line",
+          source: "active-route",
+          paint: {
+            "line-color": "#ffffff",
+            "line-width": 9,
+            "line-opacity": 0.95,
+          },
+        });
+        map.addLayer({
+          id: "active-route",
+          type: "line",
+          source: "active-route",
+          paint: {
+            "line-color": "#2d7be8",
+            "line-width": 5,
+            "line-opacity": 0.96,
+          },
+        });
+      } else {
+        const source = map.getSource("active-route");
+        if (source && "setData" in source) {
+          (source as GeoJSONSource).setData(routeData);
+        }
+      }
+
+      markersRef.current.forEach((marker) => marker.remove());
+      markersRef.current = [
+        createMapMarker("A", "origin", plan.origin.coordinate).addTo(map),
+        createMapMarker("B", "destination", selectedPlace.coordinate).addTo(map),
+      ];
+
+      const bounds = routeCoordinates.reduce(
+        (nextBounds, coordinate) => nextBounds.extend(coordinate as [number, number]),
+        new maplibregl.LngLatBounds(routeCoordinates[0] as [number, number], routeCoordinates[0] as [
+          number,
+          number,
+        ]),
+      );
+      map.fitBounds(bounds, { padding: { top: 84, right: 124, bottom: 90, left: 430 }, maxZoom: 13.4 });
+    };
+
+    if (map.isStyleLoaded()) {
+      applyRoute();
+    } else {
+      map.once("load", applyRoute);
+    }
+  }, [plan.origin.coordinate, routeCoordinates, selectedPlace.coordinate]);
+
+  const zoomIn = () => mapRef.current?.zoomIn();
+  const zoomOut = () => mapRef.current?.zoomOut();
+  const recenter = () => {
+    mapRef.current?.flyTo({
+      center: [plan.origin.coordinate.lng, plan.origin.coordinate.lat],
+      zoom: 13,
+      essential: true,
+    });
+    onLocate();
+  };
+
+  return (
+    <section className={`map-area layer-${activeLayer}`} aria-label="Interactive map">
+      <div className="map-top-search" role="search">
+        <Navigation size={18} aria-hidden="true" />
+        <span>Search places, addresses, or coordinates...</span>
+        <kbd>⌘ K</kbd>
+      </div>
+      <div className="map-frame" ref={containerRef} />
+      <div className="map-toolbar" aria-label="Map controls">
+        <button type="button" aria-label="Reset compass">
+          <Compass size={18} aria-hidden="true" />
+        </button>
+        <div className="toolbar-group" role="group" aria-label="Zoom controls">
+          <button type="button" aria-label="Zoom in" onClick={zoomIn}>
+            <Plus size={19} aria-hidden="true" />
+          </button>
+          <button type="button" aria-label="Zoom out" onClick={zoomOut}>
+            <Minus size={19} aria-hidden="true" />
+          </button>
+        </div>
+        <button type="button" aria-label="Go to current location" onClick={recenter}>
+          <LocateFixed size={18} aria-hidden="true" />
+        </button>
+        <button type="button" aria-label="Recenter route">
+          <Crosshair size={18} aria-hidden="true" />
+        </button>
+        <button type="button" aria-label="Open layers">
+          <Layers size={18} aria-hidden="true" />
+        </button>
+      </div>
+      <footer className="map-status">
+        <span className="online-dot" aria-hidden="true" />
+        <span>Online</span>
+        <span>Map data © OpenStreetMap contributors</span>
+        <strong>
+          {center.lat.toFixed(4)}° N, {Math.abs(center.lng).toFixed(4)}° W
+        </strong>
+        <span>{Math.round(zoom * 10)} m</span>
+      </footer>
+    </section>
+  );
+}
+
+function createMapMarker(label: "A" | "B", variant: "origin" | "destination", coordinate: LngLat) {
+  const element = document.createElement("div");
+  element.className = `route-marker ${variant}`;
+  element.textContent = label;
+
+  return new maplibregl.Marker({ element, anchor: "bottom" }).setLngLat([
+    coordinate.lng,
+    coordinate.lat,
+  ]);
+}
