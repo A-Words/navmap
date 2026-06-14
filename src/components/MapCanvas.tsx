@@ -136,15 +136,17 @@ export function MapCanvas({
         createMapMarker("B", "destination", selectedPlace.coordinate).addTo(map),
       ];
 
-      const bounds = routeCoordinates.reduce(
-        (nextBounds, coordinate) => nextBounds.extend(coordinate as [number, number]),
-        new maplibregl.LngLatBounds(routeCoordinates[0] as [number, number], routeCoordinates[0] as [
-          number,
-          number,
-        ]),
-      );
-      const sidebarWidth = (railCollapsed ? 68 : 208) + (panelOpen ? 400 : 0);
-      map.fitBounds(bounds, { padding: { top: 84, right: 124, bottom: 90, left: sidebarWidth + 20 }, maxZoom: 13.4 });
+      if (routeCoordinates.length > 0) {
+        const bounds = routeCoordinates.reduce(
+          (nextBounds, coordinate) => nextBounds.extend(coordinate as [number, number]),
+          new maplibregl.LngLatBounds(routeCoordinates[0] as [number, number], routeCoordinates[0] as [
+            number,
+            number,
+          ]),
+        );
+        const sidebarWidth = (railCollapsed ? 68 : 208) + (panelOpen ? 400 : 0);
+        map.fitBounds(bounds, { padding: { top: 84, right: 124, bottom: 90, left: sidebarWidth + 20 }, maxZoom: 13.4 });
+      }
       window.requestAnimationFrame(() => {
         setRoutePath(projectRoutePath(map, routeCoordinates));
       });
