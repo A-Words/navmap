@@ -7,6 +7,8 @@ export type TravelMode = "driving" | "walking" | "cycling";
 
 export type LayerId = "standard" | "terrain" | "transit";
 
+export type PanelId = "route" | "search" | "recents" | "layers" | "settings" | "about";
+
 export type SearchResult = {
   id: string;
   name: string;
@@ -46,4 +48,3 @@ export type AppSettings = {
   lastZoom: number;
   recentSearches: SearchResult[];
 };
-

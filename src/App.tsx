@@ -7,13 +7,13 @@ import { searchPlaces } from "./services/geocoding";
 import { locateCurrentPosition } from "./services/location";
 import { getRoute } from "./services/routing";
 import { defaultSettings, loadSettings, saveSettings } from "./services/settings";
-import type { LayerId, LngLat, RouteSummary, SearchResult, TravelMode } from "./types";
+import type { LayerId, LngLat, PanelId, RouteSummary, SearchResult, TravelMode } from "./types";
 
 type SearchState = "idle" | "loading" | "success" | "empty" | "error";
 type RouteState = "idle" | "loading" | "success" | "error";
 
 export default function App() {
-  const [activeRail, setActiveRail] = useState<"route" | "search" | "recents" | "layers">("route");
+  const [activeRail, setActiveRail] = useState<PanelId>("route");
   const [activeLayer, setActiveLayer] = useState<LayerId>("standard");
   const [query, setQuery] = useState("Union Square");
   const [mode, setMode] = useState<TravelMode>("driving");
@@ -181,11 +181,14 @@ export default function App() {
         routeState={routeState}
         routeError={routeError}
         locationError={locationError}
+        activePanel={activeRail}
+        activeLayer={activeLayer}
         onQueryChange={setQuery}
         onSearchSubmit={handleSearchSubmit}
         onRouteSubmit={handleRouteSubmit}
         onModeChange={setMode}
         onSelectPlace={handleSelectPlace}
+        onLayerChange={setActiveLayer}
       />
       <MapCanvas
         activeLayer={activeLayer}

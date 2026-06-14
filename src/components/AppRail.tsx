@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 
 type AppRailProps = {
-  active: "route" | "search" | "recents" | "layers";
+  active: "route" | "search" | "recents" | "layers" | "settings" | "about";
   onSelect: (item: AppRailProps["active"]) => void;
 };
 
@@ -50,11 +50,19 @@ export function AppRail({ active, onSelect }: AppRailProps) {
         })}
       </nav>
       <div className="rail-footer">
-        <button className="rail-item" type="button">
+        <button
+          className={`rail-item ${active === "settings" ? "is-active" : ""}`}
+          type="button"
+          onClick={() => onSelect("settings")}
+        >
           <Settings size={18} aria-hidden="true" />
           <span>Settings</span>
         </button>
-        <button className="rail-item" type="button">
+        <button
+          className={`rail-item ${active === "about" ? "is-active" : ""}`}
+          type="button"
+          onClick={() => onSelect("about")}
+        >
           <Info size={18} aria-hidden="true" />
           <span>About</span>
         </button>
@@ -62,4 +70,3 @@ export function AppRail({ active, onSelect }: AppRailProps) {
     </aside>
   );
 }
-
