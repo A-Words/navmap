@@ -26,6 +26,8 @@ struct AppSettings {
     active_layer: String,
     #[serde(default = "default_language")]
     language: String,
+    #[serde(default = "default_theme_preference")]
+    theme_preference: String,
     show_traffic_hints: bool,
     last_center: LngLat,
     last_zoom: f64,
@@ -34,6 +36,10 @@ struct AppSettings {
 
 fn default_language() -> String {
     "zh".to_string()
+}
+
+fn default_theme_preference() -> String {
+    "system".to_string()
 }
 
 #[tauri::command]

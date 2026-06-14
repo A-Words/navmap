@@ -17,6 +17,7 @@ import type {
   RoutePointTarget,
   RouteSummary,
   SearchResult,
+  ThemePreference,
   TravelMode,
 } from "./types";
 
@@ -37,7 +38,8 @@ function getSystemColorScheme(): ColorScheme {
 export default function App() {
   const [activeRail, setActiveRail] = useState<PanelId>("route");
   const [activeLayer, setActiveLayer] = useState<LayerId>("standard");
-  const [colorScheme, setColorScheme] = useState<ColorScheme>(() => getSystemColorScheme());
+  const [systemColorScheme, setSystemColorScheme] = useState<ColorScheme>(() => getSystemColorScheme());
+  const [themePreference, setThemePreference] = useState<ThemePreference>("system");
   const [language, setLanguage] = useState<Language>(DEFAULT_LANGUAGE);
   const [query, setQuery] = useState("联合广场");
   const [mode, setMode] = useState<TravelMode>("driving");
@@ -75,10 +77,11 @@ export default function App() {
   );
 
   const copy = translations[language];
+  const colorScheme = themePreference === "system" ? systemColorScheme : themePreference;
 
   useEffect(() => {
     const mediaQuery = window.matchMedia(DARK_SCHEME_QUERY);
-    const updateColorScheme = () => setColorScheme(mediaQuery.matches ? "dark" : "light");
+    const updateColorScheme = () => setSystemColorScheme(mediaQuery.matches ? "dark" : "light");
 
     updateColorScheme();
     mediaQuery.addEventListener("change", updateColorScheme);
@@ -105,6 +108,7 @@ export default function App() {
           return;
         }
         setLanguage(settings.language);
+        setThemePreference(settings.themePreference);
         if (settings.language !== DEFAULT_LANGUAGE) {
           const seed = getSeedRouteData(settings.language);
           setQuery("Union Square");
@@ -151,6 +155,7 @@ export default function App() {
       void saveSettings({
         activeLayer,
         language,
+        themePreference,
         showTrafficHints: true,
         lastCenter: lastViewport.center,
         lastZoom: lastViewport.zoom,
@@ -159,7 +164,7 @@ export default function App() {
     }, 250);
 
     return () => window.clearTimeout(timeout);
-  }, [activeLayer, language, lastViewport, recentSearches]);
+  }, [activeLayer, language, lastViewport, recentSearches, themePreference]);
 
   const handleLanguageChange = useCallback((nextLanguage: Language) => {
     const seed = getSeedRouteData(nextLanguage);
@@ -406,6 +411,8 @@ export default function App() {
         activePanel={activeRail}
         activeLayer={activeLayer}
         language={language}
+        themePreference={themePreference}
+        colorScheme={colorScheme}
         routeDrafts={routeDrafts}
         activeRouteTarget={activeRouteTarget}
         searchFocusToken={searchFocusToken}
@@ -416,6 +423,7 @@ export default function App() {
         onSelectPlace={handleSelectPlace}
         onLayerChange={setActiveLayer}
         onLanguageChange={handleLanguageChange}
+        onThemePreferenceChange={setThemePreference}
         onRoutePointFocus={setActiveRouteTarget}
         onRoutePointChange={handleRoutePointChange}
         onRoutePointSubmit={handleRoutePointSubmit}

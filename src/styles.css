@@ -905,7 +905,16 @@ button {
   background: #2e78e8;
 }
 
-.language-toggle {
+.language-setting {
+  flex-wrap: wrap;
+}
+
+.language-setting > span {
+  min-width: 0;
+}
+
+.language-toggle,
+.preference-toggle {
   display: flex;
   flex: 0 0 auto;
   gap: 4px;
@@ -915,7 +924,12 @@ button {
   background: #f8fafc;
 }
 
-.language-toggle button {
+.preference-toggle {
+  width: 100%;
+}
+
+.language-toggle button,
+.preference-toggle button {
   height: 30px;
   padding: 0 10px;
   color: #64748b;
@@ -926,7 +940,14 @@ button {
   background: transparent;
 }
 
-.language-toggle button.is-active {
+.preference-toggle button {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0 7px;
+}
+
+.language-toggle button.is-active,
+.preference-toggle button.is-active {
   color: #ffffff;
   background: #2e78e8;
 }
@@ -1060,6 +1081,7 @@ button {
 .app-shell[data-color-scheme="dark"] .about-panel,
 .app-shell[data-color-scheme="dark"] .panel-segmented,
 .app-shell[data-color-scheme="dark"] .language-toggle,
+.app-shell[data-color-scheme="dark"] .preference-toggle,
 .app-shell[data-color-scheme="dark"] .route-options-panel {
   border-color: #28384f;
   background: #111c2d;
@@ -1153,7 +1175,8 @@ button {
 .app-shell[data-color-scheme="dark"] .route-card button,
 .app-shell[data-color-scheme="dark"] .layer-switcher button.is-active,
 .app-shell[data-color-scheme="dark"] .panel-segmented button.is-active,
-.app-shell[data-color-scheme="dark"] .language-toggle button.is-active {
+.app-shell[data-color-scheme="dark"] .language-toggle button.is-active,
+.app-shell[data-color-scheme="dark"] .preference-toggle button.is-active {
   color: #ffffff;
 }
 
@@ -1165,6 +1188,7 @@ button {
 .app-shell[data-color-scheme="dark"] .layer-switcher button.is-active,
 .app-shell[data-color-scheme="dark"] .panel-segmented button.is-active,
 .app-shell[data-color-scheme="dark"] .language-toggle button.is-active,
+.app-shell[data-color-scheme="dark"] .preference-toggle button.is-active,
 .app-shell[data-color-scheme="dark"] .go-button,
 .app-shell[data-color-scheme="dark"] .inline-search button,
 .app-shell[data-color-scheme="dark"] .place-detail-pin {
@@ -1173,7 +1197,8 @@ button {
 
 .app-shell[data-color-scheme="dark"] .layer-switcher button,
 .app-shell[data-color-scheme="dark"] .panel-segmented button,
-.app-shell[data-color-scheme="dark"] .language-toggle button {
+.app-shell[data-color-scheme="dark"] .language-toggle button,
+.app-shell[data-color-scheme="dark"] .preference-toggle button {
   color: #9badc4;
 }
 

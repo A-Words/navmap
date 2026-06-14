@@ -14,6 +14,7 @@ declare global {
 export const defaultSettings: AppSettings = {
   activeLayer: "standard",
   language: DEFAULT_LANGUAGE,
+  themePreference: "system",
   showTrafficHints: true,
   lastCenter: DEFAULT_CENTER,
   lastZoom: 12,

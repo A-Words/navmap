@@ -92,6 +92,11 @@ export const translations = {
       auto: "自动",
       language: "语言",
       languageDescription: "界面语言会自动保存",
+      appearance: "外观",
+      appearanceDescription: "选择主题，或跟随系统设置",
+      themeSystem: "跟随系统",
+      themeLight: "亮色",
+      themeDark: "深色",
     },
     about: {
       body: "NavMap 将 MapLibre GL、OpenStreetMap 瓦片、Nominatim 搜索和 OSRM 路线规划整合进 Tauri 桌面壳。",
@@ -233,6 +238,11 @@ export const translations = {
       auto: "Auto",
       language: "Language",
       languageDescription: "Interface language is saved automatically",
+      appearance: "Appearance",
+      appearanceDescription: "Choose a theme or follow the system setting",
+      themeSystem: "System",
+      themeLight: "Light",
+      themeDark: "Dark",
     },
     about: {
       body: "NavMap combines MapLibre GL, OpenStreetMap tiles, Nominatim search, and OSRM route planning inside a Tauri desktop shell.",

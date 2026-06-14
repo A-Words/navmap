@@ -18,6 +18,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { getLayerLabel, LANGUAGES, translations } from "../i18n";
 import type {
+  ColorScheme,
   Language,
   LayerId,
   PanelId,
@@ -25,6 +26,7 @@ import type {
   RoutePlan,
   RoutePointTarget,
   SearchResult,
+  ThemePreference,
   TravelMode,
 } from "../types";
 
@@ -45,6 +47,8 @@ type RoutePanelProps = {
   activePanel: PanelId;
   activeLayer: LayerId;
   language: Language;
+  themePreference: ThemePreference;
+  colorScheme: ColorScheme;
   routeDrafts: { origin: string; destination: string; waypoints: string[] };
   activeRouteTarget: RoutePointTarget;
   searchFocusToken: number;
@@ -55,6 +59,7 @@ type RoutePanelProps = {
   onSelectPlace: (place: SearchResult) => void;
   onLayerChange: (layer: LayerId) => void;
   onLanguageChange: (language: Language) => void;
+  onThemePreferenceChange: (preference: ThemePreference) => void;
   onRoutePointFocus: (target: RoutePointTarget) => void;
   onRoutePointChange: (target: RoutePointTarget, value: string) => void;
   onRoutePointSubmit: (target: RoutePointTarget) => void;
@@ -77,6 +82,8 @@ export function RoutePanel({
   activePanel,
   activeLayer,
   language,
+  themePreference,
+  colorScheme,
   routeDrafts,
   activeRouteTarget,
   searchFocusToken,
@@ -87,6 +94,7 @@ export function RoutePanel({
   onSelectPlace,
   onLayerChange,
   onLanguageChange,
+  onThemePreferenceChange,
   onRoutePointFocus,
   onRoutePointChange,
   onRoutePointSubmit,
@@ -326,6 +334,33 @@ export function RoutePanel({
                     onClick={() => onLanguageChange(item.id)}
                   >
                     {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="setting-row language-setting">
+              <span>
+                <strong>{copy.settings.appearance}</strong>
+                <small>
+                  {copy.settings.appearanceDescription} ·{" "}
+                  {colorScheme === "dark" ? copy.settings.themeDark : copy.settings.themeLight}
+                </small>
+              </span>
+              <div className="preference-toggle" role="group" aria-label={copy.settings.appearance}>
+                {(
+                  [
+                    ["system", copy.settings.themeSystem],
+                    ["light", copy.settings.themeLight],
+                    ["dark", copy.settings.themeDark],
+                  ] as const
+                ).map(([preference, label]) => (
+                  <button
+                    key={preference}
+                    className={themePreference === preference ? "is-active" : ""}
+                    type="button"
+                    onClick={() => onThemePreferenceChange(preference)}
+                  >
+                    {label}
                   </button>
                 ))}
               </div>

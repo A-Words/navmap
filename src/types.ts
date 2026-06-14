@@ -13,6 +13,8 @@ export type Language = "zh" | "en";
 
 export type ColorScheme = "light" | "dark";
 
+export type ThemePreference = "system" | ColorScheme;
+
 export type RoutePointTarget = "origin" | "destination" | `waypoint-${number}`;
 
 export type SearchResult = {
@@ -51,6 +53,7 @@ export type RoutePlan = {
 export type AppSettings = {
   activeLayer: LayerId;
   language: Language;
+  themePreference: ThemePreference;
   showTrafficHints: boolean;
   lastCenter: LngLat;
   lastZoom: number;

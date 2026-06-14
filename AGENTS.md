@@ -97,7 +97,7 @@ Preserve the selected route-first concept:
 - Keep the map as the primary canvas, not inside a card.
 - Keep route planning prominent in the left panel.
 - Keep controls compact, readable, and suitable for repeated desktop use.
-- Keep light and dark appearances aligned; the app follows system `prefers-color-scheme` automatically.
+- Keep light and dark appearances aligned; settings support `system`, `light`, and `dark` theme preferences.
 - Avoid nested cards and decorative visual filler.
 - Do not remove the projected route overlay unless the MapLibre layer ordering is proven reliable across raster/vector styles.
 - If changing layout, verify at least 1440 x 1024 and a narrower desktop width.
