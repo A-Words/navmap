@@ -1,74 +1,128 @@
 import {
   Clock3,
-  Compass,
   Info,
   Layers,
   MapPinned,
+  PanelLeftClose,
+  PanelLeftOpen,
   Route,
   Search,
   Settings,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getPanelLabel, translations } from "../i18n";
-import type { Language } from "../types";
+import type { Language, PanelId } from "../types";
 
 type AppRailProps = {
-  active: "route" | "search" | "recents" | "layers" | "settings" | "about";
+  active: PanelId;
   language: Language;
-  onSelect: (item: AppRailProps["active"]) => void;
+  panelCollapsed: boolean;
+  onSelect: (item: PanelId) => void;
+  onTogglePanel: () => void;
 };
 
-const navItems = [
-  { id: "route", icon: Route },
+const primaryItems = [
   { id: "search", icon: Search },
-  { id: "recents", icon: Clock3 },
   { id: "layers", icon: Layers },
+  { id: "route", icon: Route },
 ] as const;
 
-export function AppRail({ active, language, onSelect }: AppRailProps) {
+export function AppRail({ active, language, panelCollapsed, onSelect, onTogglePanel }: AppRailProps) {
+  const copy = translations[language];
+  const PanelIcon = panelCollapsed ? PanelLeftOpen : PanelLeftClose;
+
   return (
-    <aside className="app-rail" aria-label={translations[language].nav.primary}>
-      <div className="brand">
-        <span className="brand-mark">
-          <MapPinned size={17} aria-hidden="true" />
+    <aside className="app-rail" aria-label={copy.nav.primary}>
+      <div className="rail-brand">
+        <span className="brand-lockup">
+          <MapPinned aria-hidden="true" />
+          <span>NavMap</span>
         </span>
-        <span className="brand-name">NavMap</span>
+        <Badge variant="secondary" className="rail-beta">
+          BETA
+        </Badge>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              className="rail-panel-toggle"
+              variant="ghost"
+              size="icon-sm"
+              type="button"
+              aria-label={panelCollapsed ? copy.nav.expand : copy.nav.collapse}
+              onClick={onTogglePanel}
+            >
+              <PanelIcon aria-hidden="true" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="right">{panelCollapsed ? copy.nav.expand : copy.nav.collapse}</TooltipContent>
+        </Tooltip>
       </div>
-      <button className="collapse-button" type="button" aria-label={translations[language].nav.collapse}>
-        <Compass size={16} aria-hidden="true" />
-      </button>
+
       <nav className="rail-nav">
-        {navItems.map((item) => {
+        {primaryItems.map((item) => {
           const Icon = item.icon;
           return (
-            <button
+            <Button
               key={item.id}
-              className={`rail-item ${active === item.id ? "is-active" : ""}`}
+              className="rail-item"
+              data-active={active === item.id}
+              variant="ghost"
               type="button"
               onClick={() => onSelect(item.id)}
             >
-              <Icon size={19} aria-hidden="true" />
+              <span className="rail-item-icon">
+                <Icon data-icon="inline-start" aria-hidden="true" />
+              </span>
               <span>{getPanelLabel(language, item.id)}</span>
-            </button>
+            </Button>
           );
         })}
       </nav>
-      <div className="rail-footer">
-        <button
-          className={`rail-item ${active === "settings" ? "is-active" : ""}`}
+
+      <section className="rail-recents" aria-label={getPanelLabel(language, "recents")}>
+        <Button className="rail-section-heading" variant="ghost" type="button" onClick={() => onSelect("recents")}>
+          <span>{getPanelLabel(language, "recents")}</span>
+          <Clock3 data-icon="inline-end" aria-hidden="true" />
+        </Button>
+        <Button
+          className="rail-recent-item"
+          data-active={active === "recents"}
+          variant="ghost"
           type="button"
+          onClick={() => onSelect("recents")}
+        >
+          <span className="rail-recent-icon">
+            <MapPinned aria-hidden="true" />
+          </span>
+          <span>{language === "zh" ? "白云机场肇庆候机楼" : "Baiyun Airport Zhaoqing Terminal"}</span>
+        </Button>
+      </section>
+
+      <div className="rail-footer">
+        <Button
+          className="rail-icon-item"
+          data-active={active === "settings"}
+          variant="ghost"
+          size="icon"
+          type="button"
+          aria-label={getPanelLabel(language, "settings")}
           onClick={() => onSelect("settings")}
         >
-          <Settings size={18} aria-hidden="true" />
-          <span>{getPanelLabel(language, "settings")}</span>
-        </button>
-        <button
-          className={`rail-item ${active === "about" ? "is-active" : ""}`}
+          <Settings aria-hidden="true" />
+        </Button>
+        <Button
+          className="rail-icon-item"
+          data-active={active === "about"}
+          variant="ghost"
+          size="icon"
           type="button"
+          aria-label={getPanelLabel(language, "about")}
           onClick={() => onSelect("about")}
         >
-          <Info size={18} aria-hidden="true" />
-          <span>{getPanelLabel(language, "about")}</span>
-        </button>
+          <Info aria-hidden="true" />
+        </Button>
       </div>
     </aside>
   );

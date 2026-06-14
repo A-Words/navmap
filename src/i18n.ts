@@ -17,6 +17,7 @@ export const translations = {
       settings: "设置",
       about: "关于",
       collapse: "收起侧边栏",
+      expand: "展开侧边栏",
       primary: "主导航",
     },
     panel: {
@@ -31,6 +32,7 @@ export const translations = {
       settingsDescription: "在本地保存的桌面偏好。",
       aboutTitle: "关于",
       aboutDescription: "由 OpenStreetMap 驱动的桌面导航。",
+      share: "共享",
     },
     route: {
       addWaypoint: "添加途经点",
@@ -39,6 +41,8 @@ export const translations = {
       waypoint: "途经点",
       removeWaypoint: "移除途经点",
       routeOptions: "路线选项",
+      departure: "出发时间",
+      departNow: "现在",
       avoidHighways: "避开高速",
       avoidTolls: "避开收费",
       avoidFerries: "避开轮渡",
@@ -80,6 +84,7 @@ export const translations = {
       scaleAttributionDescription: "OSM 署名和公制比例尺",
       on: "开启",
       open: "打开图层",
+      layersHint: "切换底图时会保留当前路线和搜索状态。",
     },
     settings: {
       defaultLayer: "默认图层",
@@ -162,6 +167,7 @@ export const translations = {
       settings: "Settings",
       about: "About",
       collapse: "Collapse sidebar",
+      expand: "Expand sidebar",
       primary: "Primary navigation",
     },
     panel: {
@@ -176,6 +182,7 @@ export const translations = {
       settingsDescription: "Desktop preferences saved locally.",
       aboutTitle: "About",
       aboutDescription: "OpenStreetMap-powered desktop navigation.",
+      share: "Share",
     },
     route: {
       addWaypoint: "Add Waypoint",
@@ -184,6 +191,8 @@ export const translations = {
       waypoint: "Waypoint",
       removeWaypoint: "Remove waypoint",
       routeOptions: "Route options",
+      departure: "Departure time",
+      departNow: "Now",
       avoidHighways: "Avoid highways",
       avoidTolls: "Avoid tolls",
       avoidFerries: "Avoid ferries",
@@ -225,6 +234,7 @@ export const translations = {
       scaleAttributionDescription: "OSM attribution and metric scale bar",
       on: "On",
       open: "Open layers",
+      layersHint: "Switching base maps keeps the current route and search state.",
     },
     settings: {
       defaultLayer: "Default layer",

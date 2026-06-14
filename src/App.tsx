@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppRail } from "./components/AppRail";
 import { MapCanvas } from "./components/MapCanvas";
 import { RoutePanel } from "./components/RoutePanel";
+import { TooltipProvider } from "./components/ui/tooltip";
 import { getSeedRouteData } from "./data/seedRoute";
 import { DEFAULT_LANGUAGE, getLayerLabel, translations } from "./i18n";
 import { searchPlaces } from "./services/geocoding";
@@ -37,6 +38,7 @@ function getSystemColorScheme(): ColorScheme {
 
 export default function App() {
   const [activeRail, setActiveRail] = useState<PanelId>("route");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeLayer, setActiveLayer] = useState<LayerId>("standard");
   const [systemColorScheme, setSystemColorScheme] = useState<ColorScheme>(() => getSystemColorScheme());
   const [themePreference, setThemePreference] = useState<ThemePreference>("system");
@@ -90,10 +92,12 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.dataset.colorScheme = colorScheme;
+    document.documentElement.classList.toggle("dark", colorScheme === "dark");
     document.documentElement.style.colorScheme = colorScheme;
 
     return () => {
       delete document.documentElement.dataset.colorScheme;
+      document.documentElement.classList.remove("dark");
       document.documentElement.style.colorScheme = "";
     };
   }, [colorScheme]);
@@ -388,70 +392,87 @@ export default function App() {
     }
   }, [copy.route.routeFailed, language, mode, routePlan.origin.coordinate, selectedPlace.coordinate, waypoints]);
 
+  const handleRailSelect = useCallback((panel: PanelId) => {
+    setActiveRail(panel);
+    setSidebarCollapsed(false);
+  }, []);
+
   return (
-    <main className="app-shell" data-color-scheme={colorScheme}>
-      <AppRail active={activeRail} language={language} onSelect={setActiveRail} />
-      <RoutePanel
-        plan={routePlan}
-        selectedPlace={selectedPlace}
-        searchResults={searchResults}
-        recentSearches={recentSearches}
-        activeQuery={query}
-        searchState={searchState}
-        searchError={searchError}
-        routeState={routeState}
-        routeError={routeError}
-        locationError={locationError}
-        activePanel={activeRail}
-        activeLayer={activeLayer}
-        language={language}
-        themePreference={themePreference}
-        colorScheme={colorScheme}
-        routeDrafts={routeDrafts}
-        activeRouteTarget={activeRouteTarget}
-        onQueryChange={setQuery}
-        onSearchSubmit={handleSearchSubmit}
-        onRouteSubmit={handleRouteSubmit}
-        onModeChange={setMode}
-        onSelectPlace={handleSelectPlace}
-        onLayerChange={setActiveLayer}
-        onLanguageChange={handleLanguageChange}
-        onThemePreferenceChange={setThemePreference}
-        onRoutePointFocus={setActiveRouteTarget}
-        onRoutePointChange={handleRoutePointChange}
-        onRoutePointSubmit={handleRoutePointSubmit}
-        onSwapRoutePoints={handleSwapRoutePoints}
-        onAddWaypoint={handleAddWaypoint}
-        onRemoveWaypoint={handleRemoveWaypoint}
-      />
-      <MapCanvas
-        activeLayer={activeLayer}
-        language={language}
-        plan={routePlan}
-        selectedPlace={selectedPlace}
-        onCenterChange={handleCenterChange}
-        onLocate={handleLocate}
-      />
-      <div className="layer-switcher" aria-label={copy.layers.baseMap}>
-        {(["standard", "terrain", "transit"] as const).map((layer) => (
-          <button
-            key={layer}
-            className={activeLayer === layer ? "is-active" : ""}
-            type="button"
-            onClick={() => setActiveLayer(layer)}
-          >
-            {getLayerLabel(language, layer)}
-          </button>
-        ))}
-      </div>
-      <span className="sr-only" aria-live="polite">
-        {lastViewport
-          ? `${copy.map.centered} ${lastViewport.center.lat.toFixed(4)}, ${lastViewport.center.lng.toFixed(
-              4,
-            )}, zoom ${lastViewport.zoom.toFixed(1)}`
-          : copy.map.ready}
-      </span>
-    </main>
+    <TooltipProvider>
+      <main
+        className={`app-shell ${sidebarCollapsed ? "is-panel-collapsed" : ""}`}
+        data-color-scheme={colorScheme}
+      >
+        <AppRail
+          active={activeRail}
+          language={language}
+          panelCollapsed={sidebarCollapsed}
+          onSelect={handleRailSelect}
+          onTogglePanel={() => setSidebarCollapsed((current) => !current)}
+        />
+        <RoutePanel
+          plan={routePlan}
+          selectedPlace={selectedPlace}
+          searchResults={searchResults}
+          recentSearches={recentSearches}
+          activeQuery={query}
+          searchState={searchState}
+          searchError={searchError}
+          routeState={routeState}
+          routeError={routeError}
+          locationError={locationError}
+          activePanel={activeRail}
+          activeLayer={activeLayer}
+          language={language}
+          themePreference={themePreference}
+          colorScheme={colorScheme}
+          routeDrafts={routeDrafts}
+          activeRouteTarget={activeRouteTarget}
+          onQueryChange={setQuery}
+          onSearchSubmit={handleSearchSubmit}
+          onRouteSubmit={handleRouteSubmit}
+          onModeChange={setMode}
+          onSelectPlace={handleSelectPlace}
+          onLayerChange={setActiveLayer}
+          onLanguageChange={handleLanguageChange}
+          onThemePreferenceChange={setThemePreference}
+          onRoutePointFocus={setActiveRouteTarget}
+          onRoutePointChange={handleRoutePointChange}
+          onRoutePointSubmit={handleRoutePointSubmit}
+          onSwapRoutePoints={handleSwapRoutePoints}
+          onAddWaypoint={handleAddWaypoint}
+          onRemoveWaypoint={handleRemoveWaypoint}
+          onClosePanel={() => setSidebarCollapsed(true)}
+        />
+        <MapCanvas
+          activeLayer={activeLayer}
+          language={language}
+          plan={routePlan}
+          selectedPlace={selectedPlace}
+          onCenterChange={handleCenterChange}
+          onLocate={handleLocate}
+        />
+        <div className="layer-switcher" aria-label={copy.layers.baseMap}>
+          {(["standard", "terrain", "transit"] as const).map((layer) => (
+            <button
+              key={layer}
+              className={activeLayer === layer ? "is-active" : ""}
+              type="button"
+              onClick={() => setActiveLayer(layer)}
+            >
+              {getLayerLabel(language, layer)}
+            </button>
+          ))}
+        </div>
+        <span className="sr-only" aria-live="polite">
+          {lastViewport
+            ? `${copy.map.centered} ${lastViewport.center.lat.toFixed(4)}, ${lastViewport.center.lng.toFixed(
+                4,
+              )}, zoom ${lastViewport.zoom.toFixed(1)}`
+            : copy.map.ready}
+        </span>
+      </main>
+    </TooltipProvider>
   );
 }
 
