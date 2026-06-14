@@ -34,6 +34,14 @@ const EMPTY_ORIGIN: SearchResult = {
   type: "location",
 };
 
+const EMPTY_DESTINATION: SearchResult = {
+  id: "",
+  name: "",
+  address: "",
+  coordinate: { lng: 0, lat: 0 },
+  type: "",
+};
+
 const EMPTY_ROUTE: RouteSummary = {
   distanceLabel: "",
   durationLabel: "",
@@ -63,7 +71,7 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [mode, setMode] = useState<TravelMode>("driving");
   const [origin, setOrigin] = useState<SearchResult>(EMPTY_ORIGIN);
-  const [selectedPlace, setSelectedPlace] = useState<SearchResult>(EMPTY_ORIGIN);
+  const [selectedPlace, setSelectedPlace] = useState<SearchResult>(EMPTY_DESTINATION);
   const [waypoints, setWaypoints] = useState<SearchResult[]>([]);
   const [routeDrafts, setRouteDrafts] = useState({
     origin: "",
