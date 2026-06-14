@@ -106,7 +106,7 @@ button {
 }
 
 .app-shell.is-panel-collapsed {
-  grid-template-columns: 208px 0 minmax(0, 1fr);
+  grid-template-columns: 68px 0 minmax(0, 1fr);
 }
 
 .app-rail {
@@ -271,6 +271,75 @@ button {
 .rail-icon-item[data-active="true"] {
   color: #ffffff;
   background: var(--navmap-blue);
+}
+
+.app-shell.is-panel-collapsed .app-rail {
+  align-items: center;
+  gap: 14px;
+  padding: 24px 10px 18px;
+}
+
+.app-shell.is-panel-collapsed .rail-brand {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 0;
+}
+
+.app-shell.is-panel-collapsed .brand-lockup,
+.app-shell.is-panel-collapsed .rail-beta,
+.app-shell.is-panel-collapsed .rail-item > span:not(.rail-item-icon),
+.app-shell.is-panel-collapsed .rail-section-heading,
+.app-shell.is-panel-collapsed .rail-recent-item > span:last-child,
+.app-shell.is-panel-collapsed .rail-footer {
+  display: none;
+}
+
+.app-shell.is-panel-collapsed .rail-panel-toggle {
+  width: 40px;
+  height: 40px;
+  color: rgba(255, 255, 255, 0.84);
+  background: transparent;
+}
+
+.app-shell.is-panel-collapsed .rail-nav,
+.app-shell.is-panel-collapsed .rail-recents {
+  width: 100%;
+}
+
+.app-shell.is-panel-collapsed .rail-nav {
+  gap: 10px;
+}
+
+.app-shell.is-panel-collapsed .rail-recents {
+  margin-top: 16px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.app-shell.is-panel-collapsed .rail-item,
+.app-shell.is-panel-collapsed .rail-recent-item {
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+}
+
+.app-shell.is-panel-collapsed .rail-item:hover,
+.app-shell.is-panel-collapsed .rail-item[data-active="true"],
+.app-shell.is-panel-collapsed .rail-recent-item:hover,
+.app-shell.is-panel-collapsed .rail-recent-item[data-active="true"] {
+  background: transparent;
+}
+
+.app-shell.is-panel-collapsed .rail-item-icon {
+  width: 34px;
+  height: 34px;
+}
+
+.app-shell.is-panel-collapsed .rail-recent-icon {
+  width: 34px;
+  height: 34px;
 }
 
 .route-panel {
@@ -992,7 +1061,7 @@ button {
   }
 
   .app-shell.is-panel-collapsed {
-    grid-template-columns: 86px 0 minmax(0, 1fr);
+    grid-template-columns: 68px 0 minmax(0, 1fr);
   }
 
   .app-rail {
