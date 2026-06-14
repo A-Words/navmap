@@ -52,6 +52,12 @@ Use Conventional Commits and keep commits small:
 
 Avoid large mixed commits. Prefer one behavior or subsystem per commit.
 
+## Documentation Updates
+
+When a change affects setup, commands, architecture, OSM service behavior, verification workflow, or agent operating rules, update the relevant documentation in the same small commit or a nearby `docs:` commit.
+
+Keep `README.md` user-facing and `AGENTS.md` agent-facing. Update `design-qa.md` when visual implementation changes materially.
+
 ## Architecture Notes
 
 Frontend ownership:
@@ -118,4 +124,3 @@ For UI or behavior changes:
 - Do not run destructive git commands.
 - Do not remove user changes you did not make.
 - Do not run dependency upgrades or `npm audit fix --force` unless explicitly requested.
-
