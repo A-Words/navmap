@@ -367,14 +367,20 @@ function RoutePlanner({
       {routeFieldFocused &&
       ((activeRouteTarget === "origin" && !routeDrafts.origin.trim()) ||
         (activeRouteTarget === "destination" && !routeDrafts.destination.trim())) ? (
-        <Button className="route-locate-btn" variant="ghost" type="button" onClick={onLocate}>
+        <Button
+          className="route-locate-btn"
+          variant="ghost"
+          type="button"
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={onLocate}
+        >
           <LocateFixed data-icon="inline-start" aria-hidden="true" />
           {t("route.currentLocation")}
         </Button>
       ) : null}
 
-      {getActiveDraft(routeDrafts, activeRouteTarget).trim() && searchResults.length ? (
-        <div className="search-results-card route-search-results">
+      {routeFieldFocused && getActiveDraft(routeDrafts, activeRouteTarget).trim() && searchResults.length ? (
+        <div className="search-results-card route-search-results" onMouseDown={(event) => event.preventDefault()}>
           <div className="place-list">
             {searchResults.map((place) => (
               <SearchResultRow key={place.id} place={place} onSelectPlace={onSelectPlace} />
