@@ -53,7 +53,6 @@ import type {
   RouteInstruction,
   RoutePlan,
   RoutePointTarget,
-  SearchPresentation,
   SearchResult,
   ThemePreference,
   TravelMode,
@@ -68,7 +67,6 @@ type RoutePanelProps = {
   searchResults: SearchResult[];
   recentSearches: SearchResult[];
   activeQuery: string;
-  searchPresentation: SearchPresentation;
   searchState: SearchState;
   searchError: string | null;
   routeState: RouteState;
@@ -103,7 +101,6 @@ export function RoutePanel({
   searchResults,
   recentSearches,
   activeQuery,
-  searchPresentation,
   searchState,
   searchError,
   routeState,
@@ -160,10 +157,8 @@ export function RoutePanel({
 
           {activePanel === "search" ? (
             <SearchView
-              selectedPlace={selectedPlace}
               searchResults={searchResults}
               activeQuery={activeQuery}
-              searchPresentation={searchPresentation}
               searchState={searchState}
               searchError={searchError}
               onQueryChange={onQueryChange}
@@ -387,20 +382,16 @@ function RoutePlanner({
 }
 
 function SearchView({
-  selectedPlace,
   searchResults,
   activeQuery,
-  searchPresentation,
   searchState,
   searchError,
   onQueryChange,
   onSearchSubmit,
   onSelectPlace,
 }: {
-  selectedPlace: SearchResult;
   searchResults: SearchResult[];
   activeQuery: string;
-  searchPresentation: SearchPresentation;
   searchState: SearchState;
   searchError: string | null;
   onQueryChange: (value: string) => void;
@@ -409,10 +400,8 @@ function SearchView({
 }) {
   return (
     <SearchSection
-      selectedPlace={selectedPlace}
       searchResults={searchResults}
       activeQuery={activeQuery}
-      searchPresentation={searchPresentation}
       searchState={searchState}
       searchError={searchError}
       onQueryChange={onQueryChange}
@@ -461,10 +450,8 @@ function StepsSection({ instructions }: { instructions: RouteInstruction[] }) {
 }
 
 function SearchSection({
-  selectedPlace,
   searchResults,
   activeQuery,
-  searchPresentation,
   searchState,
   searchError,
   onQueryChange,
@@ -472,10 +459,8 @@ function SearchSection({
   onSelectPlace,
   compact = false,
 }: {
-  selectedPlace: SearchResult;
   searchResults: SearchResult[];
   activeQuery: string;
-  searchPresentation: SearchPresentation;
   searchState: SearchState;
   searchError: string | null;
   onQueryChange: (value: string) => void;
@@ -485,16 +470,10 @@ function SearchSection({
 }) {
   const { t } = useTranslation();
   const hasActiveQuery = Boolean(activeQuery.trim());
-  const visibleResults = hasActiveQuery ? (searchResults.length ? searchResults : selectedPlace.name ? [selectedPlace] : []) : [];
-  const [featuredPlace, ...resultRows] = visibleResults;
-  const showEditingSuggestions = searchPresentation === "editing";
-  const rows = showEditingSuggestions ? resultRows : visibleResults;
+  const visibleResults = hasActiveQuery ? searchResults : [];
 
   return (
-    <section
-      className={`search-section-content is-${searchPresentation}`}
-      aria-label={compact ? t("route.searchResults") : t("route.places")}
-    >
+    <section className="search-section-content" aria-label={compact ? t("route.searchResults") : t("route.places")}>
       <div className="panel-search-form">
         <Search aria-hidden="true" />
         <Input
@@ -523,13 +502,9 @@ function SearchSection({
       </div>
 
       {visibleResults.length ? (
-        <div className={`search-results-card is-${searchPresentation}`}>
-          {showEditingSuggestions && featuredPlace ? (
-            <FeaturedSearchResult place={featuredPlace} onSelectPlace={onSelectPlace} />
-          ) : null}
-          {showEditingSuggestions && featuredPlace && rows.length ? <Separator /> : null}
+        <div className="search-results-card">
           <div className="place-list">
-            {rows.map((place) => (
+            {visibleResults.map((place) => (
               <SearchResultRow key={place.id} place={place} onSelectPlace={onSelectPlace} />
             ))}
           </div>
@@ -687,32 +662,6 @@ function InfoRow({ title, description, value }: { title: string; description: st
   );
 }
 
-function FeaturedSearchResult({ place, onSelectPlace }: { place: SearchResult; onSelectPlace: (place: SearchResult) => void }) {
-  const { i18n, t } = useTranslation();
-  const primaryMeta = formatPlacePrimaryMeta(place, i18n.language);
-  const secondaryMeta = formatPlaceSecondaryMeta(place);
-  const actions = getFeaturedActions(getPlaceKind(place), t);
-
-  return (
-    <article className="featured-search-result" aria-label={place.name}>
-      <button className="featured-search-main" type="button" onClick={() => onSelectPlace(place)}>
-        <PlaceGlyph place={place} featured />
-        <span className="place-row-copy">
-          <strong>{place.name}</strong>
-          {secondaryMeta || primaryMeta ? <small>{secondaryMeta || primaryMeta}</small> : null}
-        </span>
-      </button>
-      <div className="featured-search-actions" role="group" aria-label={place.name}>
-        {actions.map((action) => (
-          <Button key={action} variant="secondary" type="button" onClick={() => onSelectPlace(place)}>
-            {action}
-          </Button>
-        ))}
-      </div>
-    </article>
-  );
-}
-
 function SearchResultRow({ place, onSelectPlace }: { place: SearchResult; onSelectPlace: (place: SearchResult) => void }) {
   const { i18n } = useTranslation();
   const primaryMeta = formatPlacePrimaryMeta(place, i18n.language);
@@ -815,14 +764,6 @@ function getPlaceKind(place: SearchResult): PlaceKind {
   }
 
   return "place";
-}
-
-function getFeaturedActions(kind: PlaceKind, t: (key: string) => string) {
-  if (kind === "landmark" || kind === "station" || kind === "building") {
-    return [t("search.nearbyParking"), t("search.entrance")];
-  }
-
-  return [t("search.directions"), t("search.details")];
 }
 
 function getPlaceBadges(kind: PlaceKind, t: (key: string) => string): PlaceBadge[] {

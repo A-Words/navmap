@@ -17,8 +17,6 @@ export type ThemePreference = "system" | ColorScheme;
 
 export type RoutePointTarget = "origin" | "destination" | `waypoint-${number}`;
 
-export type SearchPresentation = "editing" | "submitted";
-
 export type SearchResult = {
   id: string;
   name: string;

@@ -18,7 +18,6 @@ import type {
   PanelId,
   RoutePointTarget,
   RouteSummary,
-  SearchPresentation,
   SearchResult,
   ThemePreference,
   TravelMode,
@@ -79,11 +78,9 @@ export default function App() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [recentSearches, setRecentSearches] = useState<SearchResult[]>([]);
   const [searchState, setSearchState] = useState<SearchState>("idle");
-  const [searchPresentation, setSearchPresentation] = useState<SearchPresentation>("editing");
   const [searchError, setSearchError] = useState<string | null>(null);
   const [lastViewport, setLastViewport] = useState<{ center: LngLat; zoom: number } | null>(null);
   const searchAbortRef = useRef<AbortController | null>(null);
-  const searchPresentationRef = useRef<SearchPresentation>("editing");
   const routeAbortRef = useRef<AbortController | null>(null);
 
   const routePlan = useMemo(
@@ -296,12 +293,7 @@ export default function App() {
     setActiveRouteTarget("destination");
   }, []);
 
-  const updateSearchPresentation = useCallback((presentation: SearchPresentation) => {
-    searchPresentationRef.current = presentation;
-    setSearchPresentation(presentation);
-  }, []);
-
-  const performSearch = useCallback(async (trimmedQuery: string, presentation: SearchPresentation) => {
+  const performSearch = useCallback(async (trimmedQuery: string, selectFirstResult = false) => {
     if (!trimmedQuery) {
       return;
     }
@@ -310,7 +302,6 @@ export default function App() {
     const controller = new AbortController();
     searchAbortRef.current = controller;
     setSearchState("loading");
-    updateSearchPresentation(presentation);
     setSearchError(null);
 
     try {
@@ -321,7 +312,7 @@ export default function App() {
       setSearchResults(results);
       setSearchState(results.length ? "success" : "empty");
 
-      if (presentation === "submitted" && results[0]) {
+      if (selectFirstResult && results[0]) {
         setSelectedPlace(results[0]);
         setRecentSearches((current) => addRecentSearch(results[0], current));
       }
@@ -332,7 +323,7 @@ export default function App() {
       setSearchState("error");
       setSearchError(error instanceof Error ? error.message : t("route.searchFailed"));
     }
-  }, [routePlan.origin.coordinate, t, updateSearchPresentation]);
+  }, [routePlan.origin.coordinate, t]);
 
   const handleSearchSubmit = useCallback(async () => {
     const trimmedQuery = query.trim();
@@ -340,31 +331,27 @@ export default function App() {
       return;
     }
 
-    await performSearch(trimmedQuery, "submitted");
+    await performSearch(trimmedQuery, true);
   }, [performSearch, query]);
 
   const handleQueryChange = useCallback((value: string) => {
     setQuery(value);
-    updateSearchPresentation("editing");
-  }, [updateSearchPresentation]);
+  }, []);
 
   useEffect(() => {
     const trimmedQuery = query.trim();
     if (!trimmedQuery) {
       setSearchResults([]);
       setSearchState("idle");
-      updateSearchPresentation("editing");
       return;
     }
 
     const timer = setTimeout(() => {
-      if (searchPresentationRef.current === "editing") {
-        void performSearch(trimmedQuery, "editing");
-      }
+      void performSearch(trimmedQuery);
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [query, performSearch, updateSearchPresentation]);
+  }, [query, performSearch]);
 
   const handleSelectPlace = useCallback((place: SearchResult) => {
     applyPlaceToRouteTarget(place, activeRouteTarget);
@@ -429,7 +416,6 @@ export default function App() {
           searchResults={searchResults}
           recentSearches={recentSearches}
           activeQuery={query}
-          searchPresentation={searchPresentation}
           searchState={searchState}
           searchError={searchError}
           routeState={routeState}
