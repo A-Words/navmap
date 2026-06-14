@@ -61,7 +61,6 @@ export default function App() {
   const [searchState, setSearchState] = useState<SearchState>("idle");
   const [searchError, setSearchError] = useState<string | null>(null);
   const [lastViewport, setLastViewport] = useState<{ center: LngLat; zoom: number } | null>(null);
-  const [searchFocusToken, setSearchFocusToken] = useState(0);
   const searchAbortRef = useRef<AbortController | null>(null);
   const routeAbortRef = useRef<AbortController | null>(null);
 
@@ -314,11 +313,6 @@ export default function App() {
     setActiveRouteTarget("destination");
   }, []);
 
-  const handleOpenSearch = useCallback(() => {
-    setActiveRail("search");
-    setSearchFocusToken((current) => current + 1);
-  }, []);
-
   const handleSearchSubmit = useCallback(async () => {
     const trimmedQuery = query.trim();
     if (!trimmedQuery) {
@@ -415,7 +409,6 @@ export default function App() {
         colorScheme={colorScheme}
         routeDrafts={routeDrafts}
         activeRouteTarget={activeRouteTarget}
-        searchFocusToken={searchFocusToken}
         onQueryChange={setQuery}
         onSearchSubmit={handleSearchSubmit}
         onRouteSubmit={handleRouteSubmit}
@@ -438,7 +431,6 @@ export default function App() {
         selectedPlace={selectedPlace}
         onCenterChange={handleCenterChange}
         onLocate={handleLocate}
-        onOpenSearch={handleOpenSearch}
       />
       <div className="layer-switcher" aria-label={copy.layers.baseMap}>
         {(["standard", "terrain", "transit"] as const).map((layer) => (

@@ -677,50 +677,6 @@ button {
   filter: saturate(1.08) hue-rotate(8deg);
 }
 
-.map-top-search {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: 22px minmax(0, 1fr) auto;
-  width: min(390px, calc(100% - 160px));
-  height: 44px;
-  align-items: center;
-  gap: 8px;
-  padding: 0 10px 0 14px;
-  color: #66758a;
-  border: 1px solid rgba(198, 209, 224, 0.88);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.12);
-  backdrop-filter: blur(12px);
-  cursor: text;
-  text-align: left;
-}
-
-.map-top-search span {
-  overflow: hidden;
-  font-size: 14px;
-  font-weight: 620;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.map-top-search kbd {
-  display: inline-flex;
-  height: 25px;
-  align-items: center;
-  padding: 0 8px;
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 780;
-  border: 1px solid #dbe3ee;
-  border-radius: 7px;
-  background: #f8fafc;
-  box-shadow: inset 0 -1px 0 rgba(15, 23, 42, 0.06);
-}
-
 .map-toolbar {
   position: absolute;
   top: 108px;
@@ -1130,7 +1086,6 @@ button {
   stroke: #60a5fa;
 }
 
-.app-shell[data-color-scheme="dark"] .map-top-search,
 .app-shell[data-color-scheme="dark"] .map-toolbar button,
 .app-shell[data-color-scheme="dark"] .map-status,
 .app-shell[data-color-scheme="dark"] .layer-switcher {
@@ -1138,12 +1093,6 @@ button {
   border-color: rgba(66, 82, 108, 0.86);
   background: rgba(13, 24, 39, 0.92);
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.28);
-}
-
-.app-shell[data-color-scheme="dark"] .map-top-search kbd {
-  color: #9badc4;
-  border-color: #33445d;
-  background: #18263a;
 }
 
 .app-shell[data-color-scheme="dark"] .map-status strong {

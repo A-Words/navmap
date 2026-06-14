@@ -3,7 +3,7 @@ implementation screenshot path: E:\src\personal\navmap\navmap-desktop.png
 viewport: 1440 x 1024
 state: default route planning screen with OSM raster map, active route panel, standard layer selected
 full-view comparison evidence: source and implementation were opened with view_image and compared at the same desktop dimensions.
-focused region comparison evidence: left navigation/route panel, route summary card, top search command, right map controls, bottom attribution/status, and route overlay were inspected directly.
+focused region comparison evidence: left navigation/route panel, route summary card, right map controls, bottom attribution/status, and route overlay were inspected directly.
 
 **Findings**
 - No actionable P0/P1/P2 findings remain.
@@ -18,7 +18,7 @@ focused region comparison evidence: left navigation/route panel, route summary c
 
 **Required Fidelity Surfaces**
 - Fonts and typography: implemented with a system UI stack close to the concept's neutral product type; labels, nav, route metrics, and list rows use explicit sizes and weights.
-- Spacing and layout rhythm: left rail, route panel, map canvas, top search, right controls, and bottom status match the concept structure; panel scrollbar was hidden after QA.
+- Spacing and layout rhythm: left rail, route panel, map canvas, right controls, and bottom status match the refined route-first structure; panel scrollbar was hidden after QA.
 - Colors and visual tokens: light neutral surfaces, blue active state, green/red route pins, subtle borders, and white control surfaces match the selected direction.
 - Image quality and asset fidelity: no raster decorative assets were required; map imagery comes from live OSM raster tiles with visible attribution; route overlay uses real route coordinates projected over the map.
 - Copy and content: visible app copy follows the concept's NavMap, Route/Search/Recents/Layers, route fields, step list, search results, and OSM attribution.
@@ -35,7 +35,7 @@ focused region comparison evidence: left navigation/route panel, route summary c
 - Build checks passed with `npm run build` and `cargo check`.
 - Core UI interaction smoke test covered layer switching, search submit error state, route submit error state, and zoom controls.
 - Internationalization smoke test covered clean default Chinese, switching to English, and switching back to Chinese.
-- Route editing smoke test covered A/B field editing, adding a waypoint, opening route options, selecting a search result into the active route point, and top search focusing the search panel.
+- Route editing smoke test covered A/B field editing, adding a waypoint, opening route options, and selecting a search result into the active route point.
 - Appearance smoke test covered simulated dark and light `prefers-color-scheme`, plus Settings choices for following system, forcing light, and forcing dark.
 
 **Follow-up Polish**

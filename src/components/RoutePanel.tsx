@@ -15,7 +15,7 @@ import {
   Search,
   SlidersHorizontal,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { getLayerLabel, LANGUAGES, translations } from "../i18n";
 import type {
   ColorScheme,
@@ -51,7 +51,6 @@ type RoutePanelProps = {
   colorScheme: ColorScheme;
   routeDrafts: { origin: string; destination: string; waypoints: string[] };
   activeRouteTarget: RoutePointTarget;
-  searchFocusToken: number;
   onQueryChange: (value: string) => void;
   onSearchSubmit: () => void;
   onRouteSubmit: () => void;
@@ -86,7 +85,6 @@ export function RoutePanel({
   colorScheme,
   routeDrafts,
   activeRouteTarget,
-  searchFocusToken,
   onQueryChange,
   onSearchSubmit,
   onRouteSubmit,
@@ -259,7 +257,6 @@ export function RoutePanel({
             onQueryChange={onQueryChange}
             onSearchSubmit={onSearchSubmit}
             onSelectPlace={onSelectPlace}
-            focusToken={searchFocusToken}
           />
         </>
       ) : null}
@@ -463,7 +460,6 @@ function SearchSection({
   onQueryChange,
   onSearchSubmit,
   onSelectPlace,
-  focusToken = 0,
   compact = false,
 }: {
   language: Language;
@@ -475,18 +471,9 @@ function SearchSection({
   onQueryChange: (value: string) => void;
   onSearchSubmit: () => void;
   onSelectPlace: (place: SearchResult) => void;
-  focusToken?: number;
   compact?: boolean;
 }) {
   const copy = translations[language];
-  const inputRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    if (focusToken > 0) {
-      inputRef.current?.focus();
-      inputRef.current?.select();
-    }
-  }, [focusToken]);
 
   return (
     <section className="panel-section">
@@ -503,10 +490,9 @@ function SearchSection({
       >
         <Search size={16} aria-hidden="true" />
         <input
-          ref={inputRef}
           value={activeQuery}
           onChange={(event) => onQueryChange(event.target.value)}
-          placeholder={compact ? copy.search.inputPlaceholder : copy.search.topPlaceholder}
+          placeholder={copy.search.inputPlaceholder}
         />
         <button type="submit" disabled={searchState === "loading"}>
           {searchState === "loading" ? copy.search.searching : copy.search.submit}

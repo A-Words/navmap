@@ -65,7 +65,6 @@ export const translations = {
     },
     search: {
       inputPlaceholder: "搜索附近地点",
-      topPlaceholder: "搜索地点、地址或坐标...",
       submit: "搜索",
       searching: "搜索中",
     },
@@ -211,7 +210,6 @@ export const translations = {
     },
     search: {
       inputPlaceholder: "Search nearby places",
-      topPlaceholder: "Search places, addresses, or coordinates...",
       submit: "Search",
       searching: "Searching",
     },

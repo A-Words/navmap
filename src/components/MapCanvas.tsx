@@ -1,6 +1,6 @@
 import maplibregl, { GeoJSONSource, Map as MapLibreMap, Marker } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { Compass, Crosshair, Layers, LocateFixed, Minus, Navigation, Plus } from "lucide-react";
+import { Compass, Crosshair, Layers, LocateFixed, Minus, Plus } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DEFAULT_CENTER, osmRasterStyle } from "../config/mapServices";
 import { translations } from "../i18n";
@@ -13,7 +13,6 @@ type MapCanvasProps = {
   selectedPlace: SearchResult;
   onCenterChange: (center: LngLat, zoom: number) => void;
   onLocate: () => void;
-  onOpenSearch: () => void;
 };
 
 export function MapCanvas({
@@ -23,7 +22,6 @@ export function MapCanvas({
   selectedPlace,
   onCenterChange,
   onLocate,
-  onOpenSearch,
 }: MapCanvasProps) {
   const copy = translations[language];
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -188,11 +186,6 @@ export function MapCanvas({
 
   return (
     <section className={`map-area layer-${activeLayer}`} aria-label={copy.map.interactive}>
-      <button className="map-top-search" type="button" onClick={onOpenSearch}>
-        <Navigation size={18} aria-hidden="true" />
-        <span>{copy.search.topPlaceholder}</span>
-        <kbd>⌘ K</kbd>
-      </button>
       <div className="map-frame" ref={containerRef} />
       <svg className="route-overlay" aria-hidden="true">
         {routePath ? (
