@@ -694,6 +694,10 @@ button {
   gap: 2px;
 }
 
+.search-section-content.is-submitted {
+  gap: 14px;
+}
+
 .panel-search-form {
   display: grid;
   grid-template-columns: 22px minmax(0, 1fr) auto;

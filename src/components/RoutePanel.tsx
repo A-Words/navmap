@@ -53,6 +53,7 @@ import type {
   RouteInstruction,
   RoutePlan,
   RoutePointTarget,
+  SearchPresentation,
   SearchResult,
   ThemePreference,
   TravelMode,
@@ -67,6 +68,7 @@ type RoutePanelProps = {
   searchResults: SearchResult[];
   recentSearches: SearchResult[];
   activeQuery: string;
+  searchPresentation: SearchPresentation;
   searchState: SearchState;
   searchError: string | null;
   routeState: RouteState;
@@ -79,6 +81,7 @@ type RoutePanelProps = {
   routeDrafts: { origin: string; destination: string; waypoints: string[] };
   activeRouteTarget: RoutePointTarget;
   onQueryChange: (value: string) => void;
+  onSearchSubmit: () => void;
   onRouteSubmit: () => void;
   onModeChange: (mode: TravelMode) => void;
   onSelectPlace: (place: SearchResult) => void;
@@ -100,6 +103,7 @@ export function RoutePanel({
   searchResults,
   recentSearches,
   activeQuery,
+  searchPresentation,
   searchState,
   searchError,
   routeState,
@@ -112,6 +116,7 @@ export function RoutePanel({
   routeDrafts,
   activeRouteTarget,
   onQueryChange,
+  onSearchSubmit,
   onRouteSubmit,
   onModeChange,
   onSelectPlace,
@@ -158,9 +163,11 @@ export function RoutePanel({
               selectedPlace={selectedPlace}
               searchResults={searchResults}
               activeQuery={activeQuery}
+              searchPresentation={searchPresentation}
               searchState={searchState}
               searchError={searchError}
               onQueryChange={onQueryChange}
+              onSearchSubmit={onSearchSubmit}
               onSelectPlace={onSelectPlace}
             />
           ) : null}
@@ -383,17 +390,21 @@ function SearchView({
   selectedPlace,
   searchResults,
   activeQuery,
+  searchPresentation,
   searchState,
   searchError,
   onQueryChange,
+  onSearchSubmit,
   onSelectPlace,
 }: {
   selectedPlace: SearchResult;
   searchResults: SearchResult[];
   activeQuery: string;
+  searchPresentation: SearchPresentation;
   searchState: SearchState;
   searchError: string | null;
   onQueryChange: (value: string) => void;
+  onSearchSubmit: () => void;
   onSelectPlace: (place: SearchResult) => void;
 }) {
   return (
@@ -401,9 +412,11 @@ function SearchView({
       selectedPlace={selectedPlace}
       searchResults={searchResults}
       activeQuery={activeQuery}
+      searchPresentation={searchPresentation}
       searchState={searchState}
       searchError={searchError}
       onQueryChange={onQueryChange}
+      onSearchSubmit={onSearchSubmit}
       onSelectPlace={onSelectPlace}
     />
   );
@@ -451,32 +464,48 @@ function SearchSection({
   selectedPlace,
   searchResults,
   activeQuery,
+  searchPresentation,
   searchState,
   searchError,
   onQueryChange,
+  onSearchSubmit,
   onSelectPlace,
   compact = false,
 }: {
   selectedPlace: SearchResult;
   searchResults: SearchResult[];
   activeQuery: string;
+  searchPresentation: SearchPresentation;
   searchState: SearchState;
   searchError: string | null;
   onQueryChange: (value: string) => void;
+  onSearchSubmit: () => void;
   onSelectPlace: (place: SearchResult) => void;
   compact?: boolean;
 }) {
   const { t } = useTranslation();
-  const visibleResults = searchResults.length ? searchResults : selectedPlace.name ? [selectedPlace] : [];
+  const hasActiveQuery = Boolean(activeQuery.trim());
+  const visibleResults = hasActiveQuery ? (searchResults.length ? searchResults : selectedPlace.name ? [selectedPlace] : []) : [];
   const [featuredPlace, ...resultRows] = visibleResults;
+  const showEditingSuggestions = searchPresentation === "editing";
+  const rows = showEditingSuggestions ? resultRows : visibleResults;
 
   return (
-    <section className="search-section-content" aria-label={compact ? t("route.searchResults") : t("route.places")}>
+    <section
+      className={`search-section-content is-${searchPresentation}`}
+      aria-label={compact ? t("route.searchResults") : t("route.places")}
+    >
       <div className="panel-search-form">
         <Search aria-hidden="true" />
         <Input
           value={activeQuery}
           onChange={(event) => onQueryChange(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              onSearchSubmit();
+            }
+          }}
           placeholder={t("search.inputPlaceholder")}
         />
         {activeQuery ? (
@@ -494,11 +523,13 @@ function SearchSection({
       </div>
 
       {visibleResults.length ? (
-        <div className="search-results-card">
-          {featuredPlace ? <FeaturedSearchResult place={featuredPlace} onSelectPlace={onSelectPlace} /> : null}
-          {resultRows.length ? <Separator /> : null}
+        <div className={`search-results-card is-${searchPresentation}`}>
+          {showEditingSuggestions && featuredPlace ? (
+            <FeaturedSearchResult place={featuredPlace} onSelectPlace={onSelectPlace} />
+          ) : null}
+          {showEditingSuggestions && featuredPlace && rows.length ? <Separator /> : null}
           <div className="place-list">
-            {resultRows.map((place) => (
+            {rows.map((place) => (
               <SearchResultRow key={place.id} place={place} onSelectPlace={onSelectPlace} />
             ))}
           </div>

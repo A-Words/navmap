@@ -18,6 +18,7 @@ import type {
   PanelId,
   RoutePointTarget,
   RouteSummary,
+  SearchPresentation,
   SearchResult,
   ThemePreference,
   TravelMode,
@@ -78,9 +79,11 @@ export default function App() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [recentSearches, setRecentSearches] = useState<SearchResult[]>([]);
   const [searchState, setSearchState] = useState<SearchState>("idle");
+  const [searchPresentation, setSearchPresentation] = useState<SearchPresentation>("editing");
   const [searchError, setSearchError] = useState<string | null>(null);
   const [lastViewport, setLastViewport] = useState<{ center: LngLat; zoom: number } | null>(null);
   const searchAbortRef = useRef<AbortController | null>(null);
+  const searchPresentationRef = useRef<SearchPresentation>("editing");
   const routeAbortRef = useRef<AbortController | null>(null);
 
   const routePlan = useMemo(
@@ -293,8 +296,12 @@ export default function App() {
     setActiveRouteTarget("destination");
   }, []);
 
-  const handleSearchSubmit = useCallback(async () => {
-    const trimmedQuery = query.trim();
+  const updateSearchPresentation = useCallback((presentation: SearchPresentation) => {
+    searchPresentationRef.current = presentation;
+    setSearchPresentation(presentation);
+  }, []);
+
+  const performSearch = useCallback(async (trimmedQuery: string, presentation: SearchPresentation) => {
     if (!trimmedQuery) {
       return;
     }
@@ -303,6 +310,7 @@ export default function App() {
     const controller = new AbortController();
     searchAbortRef.current = controller;
     setSearchState("loading");
+    updateSearchPresentation(presentation);
     setSearchError(null);
 
     try {
@@ -313,7 +321,7 @@ export default function App() {
       setSearchResults(results);
       setSearchState(results.length ? "success" : "empty");
 
-      if (results[0]) {
+      if (presentation === "submitted" && results[0]) {
         setSelectedPlace(results[0]);
         setRecentSearches((current) => addRecentSearch(results[0], current));
       }
@@ -324,22 +332,39 @@ export default function App() {
       setSearchState("error");
       setSearchError(error instanceof Error ? error.message : t("route.searchFailed"));
     }
-  }, [query, routePlan.origin.coordinate, t]);
+  }, [routePlan.origin.coordinate, t, updateSearchPresentation]);
+
+  const handleSearchSubmit = useCallback(async () => {
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) {
+      return;
+    }
+
+    await performSearch(trimmedQuery, "submitted");
+  }, [performSearch, query]);
+
+  const handleQueryChange = useCallback((value: string) => {
+    setQuery(value);
+    updateSearchPresentation("editing");
+  }, [updateSearchPresentation]);
 
   useEffect(() => {
     const trimmedQuery = query.trim();
     if (!trimmedQuery) {
       setSearchResults([]);
       setSearchState("idle");
+      updateSearchPresentation("editing");
       return;
     }
 
     const timer = setTimeout(() => {
-      handleSearchSubmit();
+      if (searchPresentationRef.current === "editing") {
+        void performSearch(trimmedQuery, "editing");
+      }
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [query, handleSearchSubmit]);
+  }, [query, performSearch, updateSearchPresentation]);
 
   const handleSelectPlace = useCallback((place: SearchResult) => {
     applyPlaceToRouteTarget(place, activeRouteTarget);
@@ -404,6 +429,7 @@ export default function App() {
           searchResults={searchResults}
           recentSearches={recentSearches}
           activeQuery={query}
+          searchPresentation={searchPresentation}
           searchState={searchState}
           searchError={searchError}
           routeState={routeState}
@@ -415,7 +441,8 @@ export default function App() {
           colorScheme={colorScheme}
           routeDrafts={routeDrafts}
           activeRouteTarget={activeRouteTarget}
-          onQueryChange={setQuery}
+          onQueryChange={handleQueryChange}
+          onSearchSubmit={handleSearchSubmit}
           onRouteSubmit={handleRouteSubmit}
           onModeChange={setMode}
           onSelectPlace={handleSelectPlace}
