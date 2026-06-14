@@ -5,9 +5,10 @@ NavMap 是一款基于 `Vite + React + TypeScript + Tauri v2` 的桌面地图应
 ## 功能概览
 
 - MapLibre GL 地图画布，使用 OpenStreetMap raster tiles。
-- 路线优先工作台：起点、终点、出行方式、路线摘要、步骤列表。
+- 路线优先工作台：可编辑起点/终点、途经点、路线选项、出行方式、路线摘要、步骤列表。
 - Nominatim 地点搜索：用户主动点击 `Search` 后请求，带本地缓存和错误态。
 - OSRM 路线规划：用户点击 `Go` 后请求，显示距离、耗时、步骤和路线覆盖层。
+- 国际化：首期支持中文和英文，默认中文，可在设置面板切换并自动保存。
 - 桌面能力：Tauri 应用窗口、应用图标、设置读写命令、定位入口。
 - 本地持久化：Tauri 运行时写入应用配置目录；浏览器开发环境回退到 `localStorage`。
 
@@ -86,6 +87,7 @@ design-qa.md        已选视觉方案的实现 QA 记录
 v1 使用公网 OSM 生态服务用于开发和轻量试用，后续生产化建议替换为自托管或商业服务。
 
 - Nominatim 只在用户主动提交搜索时请求，不做输入即请求的自动补全，不做批量 geocoding。
+- Nominatim 请求会根据当前界面语言发送 `Accept-Language`。
 - 搜索结果会缓存 12 小时，减少重复请求。
 - OSRM demo server 仅用于轻量路线试用，端点集中在 `src/config/mapServices.ts`。
 - OSM attribution 必须保留可见。
@@ -98,7 +100,7 @@ v1 使用公网 OSM 生态服务用于开发和轻量试用，后续生产化建
 - `npm run build`
 - `cargo check`
 - 1440 x 1024 视觉截图检查
-- 核心交互 smoke test：图层切换、搜索提交错误态、路线提交错误态、缩放控件
+- 核心交互 smoke test：图层切换、搜索提交错误态、路线提交错误态、缩放控件、A/B 点编辑、添加途经点、路线选项、顶部搜索聚焦
 - `design-qa.md`：`final result: passed`
 
 已知验证限制：
@@ -106,4 +108,3 @@ v1 使用公网 OSM 生态服务用于开发和轻量试用，后续生产化建
 - 在本地 headless 验证环境中，浏览器网络策略可能拦截 Nominatim/OSRM 请求并返回 `Failed to fetch`。应用会展示错误态；真实成功路径依赖运行环境是否允许访问这些公网服务。
 - Vite 构建会提示 MapLibre chunk 较大，这是地图库体积导致的非阻塞警告。
 - Windows 上 `cargo check` 可能出现增量编译目录清理权限警告，不影响编译结果。
-

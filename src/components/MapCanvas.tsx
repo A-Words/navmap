@@ -3,23 +3,29 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { Compass, Crosshair, Layers, LocateFixed, Minus, Navigation, Plus } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DEFAULT_CENTER, osmRasterStyle } from "../config/mapServices";
-import type { LayerId, LngLat, RoutePlan, SearchResult } from "../types";
+import { translations } from "../i18n";
+import type { Language, LayerId, LngLat, RoutePlan, SearchResult } from "../types";
 
 type MapCanvasProps = {
   activeLayer: LayerId;
+  language: Language;
   plan: RoutePlan;
   selectedPlace: SearchResult;
   onCenterChange: (center: LngLat, zoom: number) => void;
   onLocate: () => void;
+  onOpenSearch: () => void;
 };
 
 export function MapCanvas({
   activeLayer,
+  language,
   plan,
   selectedPlace,
   onCenterChange,
   onLocate,
+  onOpenSearch,
 }: MapCanvasProps) {
+  const copy = translations[language];
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const markersRef = useRef<Marker[]>([]);
@@ -124,6 +130,9 @@ export function MapCanvas({
       markersRef.current.forEach((marker) => marker.remove());
       markersRef.current = [
         createMapMarker("A", "origin", plan.origin.coordinate).addTo(map),
+        ...plan.waypoints.map((waypoint, index) =>
+          createMapMarker(String(index + 1), "waypoint", waypoint.coordinate).addTo(map),
+        ),
         createMapMarker("B", "destination", selectedPlace.coordinate).addTo(map),
       ];
 
@@ -145,7 +154,7 @@ export function MapCanvas({
     } else {
       map.once("load", applyRoute);
     }
-  }, [plan.origin.coordinate, routeCoordinates, selectedPlace.coordinate]);
+  }, [plan.origin.coordinate, plan.waypoints, routeCoordinates, selectedPlace.coordinate]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -178,12 +187,12 @@ export function MapCanvas({
   };
 
   return (
-    <section className={`map-area layer-${activeLayer}`} aria-label="Interactive map">
-      <div className="map-top-search" role="search">
+    <section className={`map-area layer-${activeLayer}`} aria-label={copy.map.interactive}>
+      <button className="map-top-search" type="button" onClick={onOpenSearch}>
         <Navigation size={18} aria-hidden="true" />
-        <span>Search places, addresses, or coordinates...</span>
+        <span>{copy.search.topPlaceholder}</span>
         <kbd>⌘ K</kbd>
-      </div>
+      </button>
       <div className="map-frame" ref={containerRef} />
       <svg className="route-overlay" aria-hidden="true">
         {routePath ? (
@@ -193,32 +202,32 @@ export function MapCanvas({
           </>
         ) : null}
       </svg>
-      <div className="map-toolbar" aria-label="Map controls">
-        <button type="button" aria-label="Reset compass">
+      <div className="map-toolbar" aria-label={copy.map.controls}>
+        <button type="button" aria-label={copy.map.resetCompass}>
           <Compass size={18} aria-hidden="true" />
         </button>
-        <div className="toolbar-group" role="group" aria-label="Zoom controls">
-          <button type="button" aria-label="Zoom in" onClick={zoomIn}>
+        <div className="toolbar-group" role="group" aria-label={copy.map.zoomControls}>
+          <button type="button" aria-label={copy.map.zoomIn} onClick={zoomIn}>
             <Plus size={19} aria-hidden="true" />
           </button>
-          <button type="button" aria-label="Zoom out" onClick={zoomOut}>
+          <button type="button" aria-label={copy.map.zoomOut} onClick={zoomOut}>
             <Minus size={19} aria-hidden="true" />
           </button>
         </div>
-        <button type="button" aria-label="Go to current location" onClick={recenter}>
+        <button type="button" aria-label={copy.map.currentLocation} onClick={recenter}>
           <LocateFixed size={18} aria-hidden="true" />
         </button>
-        <button type="button" aria-label="Recenter route">
+        <button type="button" aria-label={copy.map.recenterRoute}>
           <Crosshair size={18} aria-hidden="true" />
         </button>
-        <button type="button" aria-label="Open layers">
+        <button type="button" aria-label={copy.layers.open}>
           <Layers size={18} aria-hidden="true" />
         </button>
       </div>
       <footer className="map-status">
         <span className="online-dot" aria-hidden="true" />
-        <span>Online</span>
-        <span>Map data © OpenStreetMap contributors</span>
+        <span>{copy.map.online}</span>
+        <span>{copy.map.mapData}</span>
         <strong>
           {center.lat.toFixed(4)}° N, {Math.abs(center.lng).toFixed(4)}° W
         </strong>
@@ -228,7 +237,7 @@ export function MapCanvas({
   );
 }
 
-function createMapMarker(label: "A" | "B", variant: "origin" | "destination", coordinate: LngLat) {
+function createMapMarker(label: string, variant: "origin" | "waypoint" | "destination", coordinate: LngLat) {
   const element = document.createElement("div");
   element.className = `route-marker ${variant}`;
   element.textContent = label;

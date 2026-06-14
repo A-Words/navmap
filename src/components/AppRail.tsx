@@ -8,29 +8,32 @@ import {
   Search,
   Settings,
 } from "lucide-react";
+import { getPanelLabel, translations } from "../i18n";
+import type { Language } from "../types";
 
 type AppRailProps = {
   active: "route" | "search" | "recents" | "layers" | "settings" | "about";
+  language: Language;
   onSelect: (item: AppRailProps["active"]) => void;
 };
 
 const navItems = [
-  { id: "route", label: "Route", icon: Route },
-  { id: "search", label: "Search", icon: Search },
-  { id: "recents", label: "Recents", icon: Clock3 },
-  { id: "layers", label: "Layers", icon: Layers },
+  { id: "route", icon: Route },
+  { id: "search", icon: Search },
+  { id: "recents", icon: Clock3 },
+  { id: "layers", icon: Layers },
 ] as const;
 
-export function AppRail({ active, onSelect }: AppRailProps) {
+export function AppRail({ active, language, onSelect }: AppRailProps) {
   return (
-    <aside className="app-rail" aria-label="Primary navigation">
+    <aside className="app-rail" aria-label={translations[language].nav.primary}>
       <div className="brand">
         <span className="brand-mark">
           <MapPinned size={17} aria-hidden="true" />
         </span>
         <span className="brand-name">NavMap</span>
       </div>
-      <button className="collapse-button" type="button" aria-label="Collapse sidebar">
+      <button className="collapse-button" type="button" aria-label={translations[language].nav.collapse}>
         <Compass size={16} aria-hidden="true" />
       </button>
       <nav className="rail-nav">
@@ -44,7 +47,7 @@ export function AppRail({ active, onSelect }: AppRailProps) {
               onClick={() => onSelect(item.id)}
             >
               <Icon size={19} aria-hidden="true" />
-              <span>{item.label}</span>
+              <span>{getPanelLabel(language, item.id)}</span>
             </button>
           );
         })}
@@ -56,7 +59,7 @@ export function AppRail({ active, onSelect }: AppRailProps) {
           onClick={() => onSelect("settings")}
         >
           <Settings size={18} aria-hidden="true" />
-          <span>Settings</span>
+          <span>{getPanelLabel(language, "settings")}</span>
         </button>
         <button
           className={`rail-item ${active === "about" ? "is-active" : ""}`}
@@ -64,7 +67,7 @@ export function AppRail({ active, onSelect }: AppRailProps) {
           onClick={() => onSelect("about")}
         >
           <Info size={18} aria-hidden="true" />
-          <span>About</span>
+          <span>{getPanelLabel(language, "about")}</span>
         </button>
       </div>
     </aside>

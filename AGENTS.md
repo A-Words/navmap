@@ -64,7 +64,7 @@ Frontend ownership:
 
 - `src/App.tsx`: top-level state composition and feature orchestration.
 - `src/components/AppRail.tsx`: primary navigation rail.
-- `src/components/RoutePanel.tsx`: route planning, search list, place details, route state UI.
+- `src/components/RoutePanel.tsx`: editable route points, waypoints, route options, search list, place details, route state UI.
 - `src/components/MapCanvas.tsx`: MapLibre map lifecycle, markers, route layers, projected route overlay, map controls.
 - `src/services/geocoding.ts`: Nominatim search and cache.
 - `src/services/routing.ts`: OSRM route requests and step mapping.
@@ -100,6 +100,14 @@ Preserve the selected route-first concept:
 - Avoid nested cards and decorative visual filler.
 - Do not remove the projected route overlay unless the MapLibre layer ordering is proven reliable across raster/vector styles.
 - If changing layout, verify at least 1440 x 1024 and a narrower desktop width.
+
+## Internationalization
+
+- The default language is Chinese (`zh`); English (`en`) is the second supported language.
+- Add user-facing UI copy through `src/i18n.ts`, not as hardcoded component strings.
+- Keep the language switch in Settings functional and persisted through `AppSettings`.
+- Pass the selected language into Nominatim/route formatting paths when adding search or routing behavior.
+- When adding a new visible panel, control, state, or error message, provide both Chinese and English strings in the same change.
 
 ## Verification Expectations
 

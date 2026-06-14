@@ -24,10 +24,16 @@ struct SearchResult {
 #[serde(rename_all = "camelCase")]
 struct AppSettings {
     active_layer: String,
+    #[serde(default = "default_language")]
+    language: String,
     show_traffic_hints: bool,
     last_center: LngLat,
     last_zoom: f64,
     recent_searches: Vec<SearchResult>,
+}
+
+fn default_language() -> String {
+    "zh".to_string()
 }
 
 #[tauri::command]

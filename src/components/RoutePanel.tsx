@@ -15,7 +15,18 @@ import {
   Search,
   SlidersHorizontal,
 } from "lucide-react";
-import type { LayerId, PanelId, RouteInstruction, RoutePlan, SearchResult, TravelMode } from "../types";
+import { useEffect, useRef, useState } from "react";
+import { getLayerLabel, LANGUAGES, translations } from "../i18n";
+import type {
+  Language,
+  LayerId,
+  PanelId,
+  RouteInstruction,
+  RoutePlan,
+  RoutePointTarget,
+  SearchResult,
+  TravelMode,
+} from "../types";
 
 type SearchState = "idle" | "loading" | "success" | "empty" | "error";
 type RouteState = "idle" | "loading" | "success" | "error";
@@ -33,12 +44,23 @@ type RoutePanelProps = {
   locationError: string | null;
   activePanel: PanelId;
   activeLayer: LayerId;
+  language: Language;
+  routeDrafts: { origin: string; destination: string; waypoints: string[] };
+  activeRouteTarget: RoutePointTarget;
+  searchFocusToken: number;
   onQueryChange: (value: string) => void;
   onSearchSubmit: () => void;
   onRouteSubmit: () => void;
   onModeChange: (mode: TravelMode) => void;
   onSelectPlace: (place: SearchResult) => void;
   onLayerChange: (layer: LayerId) => void;
+  onLanguageChange: (language: Language) => void;
+  onRoutePointFocus: (target: RoutePointTarget) => void;
+  onRoutePointChange: (target: RoutePointTarget, value: string) => void;
+  onRoutePointSubmit: (target: RoutePointTarget) => void;
+  onSwapRoutePoints: () => void;
+  onAddWaypoint: () => void;
+  onRemoveWaypoint: (index: number) => void;
 };
 
 export function RoutePanel({
@@ -54,48 +76,130 @@ export function RoutePanel({
   locationError,
   activePanel,
   activeLayer,
+  language,
+  routeDrafts,
+  activeRouteTarget,
+  searchFocusToken,
   onQueryChange,
   onSearchSubmit,
   onRouteSubmit,
   onModeChange,
   onSelectPlace,
   onLayerChange,
+  onLanguageChange,
+  onRoutePointFocus,
+  onRoutePointChange,
+  onRoutePointSubmit,
+  onSwapRoutePoints,
+  onAddWaypoint,
+  onRemoveWaypoint,
 }: RoutePanelProps) {
+  const copy = translations[language];
+  const [showOptions, setShowOptions] = useState(false);
+  const [routeOptions, setRouteOptions] = useState({
+    avoidHighways: false,
+    avoidTolls: false,
+    avoidFerries: false,
+  });
+
   return (
-    <aside className="route-panel" aria-label="Route planning">
+    <aside className="route-panel" aria-label={copy.panel.routePlanning}>
       {activePanel === "route" ? (
         <>
           <div className="route-inputs">
-            <button className="drag-dots" type="button" aria-label="Reorder route">
+            <button className="drag-dots" type="button" aria-label={copy.routeFields.reorder}>
               <MoreVertical size={18} aria-hidden="true" />
             </button>
             <div className="route-fields">
-              <RouteField label="A" tone="origin" value={plan.origin.name} />
-              <RouteField label="B" tone="destination" value={plan.destination.name} />
+              <RouteField
+                label="A"
+                tone="origin"
+                value={routeDrafts.origin}
+                placeholder={copy.routeFields.origin}
+                active={activeRouteTarget === "origin"}
+                onFocus={() => onRoutePointFocus("origin")}
+                onChange={(value) => onRoutePointChange("origin", value)}
+                onSubmit={() => onRoutePointSubmit("origin")}
+              />
+              {plan.waypoints.map((waypoint, index) => {
+                const target = `waypoint-${index}` as const;
+                return (
+                  <div className="waypoint-field-row" key={`${waypoint.id}-${index}`}>
+                    <RouteField
+                      label={String(index + 1)}
+                      tone="waypoint"
+                      value={routeDrafts.waypoints[index] || waypoint.name}
+                      placeholder={`${copy.route.waypoint} ${index + 1}`}
+                      active={activeRouteTarget === target}
+                      onFocus={() => onRoutePointFocus(target)}
+                      onChange={(value) => onRoutePointChange(target, value)}
+                      onSubmit={() => onRoutePointSubmit(target)}
+                    />
+                    <button
+                      className="remove-waypoint-button"
+                      type="button"
+                      aria-label={copy.route.removeWaypoint}
+                      onClick={() => onRemoveWaypoint(index)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                );
+              })}
+              <RouteField
+                label="B"
+                tone="destination"
+                value={routeDrafts.destination}
+                placeholder={copy.routeFields.destination}
+                active={activeRouteTarget === "destination"}
+                onFocus={() => onRoutePointFocus("destination")}
+                onChange={(value) => onRoutePointChange("destination", value)}
+                onSubmit={() => onRoutePointSubmit("destination")}
+              />
             </div>
-            <button className="swap-button" type="button" aria-label="Swap origin and destination">
+            <button className="swap-button" type="button" aria-label={copy.routeFields.swap} onClick={onSwapRoutePoints}>
               <ArrowDownUp size={17} aria-hidden="true" />
             </button>
           </div>
 
           <div className="waypoint-row">
-            <button type="button">
+            <button type="button" onClick={onAddWaypoint}>
               <Plus size={17} aria-hidden="true" />
-              <span>Add Waypoint</span>
+              <span>{copy.route.addWaypoint}</span>
             </button>
-            <button type="button">
-              <span>Options</span>
+            <button type="button" aria-expanded={showOptions} onClick={() => setShowOptions((value) => !value)}>
+              <span>{showOptions ? copy.route.hideOptions : copy.route.options}</span>
               <ChevronDown size={16} aria-hidden="true" />
             </button>
           </div>
+          {showOptions ? (
+            <section className="route-options-panel" aria-label={copy.route.routeOptions}>
+              <h2>{copy.route.routeOptions}</h2>
+              {([
+                ["avoidHighways", copy.route.avoidHighways],
+                ["avoidTolls", copy.route.avoidTolls],
+                ["avoidFerries", copy.route.avoidFerries],
+              ] as const).map(([key, label]) => (
+                <label className="route-option-toggle" key={key}>
+                  <span>{label}</span>
+                  <input
+                    type="checkbox"
+                    checked={routeOptions[key]}
+                    onChange={(event) => setRouteOptions((current) => ({ ...current, [key]: event.target.checked }))}
+                  />
+                </label>
+              ))}
+              <p>{copy.route.routeOptionHint}</p>
+            </section>
+          ) : null}
 
           <div className="mode-row">
             <label className="mode-select">
               <Car size={17} aria-hidden="true" />
               <select value={plan.mode} onChange={(event) => onModeChange(event.target.value as TravelMode)}>
-                <option value="driving">Driving</option>
-                <option value="walking">Walking</option>
-                <option value="cycling">Cycling</option>
+                <option value="driving">{copy.modes.driving}</option>
+                <option value="walking">{copy.modes.walking}</option>
+                <option value="cycling">{copy.modes.cycling}</option>
               </select>
               <ChevronDown size={16} aria-hidden="true" />
             </label>
@@ -105,15 +209,16 @@ export function RoutePanel({
               disabled={routeState === "loading"}
               onClick={onRouteSubmit}
             >
-              {routeState === "loading" ? "Routing" : "Go"}
+              {routeState === "loading" ? copy.route.routing : copy.route.go}
             </button>
           </div>
           {routeState === "error" ? <p className="panel-message">{routeError}</p> : null}
           {locationError ? <p className="panel-message">{locationError}</p> : null}
 
-          <RouteSummaryCard plan={plan} />
-          <StepsSection instructions={plan.route.instructions} />
+          <RouteSummaryCard plan={plan} language={language} />
+          <StepsSection instructions={plan.route.instructions} language={language} />
           <SearchSection
+            language={language}
             selectedPlace={selectedPlace}
             searchResults={searchResults}
             activeQuery={activeQuery}
@@ -124,14 +229,20 @@ export function RoutePanel({
             onSelectPlace={onSelectPlace}
             compact
           />
-          <RecentsSection recentSearches={recentSearches} onSelectPlace={onSelectPlace} compact />
+          <RecentsSection
+            recentSearches={recentSearches}
+            language={language}
+            onSelectPlace={onSelectPlace}
+            compact
+          />
         </>
       ) : null}
 
       {activePanel === "search" ? (
         <>
-          <PanelHeader title="Search" description="Find places, addresses, and coordinates." />
+          <PanelHeader title={copy.panel.searchTitle} description={copy.panel.searchDescription} />
           <SearchSection
+            language={language}
             selectedPlace={selectedPlace}
             searchResults={searchResults}
             activeQuery={activeQuery}
@@ -140,23 +251,24 @@ export function RoutePanel({
             onQueryChange={onQueryChange}
             onSearchSubmit={onSearchSubmit}
             onSelectPlace={onSelectPlace}
+            focusToken={searchFocusToken}
           />
         </>
       ) : null}
 
       {activePanel === "recents" ? (
         <>
-          <PanelHeader title="Recents" description="Return to the places used in this session." />
-          <RecentsSection recentSearches={recentSearches} onSelectPlace={onSelectPlace} />
+          <PanelHeader title={copy.panel.recentsTitle} description={copy.panel.recentsDescription} />
+          <RecentsSection recentSearches={recentSearches} language={language} onSelectPlace={onSelectPlace} />
         </>
       ) : null}
 
       {activePanel === "layers" ? (
         <>
-          <PanelHeader title="Layers" description="Tune the map style without leaving the route view." />
+          <PanelHeader title={copy.panel.layersTitle} description={copy.panel.layersDescription} />
           <section className="panel-section layer-panel">
-            <h2>Base map</h2>
-            <div className="panel-segmented" role="group" aria-label="Base map layer">
+            <h2>{copy.layers.baseMap}</h2>
+            <div className="panel-segmented" role="group" aria-label={copy.layers.baseMap}>
               {(["standard", "terrain", "transit"] as const).map((layer) => (
                 <button
                   key={layer}
@@ -164,26 +276,26 @@ export function RoutePanel({
                   type="button"
                   onClick={() => onLayerChange(layer)}
                 >
-                  {layer}
+                  {getLayerLabel(language, layer)}
                 </button>
               ))}
             </div>
           </section>
           <section className="panel-section layer-panel">
-            <h2>Visible overlays</h2>
+            <h2>{copy.layers.visibleOverlays}</h2>
             <div className="layer-option-row">
               <span>
-                <strong>Active route</strong>
-                <small>Blue route overlay and A/B markers</small>
+                <strong>{copy.layers.activeRoute}</strong>
+                <small>{copy.layers.activeRouteDescription}</small>
               </span>
-              <span className="layer-status">On</span>
+              <span className="layer-status">{copy.layers.on}</span>
             </div>
             <div className="layer-option-row">
               <span>
-                <strong>Scale and attribution</strong>
-                <small>OSM attribution and metric scale bar</small>
+                <strong>{copy.layers.scaleAttribution}</strong>
+                <small>{copy.layers.scaleAttributionDescription}</small>
               </span>
-              <span className="layer-status">On</span>
+              <span className="layer-status">{copy.layers.on}</span>
             </div>
           </section>
         </>
@@ -191,28 +303,50 @@ export function RoutePanel({
 
       {activePanel === "settings" ? (
         <>
-          <PanelHeader title="Settings" description="Desktop preferences saved locally by Tauri." />
+          <PanelHeader title={copy.panel.settingsTitle} description={copy.panel.settingsDescription} />
           <section className="panel-section settings-panel">
             <div className="setting-row">
               <span>
-                <strong>Default layer</strong>
-                <small>{activeLayer}</small>
+                <strong>{copy.settings.defaultLayer}</strong>
+                <small>{getLayerLabel(language, activeLayer)}</small>
               </span>
               <SlidersHorizontal size={17} aria-hidden="true" />
             </div>
-            <div className="setting-row">
+            <div className="setting-row language-setting">
               <span>
-                <strong>Recent searches</strong>
-                <small>{recentSearches.length} saved locally</small>
+                <strong>{copy.settings.language}</strong>
+                <small>{copy.settings.languageDescription}</small>
               </span>
-              <span className="layer-status">Auto</span>
+              <div className="language-toggle" role="group" aria-label={copy.settings.language}>
+                {LANGUAGES.map((item) => (
+                  <button
+                    key={item.id}
+                    className={language === item.id ? "is-active" : ""}
+                    type="button"
+                    onClick={() => onLanguageChange(item.id)}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
             </div>
             <div className="setting-row">
               <span>
-                <strong>Location</strong>
-                <small>Uses system browser geolocation permission</small>
+                <strong>{copy.settings.recentSearches}</strong>
+                <small>
+                  {language === "zh"
+                    ? `${recentSearches.length} ${copy.settings.savedLocally}`
+                    : `${recentSearches.length} ${copy.settings.savedLocally}`}
+                </small>
               </span>
-              <span className="layer-status">Ask</span>
+              <span className="layer-status">{copy.settings.auto}</span>
+            </div>
+            <div className="setting-row">
+              <span>
+                <strong>{copy.settings.location}</strong>
+                <small>{copy.settings.locationDescription}</small>
+              </span>
+              <span className="layer-status">{copy.settings.ask}</span>
             </div>
           </section>
         </>
@@ -220,18 +354,15 @@ export function RoutePanel({
 
       {activePanel === "about" ? (
         <>
-          <PanelHeader title="About" description="OpenStreetMap-powered desktop navigation." />
+          <PanelHeader title={copy.panel.aboutTitle} description={copy.panel.aboutDescription} />
           <section className="panel-section about-panel">
-            <p>
-              NavMap combines MapLibre GL, OpenStreetMap tiles, Nominatim search, and OSRM route
-              planning inside a Tauri desktop shell.
-            </p>
+            <p>{copy.about.body}</p>
             <div className="about-stat">
-              <strong>Map data</strong>
-              <span>© OpenStreetMap contributors</span>
+              <strong>{copy.about.mapData}</strong>
+              <span>{copy.about.attribution}</span>
             </div>
             <div className="about-stat">
-              <strong>Version</strong>
+              <strong>{copy.about.version}</strong>
               <span>0.1.0</span>
             </div>
           </section>
@@ -250,7 +381,8 @@ function PanelHeader({ title, description }: { title: string; description: strin
   );
 }
 
-function RouteSummaryCard({ plan }: { plan: RoutePlan }) {
+function RouteSummaryCard({ plan, language }: { plan: RoutePlan; language: Language }) {
+  const copy = translations[language];
   return (
     <div className="route-card" aria-label="Active route summary">
       <div className="route-card-icon">
@@ -262,20 +394,21 @@ function RouteSummaryCard({ plan }: { plan: RoutePlan }) {
           <strong>{plan.route.durationLabel}</strong>
         </div>
         <p>{plan.route.description}</p>
-        <span>Fastest route, typical traffic</span>
+        <span>{copy.route.fastest}</span>
       </div>
       <button type="button">
-        Details
+        {copy.route.details}
         <ChevronRight size={15} aria-hidden="true" />
       </button>
     </div>
   );
 }
 
-function StepsSection({ instructions }: { instructions: RouteInstruction[] }) {
+function StepsSection({ instructions, language }: { instructions: RouteInstruction[]; language: Language }) {
+  const copy = translations[language];
   return (
     <section className="panel-section">
-      <h2>Step-by-step</h2>
+      <h2>{copy.route.stepByStep}</h2>
       <div className="instruction-list">
         {instructions.map((instruction) => (
           <InstructionRow key={instruction.id} instruction={instruction} />
@@ -286,6 +419,7 @@ function StepsSection({ instructions }: { instructions: RouteInstruction[] }) {
 }
 
 function SearchSection({
+  language,
   selectedPlace,
   searchResults,
   activeQuery,
@@ -294,8 +428,10 @@ function SearchSection({
   onQueryChange,
   onSearchSubmit,
   onSelectPlace,
+  focusToken = 0,
   compact = false,
 }: {
+  language: Language;
   selectedPlace: SearchResult;
   searchResults: SearchResult[];
   activeQuery: string;
@@ -304,13 +440,24 @@ function SearchSection({
   onQueryChange: (value: string) => void;
   onSearchSubmit: () => void;
   onSelectPlace: (place: SearchResult) => void;
+  focusToken?: number;
   compact?: boolean;
 }) {
+  const copy = translations[language];
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (focusToken > 0) {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }
+  }, [focusToken]);
+
   return (
     <section className="panel-section">
       <div className="section-heading-row">
-        <h2>{compact ? "Search Results" : "Places"}</h2>
-        <button type="button">More</button>
+        <h2>{compact ? copy.route.searchResults : copy.route.places}</h2>
+        <button type="button">{copy.route.more}</button>
       </div>
       <form
         className="inline-search"
@@ -321,17 +468,19 @@ function SearchSection({
       >
         <Search size={16} aria-hidden="true" />
         <input
+          ref={inputRef}
           value={activeQuery}
           onChange={(event) => onQueryChange(event.target.value)}
-          placeholder="Search nearby places"
+          placeholder={compact ? copy.search.inputPlaceholder : copy.search.topPlaceholder}
         />
         <button type="submit" disabled={searchState === "loading"}>
-          {searchState === "loading" ? "Searching" : "Search"}
+          {searchState === "loading" ? copy.search.searching : copy.search.submit}
         </button>
       </form>
       <PlaceDetail place={selectedPlace} />
       {searchState === "error" ? <p className="panel-message">{searchError}</p> : null}
-      {searchState === "empty" ? <p className="panel-message">No places found. Try a broader search.</p> : null}
+      {searchState === "empty" ? <p className="panel-message">{copy.route.noPlaces}</p> : null}
+      {compact ? <p className="panel-hint">{copy.route.useSearchResult}</p> : null}
       <div className="place-list">
         {searchResults.map((place) => (
           <button key={place.id} className="place-row" type="button" onClick={() => onSelectPlace(place)}>
@@ -350,24 +499,28 @@ function SearchSection({
 
 function RecentsSection({
   recentSearches,
+  language,
   onSelectPlace,
   compact = false,
 }: {
   recentSearches: SearchResult[];
+  language: Language;
   onSelectPlace: (place: SearchResult) => void;
   compact?: boolean;
 }) {
+  const copy = translations[language];
+
   return (
     <section className="panel-section recent-section">
       <div className="section-heading-row">
-        <h2>{compact ? "Recent Searches" : "Recent Places"}</h2>
-        <button type="button">Clear</button>
+        <h2>{compact ? copy.route.recentSearches : copy.route.recentPlaces}</h2>
+        <button type="button">{copy.route.clear}</button>
       </div>
       <div className="place-list">
         {recentSearches.map((place) => (
           <button key={place.id} className="recent-row" type="button" onClick={() => onSelectPlace(place)}>
             <LocateFixed size={16} aria-hidden="true" />
-            <span>{place.name}, San Francisco, CA</span>
+            <span>{place.name}</span>
           </button>
         ))}
       </div>
@@ -392,11 +545,40 @@ function PlaceDetail({ place }: { place: SearchResult }) {
   );
 }
 
-function RouteField({ label, tone, value }: { label: "A" | "B"; tone: string; value: string }) {
+function RouteField({
+  label,
+  tone,
+  value,
+  placeholder,
+  active,
+  onFocus,
+  onChange,
+  onSubmit,
+}: {
+  label: string;
+  tone: string;
+  value: string;
+  placeholder: string;
+  active: boolean;
+  onFocus: () => void;
+  onChange: (value: string) => void;
+  onSubmit: () => void;
+}) {
   return (
-    <label className="route-field">
+    <label className={`route-field ${active ? "is-active" : ""}`}>
       <span className={`field-pin ${tone}`}>{label}</span>
-      <input value={value} readOnly />
+      <input
+        value={value}
+        placeholder={placeholder}
+        onFocus={onFocus}
+        onChange={(event) => onChange(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            onSubmit();
+          }
+        }}
+      />
     </label>
   );
 }

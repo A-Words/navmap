@@ -9,6 +9,10 @@ export type LayerId = "standard" | "terrain" | "transit";
 
 export type PanelId = "route" | "search" | "recents" | "layers" | "settings" | "about";
 
+export type Language = "zh" | "en";
+
+export type RoutePointTarget = "origin" | "destination" | `waypoint-${number}`;
+
 export type SearchResult = {
   id: string;
   name: string;
@@ -37,12 +41,14 @@ export type RouteSummary = {
 export type RoutePlan = {
   origin: SearchResult;
   destination: SearchResult;
+  waypoints: SearchResult[];
   mode: TravelMode;
   route: RouteSummary;
 };
 
 export type AppSettings = {
   activeLayer: LayerId;
+  language: Language;
   showTrafficHints: boolean;
   lastCenter: LngLat;
   lastZoom: number;

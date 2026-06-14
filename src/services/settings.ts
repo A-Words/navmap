@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { DEFAULT_CENTER } from "../config/mapServices";
+import { DEFAULT_LANGUAGE } from "../i18n";
 import type { AppSettings } from "../types";
 
 const SETTINGS_KEY = "navmap.settings";
@@ -12,6 +13,7 @@ declare global {
 
 export const defaultSettings: AppSettings = {
   activeLayer: "standard",
+  language: DEFAULT_LANGUAGE,
   showTrafficHints: true,
   lastCenter: DEFAULT_CENTER,
   lastZoom: 12,
@@ -40,4 +42,3 @@ export async function saveSettings(settings: AppSettings): Promise<void> {
 function isTauriRuntime() {
   return Boolean(window.__TAURI_INTERNALS__);
 }
-

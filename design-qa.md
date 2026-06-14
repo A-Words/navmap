@@ -34,6 +34,8 @@ focused region comparison evidence: left navigation/route panel, route summary c
 - Desktop viewport checked at 1440 x 1024.
 - Build checks passed with `npm run build` and `cargo check`.
 - Core UI interaction smoke test covered layer switching, search submit error state, route submit error state, and zoom controls.
+- Internationalization smoke test covered clean default Chinese, switching to English, and switching back to Chinese.
+- Route editing smoke test covered A/B field editing, adding a waypoint, opening route options, selecting a search result into the active route point, and top search focusing the search panel.
 
 **Follow-up Polish**
 - Replace public raster tiles with a tuned OSM vector tile style when a self-hosted or production tile service is available.

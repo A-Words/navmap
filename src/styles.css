@@ -208,6 +208,31 @@ button {
   box-shadow: 0 1px 1px rgba(15, 23, 42, 0.03);
 }
 
+.route-field.is-active {
+  border-color: #2e78e8;
+  box-shadow: 0 0 0 3px rgba(46, 120, 232, 0.13);
+}
+
+.waypoint-field-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28px;
+  gap: 8px;
+  align-items: center;
+}
+
+.remove-waypoint-button {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  color: #64748b;
+  font-size: 18px;
+  line-height: 1;
+  border: 1px solid #dce4ef;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
 .field-pin {
   display: grid;
   width: 18px;
@@ -226,6 +251,10 @@ button {
 
 .field-pin.destination {
   background: #f0424a;
+}
+
+.field-pin.waypoint {
+  background: #7c58d3;
 }
 
 .route-field input,
@@ -256,6 +285,45 @@ button {
   font-weight: 700;
   border: 0;
   background: transparent;
+}
+
+.route-options-panel {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #dfe7f2;
+  border-radius: 8px;
+  background: #f8fbff;
+}
+
+.route-options-panel h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 13px;
+}
+
+.route-options-panel p,
+.panel-hint {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.route-option-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.route-option-toggle input {
+  width: 16px;
+  height: 16px;
+  accent-color: #2e78e8;
 }
 
 .mode-row {
@@ -627,6 +695,8 @@ button {
   background: rgba(255, 255, 255, 0.94);
   box-shadow: 0 12px 26px rgba(15, 23, 42, 0.12);
   backdrop-filter: blur(12px);
+  cursor: text;
+  text-align: left;
 }
 
 .map-top-search span {
@@ -756,6 +826,10 @@ button {
   background: #ef3f49;
 }
 
+.route-marker.waypoint {
+  background: #7c58d3;
+}
+
 .route-marker {
   line-height: 1;
 }
@@ -827,6 +901,32 @@ button {
 }
 
 .panel-segmented button.is-active {
+  color: #ffffff;
+  background: #2e78e8;
+}
+
+.language-toggle {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #dce4ef;
+  border-radius: 9px;
+  background: #f8fafc;
+}
+
+.language-toggle button {
+  height: 30px;
+  padding: 0 10px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 780;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+}
+
+.language-toggle button.is-active {
   color: #ffffff;
   background: #2e78e8;
 }

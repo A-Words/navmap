@@ -1,5 +1,6 @@
 import { MAP_SERVICE_CONFIG } from "../config/mapServices";
-import type { LngLat, RouteInstruction, RouteSummary, TravelMode } from "../types";
+import { formatDistanceLabel, formatDurationLabel, translations } from "../i18n";
+import type { Language, LngLat, RouteInstruction, RouteSummary, TravelMode } from "../types";
 
 type OsrmRouteResponse = {
   code: string;
@@ -39,10 +40,12 @@ export async function getRoute(
   origin: LngLat,
   destination: LngLat,
   mode: TravelMode,
-  options: { signal?: AbortSignal } = {},
+  options: { language: Language; waypoints?: LngLat[]; signal?: AbortSignal },
 ): Promise<RouteSummary> {
   const profile = profileByMode[mode];
-  const coordinates = `${origin.lng},${origin.lat};${destination.lng},${destination.lat}`;
+  const coordinates = [origin, ...(options.waypoints || []), destination]
+    .map((coordinate) => `${coordinate.lng},${coordinate.lat}`)
+    .join(";");
   const url = new URL(`/route/v1/${profile}/${coordinates}`, MAP_SERVICE_CONFIG.osrmBaseUrl);
   url.searchParams.set("overview", "full");
   url.searchParams.set("geometries", "geojson");
@@ -67,23 +70,27 @@ export async function getRoute(
     throw new Error(payload.message || "No route found");
   }
 
+  const copy = translations[options.language];
   return {
-    distanceLabel: formatDistance(route.distance),
-    durationLabel: formatDuration(route.duration),
-    description: route.legs[0]?.summary ? `via ${route.legs[0].summary}` : `${mode} route`,
+    distanceLabel: formatDistanceLabel(route.distance, options.language),
+    durationLabel: formatDurationLabel(route.duration, options.language),
+    description: route.legs[0]?.summary
+      ? `${copy.route.via} ${route.legs[0].summary}`
+      : `${copy.modes[mode]} ${copy.route.routeDescriptionFallback}`,
     geometry: route.geometry.coordinates.map(([lng, lat]) => ({ lng, lat })),
-    instructions: mapSteps(route.legs.flatMap((leg) => leg.steps)),
+    instructions: mapSteps(route.legs.flatMap((leg) => leg.steps), options.language),
   };
 }
 
-function mapSteps(steps: OsrmStep[]): RouteInstruction[] {
+function mapSteps(steps: OsrmStep[], language: Language): RouteInstruction[] {
+  const copy = translations[language];
   const mappedSteps = steps
     .filter((step) => step.distance > 1 || step.maneuver.type === "arrive")
     .map((step, index) => ({
       id: `${step.maneuver.type}-${index}`,
       icon: getInstructionIcon(step.maneuver.type, step.maneuver.modifier),
-      title: getInstructionTitle(step),
-      distanceLabel: formatDistance(step.distance),
+      title: getInstructionTitle(step, language),
+      distanceLabel: formatDistanceLabel(step.distance, language),
     }));
 
   if (!mappedSteps.length) {
@@ -91,7 +98,7 @@ function mapSteps(steps: OsrmStep[]): RouteInstruction[] {
       {
         id: "route-ready",
         icon: "straight",
-        title: "Follow the highlighted route",
+        title: copy.route.routeReady,
         distanceLabel: "--",
       },
     ];
@@ -122,37 +129,66 @@ function getInstructionIcon(
   return "straight";
 }
 
-function getInstructionTitle(step: OsrmStep) {
+function getInstructionTitle(step: OsrmStep, language: Language) {
+  const copy = translations[language].routeSteps;
   if (step.maneuver.type === "depart") {
-    return step.name ? `Start on ${step.name}` : "Start";
+    return step.name ? copy.startOn.replace("{road}", step.name) : copy.start;
   }
   if (step.maneuver.type === "arrive") {
-    return "Arrive";
+    return copy.arrive;
   }
 
-  const direction = step.maneuver.modifier ? ` ${step.maneuver.modifier}` : "";
-  const road = step.name ? ` onto ${step.name}` : "";
-  const verb = step.maneuver.type === "turn" ? "Turn" : capitalize(step.maneuver.type);
+  if (language === "zh") {
+    const direction = getModifierLabel(step.maneuver.modifier, language);
+    const verb = getManeuverVerb(step.maneuver.type, language);
+    const road = step.name ? `${copy.onto} ${step.name}` : "";
+    return [direction || verb, road].filter(Boolean).join("");
+  }
+
+  const direction = step.maneuver.modifier ? ` ${getModifierLabel(step.maneuver.modifier, language)}` : "";
+  const road = step.name ? ` ${copy.onto} ${step.name}` : "";
+  const verb = getManeuverVerb(step.maneuver.type, language);
   return `${verb}${direction}${road}`;
 }
 
-function formatDistance(meters: number) {
-  if (meters < 1000) {
-    return `${Math.round(meters / 10) * 10} m`;
+function getManeuverVerb(type: string, language: Language) {
+  const copy = translations[language].routeSteps;
+  if (type === "turn") {
+    return copy.turn;
   }
-
-  return `${(meters / 1000).toFixed(1)} km`;
+  if (type === "merge") {
+    return copy.merge;
+  }
+  if (type === "on ramp") {
+    return copy.onRamp;
+  }
+  if (type === "depart") {
+    return copy.depart;
+  }
+  if (type === "continue") {
+    return copy.continue;
+  }
+  return language === "zh" ? copy.continue : capitalize(type);
 }
 
-function formatDuration(seconds: number) {
-  const minutes = Math.max(1, Math.round(seconds / 60));
-  if (minutes < 60) {
-    return `${minutes} min`;
+function getModifierLabel(modifier: string | undefined, language: Language) {
+  if (!modifier) {
+    return "";
   }
 
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-  return remainingMinutes ? `${hours} hr ${remainingMinutes} min` : `${hours} hr`;
+  const copy = translations[language].routeSteps;
+  const normalized = modifier.replace(/ /g, "");
+  const labels: Record<string, string> = {
+    left: copy.left,
+    right: copy.right,
+    slightleft: copy.slightLeft,
+    slightright: copy.slightRight,
+    sharpleft: copy.sharpLeft,
+    sharpright: copy.sharpRight,
+    straight: copy.straight,
+  };
+
+  return labels[normalized] || modifier;
 }
 
 function capitalize(value: string) {

@@ -1,5 +1,6 @@
 import { MAP_SERVICE_CONFIG } from "../config/mapServices";
-import type { LngLat, SearchResult } from "../types";
+import { formatDistanceLabel } from "../i18n";
+import type { Language, LngLat, SearchResult } from "../types";
 
 type NominatimPlace = {
   place_id: number;
@@ -29,14 +30,14 @@ const CACHE_PREFIX = "navmap.search.";
 
 export async function searchPlaces(
   query: string,
-  options: { origin?: LngLat; signal?: AbortSignal } = {},
+  options: { language: Language; origin?: LngLat; signal?: AbortSignal },
 ): Promise<SearchResult[]> {
   const normalizedQuery = query.trim();
   if (normalizedQuery.length < 2) {
     return [];
   }
 
-  const cacheKey = `${CACHE_PREFIX}${normalizedQuery.toLowerCase()}`;
+  const cacheKey = `${CACHE_PREFIX}${options.language}.${normalizedQuery.toLowerCase()}`;
   const cached = readSearchCache(cacheKey);
   if (cached) {
     return cached;
@@ -52,7 +53,7 @@ export async function searchPlaces(
     signal: options.signal,
     headers: {
       Accept: "application/json",
-      "Accept-Language": navigator.language || "en",
+      "Accept-Language": options.language === "zh" ? "zh-CN,zh;q=0.9,en;q=0.5" : "en",
     },
   });
 
@@ -61,12 +62,12 @@ export async function searchPlaces(
   }
 
   const payload = (await response.json()) as NominatimPlace[];
-  const results = payload.map((place) => mapNominatimPlace(place, options.origin));
+  const results = payload.map((place) => mapNominatimPlace(place, options.language, options.origin));
   writeSearchCache(cacheKey, results);
   return results;
 }
 
-function mapNominatimPlace(place: NominatimPlace, origin?: LngLat): SearchResult {
+function mapNominatimPlace(place: NominatimPlace, language: Language, origin?: LngLat): SearchResult {
   const coordinate = {
     lng: Number(place.lon),
     lat: Number(place.lat),
@@ -78,7 +79,7 @@ function mapNominatimPlace(place: NominatimPlace, origin?: LngLat): SearchResult
     name: title,
     address: place.display_name,
     coordinate,
-    distanceLabel: origin ? formatDistance(distanceMeters(origin, coordinate)) : undefined,
+    distanceLabel: origin ? formatDistanceLabel(distanceMeters(origin, coordinate), language) : undefined,
     type: place.type || place.class,
   };
 }
@@ -128,13 +129,5 @@ function distanceMeters(a: LngLat, b: LngLat) {
 
 function toRadians(value: number) {
   return (value * Math.PI) / 180;
-}
-
-function formatDistance(meters: number) {
-  if (meters < 1000) {
-    return `${Math.round(meters / 10) * 10} m`;
-  }
-
-  return `${(meters / 1000).toFixed(1)} km`;
 }
 
