@@ -360,7 +360,8 @@ function RoutePlanner({
         </CardContent>
       </Card>
 
-      {activeRouteTarget === "origin" && !routeDrafts.origin.trim() ? (
+      {(activeRouteTarget === "origin" && !routeDrafts.origin.trim()) ||
+      (activeRouteTarget === "destination" && !routeDrafts.destination.trim()) ? (
         <Button className="route-locate-btn" variant="ghost" type="button" onClick={onLocate}>
           <LocateFixed data-icon="inline-start" aria-hidden="true" />
           {t("route.currentLocation")}
