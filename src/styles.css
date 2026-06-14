@@ -109,6 +109,14 @@ button {
   grid-template-columns: 68px 0 minmax(0, 1fr);
 }
 
+.app-shell.is-rail-collapsed {
+  grid-template-columns: 68px minmax(370px, 420px) minmax(0, 1fr);
+}
+
+.app-shell.is-rail-collapsed.is-panel-collapsed {
+  grid-template-columns: 68px 0 minmax(0, 1fr);
+}
+
 .app-rail {
   position: relative;
   z-index: 5;
@@ -268,70 +276,70 @@ button {
   background: var(--navmap-blue);
 }
 
-.app-shell.is-panel-collapsed .app-rail {
+.app-shell.is-rail-collapsed .app-rail {
   align-items: center;
   gap: 14px;
   padding: 24px 10px 18px;
 }
 
-.app-shell.is-panel-collapsed .rail-brand {
+.app-shell.is-rail-collapsed .rail-brand {
   display: flex;
   justify-content: center;
   width: 100%;
   padding: 0;
 }
 
-.app-shell.is-panel-collapsed .brand-lockup,
-.app-shell.is-panel-collapsed .rail-item > span:not(.rail-item-icon),
-.app-shell.is-panel-collapsed .rail-section-heading,
-.app-shell.is-panel-collapsed .rail-recent-item > span:last-child,
-.app-shell.is-panel-collapsed .rail-footer {
+.app-shell.is-rail-collapsed .brand-lockup,
+.app-shell.is-rail-collapsed .rail-item > span:not(.rail-item-icon),
+.app-shell.is-rail-collapsed .rail-section-heading,
+.app-shell.is-rail-collapsed .rail-recent-item > span:last-child,
+.app-shell.is-rail-collapsed .rail-footer {
   display: none;
 }
 
-.app-shell.is-panel-collapsed .rail-panel-toggle {
+.app-shell.is-rail-collapsed .rail-panel-toggle {
   width: 40px;
   height: 40px;
   color: rgba(255, 255, 255, 0.84);
   background: transparent;
 }
 
-.app-shell.is-panel-collapsed .rail-nav,
-.app-shell.is-panel-collapsed .rail-recents {
+.app-shell.is-rail-collapsed .rail-nav,
+.app-shell.is-rail-collapsed .rail-recents {
   width: 100%;
 }
 
-.app-shell.is-panel-collapsed .rail-nav {
+.app-shell.is-rail-collapsed .rail-nav {
   gap: 10px;
 }
 
-.app-shell.is-panel-collapsed .rail-recents {
+.app-shell.is-rail-collapsed .rail-recents {
   margin-top: 16px;
   padding-top: 22px;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.app-shell.is-panel-collapsed .rail-item,
-.app-shell.is-panel-collapsed .rail-recent-item {
+.app-shell.is-rail-collapsed .rail-item,
+.app-shell.is-rail-collapsed .rail-recent-item {
   justify-content: center;
   width: 48px;
   height: 48px;
   padding: 0;
 }
 
-.app-shell.is-panel-collapsed .rail-item:hover,
-.app-shell.is-panel-collapsed .rail-item[data-active="true"],
-.app-shell.is-panel-collapsed .rail-recent-item:hover,
-.app-shell.is-panel-collapsed .rail-recent-item[data-active="true"] {
+.app-shell.is-rail-collapsed .rail-item:hover,
+.app-shell.is-rail-collapsed .rail-item[data-active="true"],
+.app-shell.is-rail-collapsed .rail-recent-item:hover,
+.app-shell.is-rail-collapsed .rail-recent-item[data-active="true"] {
   background: transparent;
 }
 
-.app-shell.is-panel-collapsed .rail-item-icon {
+.app-shell.is-rail-collapsed .rail-item-icon {
   width: 34px;
   height: 34px;
 }
 
-.app-shell.is-panel-collapsed .rail-recent-icon {
+.app-shell.is-rail-collapsed .rail-recent-icon {
   width: 34px;
   height: 34px;
 }
@@ -1027,6 +1035,263 @@ button {
 .layer-switcher button.is-active {
   color: #ffffff;
   background: var(--navmap-blue);
+}
+
+.app-shell[data-color-scheme="light"] {
+  --panel-bg: #f4f8ef;
+  --panel-bg-2: #eef6e8;
+  --panel-card: #ffffff;
+  --panel-border: rgba(52, 65, 54, 0.12);
+  --panel-text: #111827;
+  --panel-muted: #7a8282;
+  color: #111827;
+  background: #eef6e8;
+}
+
+.app-shell[data-color-scheme="light"] .app-rail {
+  color: #6f7778;
+  border-color: rgba(52, 65, 54, 0.11);
+  background: rgba(246, 250, 242, 0.96);
+  box-shadow: 1px 0 0 rgba(17, 24, 39, 0.03);
+}
+
+.app-shell[data-color-scheme="light"] .brand-lockup {
+  color: #111827;
+}
+
+.app-shell[data-color-scheme="light"] .rail-panel-toggle,
+.app-shell[data-color-scheme="light"] .rail-icon-item {
+  color: #6f7778;
+}
+
+.app-shell[data-color-scheme="light"] .rail-panel-toggle:hover,
+.app-shell[data-color-scheme="light"] .rail-icon-item:hover {
+  color: #111827;
+  background: rgba(29, 37, 39, 0.06);
+}
+
+.app-shell[data-color-scheme="light"] .rail-item {
+  color: #5f6868;
+}
+
+.app-shell[data-color-scheme="light"] .rail-item:hover,
+.app-shell[data-color-scheme="light"] .rail-item[data-active="true"] {
+  color: #111827;
+  background: rgba(29, 37, 39, 0.05);
+}
+
+.app-shell[data-color-scheme="light"] .rail-item-icon {
+  color: #6f7778;
+  background: rgba(29, 37, 39, 0.06);
+}
+
+.app-shell[data-color-scheme="light"] .rail-item[data-active="true"] .rail-item-icon,
+.app-shell[data-color-scheme="light"] .rail-recent-icon,
+.app-shell[data-color-scheme="light"] .rail-icon-item[data-active="true"] {
+  color: #ffffff;
+  background: #0a7cff;
+}
+
+.app-shell[data-color-scheme="light"] .rail-section-heading {
+  color: rgba(17, 24, 39, 0.36);
+}
+
+.app-shell[data-color-scheme="light"] .rail-recent-item {
+  color: #111827;
+}
+
+.app-shell[data-color-scheme="light"].is-rail-collapsed .rail-recents {
+  border-color: rgba(52, 65, 54, 0.11);
+}
+
+.app-shell[data-color-scheme="light"] .route-panel {
+  color: #111827;
+  border-color: rgba(52, 65, 54, 0.11);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(151, 216, 224, 0.5), transparent 28rem),
+    linear-gradient(180deg, #eff7eb, #f8fbf4);
+  box-shadow: 16px 0 34px rgba(34, 64, 42, 0.08);
+}
+
+.app-shell[data-color-scheme="light"] .panel-topbar h1,
+.app-shell[data-color-scheme="light"] .panel-card [data-slot="card-title"],
+.app-shell[data-color-scheme="light"] .route-summary-card [data-slot="card-title"],
+.app-shell[data-color-scheme="light"] .route-metrics strong,
+.app-shell[data-color-scheme="light"] .place-detail strong,
+.app-shell[data-color-scheme="light"] .info-row strong,
+.app-shell[data-color-scheme="light"] .setting-control-row strong {
+  color: #111827;
+}
+
+.app-shell[data-color-scheme="light"] .panel-actions button {
+  color: #777f80;
+  background: rgba(29, 37, 39, 0.08);
+}
+
+.app-shell[data-color-scheme="light"] .panel-actions button:hover {
+  color: #111827;
+  background: rgba(29, 37, 39, 0.12);
+}
+
+.app-shell[data-color-scheme="light"] .mode-toggle [data-slot="toggle-group-item"] {
+  color: #777f80;
+  background: rgba(29, 37, 39, 0.08);
+}
+
+.app-shell[data-color-scheme="light"] .mode-toggle [data-slot="toggle-group-item"][data-state="on"] {
+  color: #ffffff;
+  background: #0a7cff;
+  box-shadow: 0 8px 18px rgba(10, 124, 255, 0.18);
+}
+
+.app-shell[data-color-scheme="light"] .route-editor-card {
+  background: rgba(255, 255, 255, 0.98);
+  color: #111827;
+  box-shadow: 0 14px 30px rgba(34, 64, 42, 0.08);
+}
+
+.app-shell[data-color-scheme="light"] .route-lines {
+  background: rgba(17, 24, 39, 0.1);
+}
+
+.app-shell[data-color-scheme="light"] .route-field-row {
+  border-color: rgba(17, 24, 39, 0.09);
+}
+
+.app-shell[data-color-scheme="light"] .route-field-row input,
+.app-shell[data-color-scheme="light"] .route-field-row[data-active="true"] input {
+  color: #111827;
+}
+
+.app-shell[data-color-scheme="light"] .route-field-row input::placeholder {
+  color: rgba(17, 24, 39, 0.28);
+}
+
+.app-shell[data-color-scheme="light"] .route-field-row > svg,
+.app-shell[data-color-scheme="light"] .route-add-stop {
+  color: rgba(17, 24, 39, 0.34);
+}
+
+.app-shell[data-color-scheme="light"] .route-add-stop:hover {
+  color: #111827;
+}
+
+.app-shell[data-color-scheme="light"] .route-swap {
+  color: #777f80;
+  background: rgba(29, 37, 39, 0.08);
+}
+
+.app-shell[data-color-scheme="light"] .route-command-row [data-slot="select-trigger"],
+.app-shell[data-color-scheme="light"] .route-command-row > button,
+.app-shell[data-color-scheme="light"] .route-command-row [data-slot="collapsible-trigger"] {
+  color: #111827;
+  border-color: rgba(17, 24, 39, 0.2);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.app-shell[data-color-scheme="light"] .route-options-popover {
+  color: #111827;
+  border-color: rgba(52, 65, 54, 0.12);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 18px 34px rgba(34, 64, 42, 0.12);
+}
+
+.app-shell[data-color-scheme="light"] .panel-card,
+.app-shell[data-color-scheme="light"] .route-summary-card {
+  color: #111827;
+  border-color: rgba(52, 65, 54, 0.12);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.app-shell[data-color-scheme="light"] .panel-card [data-slot="card-description"],
+.app-shell[data-color-scheme="light"] .route-summary-card [data-slot="card-description"],
+.app-shell[data-color-scheme="light"] .route-metrics span,
+.app-shell[data-color-scheme="light"] .instruction-row small,
+.app-shell[data-color-scheme="light"] .place-row small,
+.app-shell[data-color-scheme="light"] .info-row small,
+.app-shell[data-color-scheme="light"] .setting-control-row small,
+.app-shell[data-color-scheme="light"] .place-detail small,
+.app-shell[data-color-scheme="light"] .instruction-row em,
+.app-shell[data-color-scheme="light"] .place-row em,
+.app-shell[data-color-scheme="light"] .place-detail p,
+.app-shell[data-color-scheme="light"] .route-options-popover p,
+.app-shell[data-color-scheme="light"] .panel-hint,
+.app-shell[data-color-scheme="light"] .panel-message {
+  color: #7a8282;
+}
+
+.app-shell[data-color-scheme="light"] .instruction-row,
+.app-shell[data-color-scheme="light"] .place-row,
+.app-shell[data-color-scheme="light"] .recent-row {
+  color: #111827;
+}
+
+.app-shell[data-color-scheme="light"] .place-row:hover,
+.app-shell[data-color-scheme="light"] .recent-row:hover {
+  color: #111827;
+  background: rgba(29, 37, 39, 0.05);
+}
+
+.app-shell[data-color-scheme="light"] .panel-search-form,
+.app-shell[data-color-scheme="light"] .place-detail {
+  color: #6f7778;
+  border-color: rgba(52, 65, 54, 0.12);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.app-shell[data-color-scheme="light"] .panel-search-form input {
+  color: #111827;
+}
+
+.app-shell[data-color-scheme="light"] .layer-tabs {
+  color: #111827;
+  background: rgba(29, 37, 39, 0.06);
+}
+
+.app-shell[data-color-scheme="light"] .info-row,
+.app-shell[data-color-scheme="light"] .setting-control-row {
+  border-color: rgba(17, 24, 39, 0.08);
+}
+
+.app-shell[data-color-scheme="light"] .map-toolbar button,
+.app-shell[data-color-scheme="light"] .layer-switcher {
+  color: #6f7778;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 10px 24px rgba(17, 24, 39, 0.12);
+}
+
+.app-shell[data-color-scheme="light"] .toolbar-group button + button {
+  border-color: rgba(17, 24, 39, 0.08);
+}
+
+.app-shell[data-color-scheme="light"] .map-toolbar button:hover,
+.app-shell[data-color-scheme="light"] .layer-switcher button:hover {
+  color: #111827;
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.app-shell[data-color-scheme="light"] .layer-switcher button {
+  color: #6f7778;
+}
+
+.app-shell[data-color-scheme="light"] .layer-switcher button.is-active {
+  color: #ffffff;
+  background: #0a7cff;
+}
+
+.app-shell[data-color-scheme="light"] .map-status {
+  color: rgba(17, 24, 39, 0.48);
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.32));
+}
+
+.app-shell[data-color-scheme="light"] .map-status strong {
+  color: rgba(17, 24, 39, 0.58);
+}
+
+.app-shell[data-color-scheme="light"] .maplibregl-ctrl-scale {
+  color: rgba(17, 24, 39, 0.7);
+  border-color: rgba(17, 24, 39, 0.7) !important;
+  background: rgba(255, 255, 255, 0.74);
 }
 
 .app-shell[data-color-scheme="dark"] .map-frame {

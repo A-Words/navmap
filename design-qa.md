@@ -1,10 +1,11 @@
 reference visual paths:
 - C:\Users\A_Words\AppData\Local\Temp\codex-clipboard-3b901215-5d29-48b6-acf8-3cadbcc36248.png
 - C:\Users\A_Words\AppData\Local\Temp\codex-clipboard-4d4a5f81-5c92-4da1-821c-e191d04e8210.png
+- C:\Users\A_Words\AppData\Local\Temp\codex-clipboard-95e8ab91-6be1-4234-82a0-d36bd731e854.png
 
 implementation target: Apple Maps-inspired route-first desktop shell using shadcn/ui components.
 viewport target: 1440 x 1024 and narrower desktop widths.
-state: default Chinese route planning screen, collapsible left sidebar, OSM map canvas, active route overlay, right map controls, bottom OSM attribution/status.
+state: default Chinese route planning screen, compact left icon rail, independently open/collapsible route panel, OSM map canvas, active route overlay, right map controls, bottom OSM attribution/status.
 
 **Findings**
 - No actionable P0/P1/P2 findings remain from static implementation review and production build verification.
@@ -14,11 +15,11 @@ state: default Chinese route planning screen, collapsible left sidebar, OSM map 
   Follow-up: reopen the local app manually or in an allowed browser session to inspect the 1440 x 1024 and narrow desktop layouts.
 
 **Required Fidelity Surfaces**
-- Layout: implemented a fixed left app rail, an adjacent collapsible route/search panel, and a full-height central map canvas. Collapsing the panel keeps the rail visible and expands the map area.
-- Navigation: primary rail now emphasizes Search, Layers, and Route with Apple Maps-like dark treatment, active rounded rows, and a functional panel toggle.
+- Layout: implemented a fixed compact left app rail, an adjacent route/search panel, and a full-height central map canvas. The rail collapsed state is separate from panel visibility, so Search, Layers, Route, and Recents can reopen their panels while the rail remains icon-only.
+- Navigation: primary rail now emphasizes Search, Layers, and Route with Apple Maps-like treatment in both light and dark appearances, active rounded icon buttons, and a functional panel toggle.
 - Route panel: route mode uses shadcn ToggleGroup, route points use compact input rows, route options use shadcn Collapsible/Switch, and the route summary/search/results use shadcn Card/Input/Button patterns.
 - Map controls: right controls and bottom layer switcher remain compact floating controls over the map; OSM attribution remains visible in the bottom status surface.
-- Theme/i18n: default Chinese copy remains in `src/i18n.ts`; new visible labels have Chinese and English strings; shadcn dark styling is synchronized through the document `.dark` class.
+- Theme/i18n: default Chinese copy remains in `src/i18n.ts`; new visible labels have Chinese and English strings; shadcn dark styling is synchronized through the document `.dark` class. Light mode now uses the pale rail/panel surfaces, white route card, blue active state, and white map controls shown in the latest reference.
 
 **Verification**
 - `npm run typecheck`: passed.

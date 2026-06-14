@@ -38,7 +38,8 @@ function getSystemColorScheme(): ColorScheme {
 
 export default function App() {
   const [activeRail, setActiveRail] = useState<PanelId>("route");
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [railCollapsed, setRailCollapsed] = useState(true);
+  const [panelOpen, setPanelOpen] = useState(true);
   const [activeLayer, setActiveLayer] = useState<LayerId>("standard");
   const [systemColorScheme, setSystemColorScheme] = useState<ColorScheme>(() => getSystemColorScheme());
   const [themePreference, setThemePreference] = useState<ThemePreference>("system");
@@ -394,21 +395,25 @@ export default function App() {
 
   const handleRailSelect = useCallback((panel: PanelId) => {
     setActiveRail(panel);
-    setSidebarCollapsed(false);
+    setPanelOpen(true);
+    setRailCollapsed(true);
   }, []);
 
   return (
     <TooltipProvider>
       <main
-        className={`app-shell ${sidebarCollapsed ? "is-panel-collapsed" : ""}`}
+        className={`app-shell ${railCollapsed ? "is-rail-collapsed" : ""} ${panelOpen ? "" : "is-panel-collapsed"}`}
         data-color-scheme={colorScheme}
       >
         <AppRail
           active={activeRail}
           language={language}
-          panelCollapsed={sidebarCollapsed}
+          panelCollapsed={!panelOpen}
           onSelect={handleRailSelect}
-          onTogglePanel={() => setSidebarCollapsed((current) => !current)}
+          onTogglePanel={() => {
+            setPanelOpen((current) => !current);
+            setRailCollapsed(true);
+          }}
         />
         <RoutePanel
           plan={routePlan}
@@ -442,7 +447,10 @@ export default function App() {
           onSwapRoutePoints={handleSwapRoutePoints}
           onAddWaypoint={handleAddWaypoint}
           onRemoveWaypoint={handleRemoveWaypoint}
-          onClosePanel={() => setSidebarCollapsed(true)}
+          onClosePanel={() => {
+            setPanelOpen(false);
+            setRailCollapsed(true);
+          }}
         />
         <MapCanvas
           activeLayer={activeLayer}
