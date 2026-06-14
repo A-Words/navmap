@@ -947,7 +947,7 @@ button {
   position: absolute;
   right: 0;
   bottom: 0;
-  left: 0;
+  left: 468px;
   z-index: 3;
   display: grid;
   grid-template-columns: auto auto minmax(0, 1fr) auto auto;
@@ -960,6 +960,23 @@ button {
   font-weight: 650;
   background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.2));
   pointer-events: none;
+  transition: left 180ms ease;
+}
+
+.app-shell.is-rail-collapsed .map-status {
+  left: 468px;
+}
+
+.app-shell:not(.is-rail-collapsed) .map-status {
+  left: 608px;
+}
+
+.app-shell.is-panel-collapsed .map-status {
+  left: 68px;
+}
+
+.app-shell:not(.is-rail-collapsed).is-panel-collapsed .map-status {
+  left: 208px;
 }
 
 .map-status strong {
