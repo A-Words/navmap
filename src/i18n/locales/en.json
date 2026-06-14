@@ -51,6 +51,7 @@
     "routeFailed": "Route planning failed",
     "locationDenied": "Location permission was denied or is unavailable",
     "routeReady": "Follow the highlighted route",
+    "currentLocation": "Current Location",
     "routeDescriptionFallback": "route",
     "via": "via"
   },

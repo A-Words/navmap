@@ -51,6 +51,7 @@
     "routeFailed": "路线规划失败",
     "locationDenied": "定位权限被拒绝或不可用",
     "routeReady": "沿高亮路线行驶",
+    "currentLocation": "当前位置",
     "routeDescriptionFallback": "路线",
     "via": "经由"
   },
