@@ -455,6 +455,15 @@ button {
   background: rgba(255, 255, 255, 0.16);
 }
 
+.route-point-slot {
+  position: relative;
+  z-index: 2;
+}
+
+.route-point-slot[data-active="true"] {
+  z-index: 30;
+}
+
 .route-field-row {
   position: relative;
   z-index: 1;
@@ -470,7 +479,7 @@ button {
   color: #ffffff;
 }
 
-.route-field-row:last-of-type {
+.route-point-slot:last-of-type .route-field-row {
   border-bottom: 0;
 }
 
@@ -582,11 +591,20 @@ button {
 }
 
 .route-field-suggestions {
-  position: relative;
-  z-index: 1;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  left: 0;
+  z-index: 25;
+  max-height: 390px;
   overflow: hidden;
-  margin: 0 -12px;
-  background: var(--route-editor-surface);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  background: rgba(12, 13, 14, 0.98);
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.36),
+    0 2px 8px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(18px);
 }
 
 .route-location-option {
@@ -619,6 +637,8 @@ button {
 
 .route-suggestion-list {
   gap: 0;
+  max-height: inherit;
+  overflow: auto;
 }
 
 .route-field-suggestions .place-row {
@@ -629,7 +649,11 @@ button {
   padding: 13px 18px 13px 46px;
   color: #ffffff;
   border-radius: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.095);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.route-field-suggestions .place-row:first-child {
+  border-top: 0;
 }
 
 .route-field-suggestions .place-row:hover {
@@ -1606,6 +1630,14 @@ button {
 
 .app-shell[data-color-scheme="light"] .route-location-option {
   color: #111827;
+}
+
+.app-shell[data-color-scheme="light"] .route-field-suggestions {
+  border-color: rgba(52, 65, 54, 0.1);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow:
+    0 24px 48px rgba(34, 64, 42, 0.16),
+    0 2px 8px rgba(34, 64, 42, 0.08);
 }
 
 .app-shell[data-color-scheme="light"] .route-location-option:hover {

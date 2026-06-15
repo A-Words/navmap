@@ -25,7 +25,7 @@ import {
   Utensils,
   X,
 } from "lucide-react";
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -310,27 +310,29 @@ function RoutePlanner({
       <Card className="route-editor-card">
         <CardContent className="route-editor-content">
           <div className="route-lines" aria-hidden="true" />
-          <RouteField
-            label="A"
-            tone="origin"
-            value={routeDrafts.origin}
-            placeholder={t("routeFields.origin")}
-            active={activeRouteTarget === "origin"}
-            onFocus={() => onRoutePointFocus("origin")}
-            onChange={(value) => onRoutePointChange("origin", value)}
-            onSubmit={() => onRoutePointSubmit("origin")}
-          />
-          <RouteFieldSuggestions
-            active={activeRouteTarget === "origin"}
-            query={getActiveDraft(routeDrafts, "origin")}
-            searchResults={searchResults}
-            onLocate={onLocate}
-            onSelectPlace={onSelectPlace}
-          />
+          <div className="route-point-slot" data-active={activeRouteTarget === "origin"}>
+            <RouteField
+              label="A"
+              tone="origin"
+              value={routeDrafts.origin}
+              placeholder={t("routeFields.origin")}
+              active={activeRouteTarget === "origin"}
+              onFocus={() => onRoutePointFocus("origin")}
+              onChange={(value) => onRoutePointChange("origin", value)}
+              onSubmit={() => onRoutePointSubmit("origin")}
+            />
+            <RouteFieldSuggestions
+              active={activeRouteTarget === "origin"}
+              query={getActiveDraft(routeDrafts, "origin")}
+              searchResults={searchResults}
+              onLocate={onLocate}
+              onSelectPlace={onSelectPlace}
+            />
+          </div>
           {plan.waypoints.map((waypoint, index) => {
             const target = `waypoint-${index}` as const;
             return (
-              <Fragment key={`${waypoint.id}-${index}`}>
+              <div className="route-point-slot" data-active={activeRouteTarget === target} key={`${waypoint.id}-${index}`}>
                 <RouteField
                   label={String(index + 1)}
                   tone="waypoint"
@@ -350,26 +352,28 @@ function RoutePlanner({
                   onLocate={onLocate}
                   onSelectPlace={onSelectPlace}
                 />
-              </Fragment>
+              </div>
             );
           })}
-          <RouteField
-            label="B"
-            tone="destination"
-            value={routeDrafts.destination}
-            placeholder={t("routeFields.destination")}
-            active={activeRouteTarget === "destination"}
-            onFocus={() => onRoutePointFocus("destination")}
-            onChange={(value) => onRoutePointChange("destination", value)}
-            onSubmit={() => onRoutePointSubmit("destination")}
-          />
-          <RouteFieldSuggestions
-            active={activeRouteTarget === "destination"}
-            query={getActiveDraft(routeDrafts, "destination")}
-            searchResults={searchResults}
-            onLocate={onLocate}
-            onSelectPlace={onSelectPlace}
-          />
+          <div className="route-point-slot" data-active={activeRouteTarget === "destination"}>
+            <RouteField
+              label="B"
+              tone="destination"
+              value={routeDrafts.destination}
+              placeholder={t("routeFields.destination")}
+              active={activeRouteTarget === "destination"}
+              onFocus={() => onRoutePointFocus("destination")}
+              onChange={(value) => onRoutePointChange("destination", value)}
+              onSubmit={() => onRoutePointSubmit("destination")}
+            />
+            <RouteFieldSuggestions
+              active={activeRouteTarget === "destination"}
+              query={getActiveDraft(routeDrafts, "destination")}
+              searchResults={searchResults}
+              onLocate={onLocate}
+              onSelectPlace={onSelectPlace}
+            />
+          </div>
           <Button className="route-add-stop" variant="ghost" type="button" onClick={onAddWaypoint}>
             <Plus data-icon="inline-start" aria-hidden="true" />
             {t("route.addWaypoint")}
