@@ -51,7 +51,7 @@
     "routeFailed": "Route planning failed",
     "locationDenied": "Location permission was denied or is unavailable",
     "routeReady": "Follow the highlighted route",
-    "currentLocation": "Current Location",
+    "currentLocation": "My Location",
     "routeDescriptionFallback": "route",
     "via": "via"
   },
@@ -78,6 +78,7 @@
     "scaleAttributionDescription": "OSM attribution and metric scale bar",
     "on": "On",
     "open": "Open layers",
+    "switch": "Switch map layer",
     "layersHint": "Switching base maps keeps the current route and search state."
   },
   "settings": {

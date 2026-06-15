@@ -51,7 +51,7 @@
     "routeFailed": "路线规划失败",
     "locationDenied": "定位权限被拒绝或不可用",
     "routeReady": "沿高亮路线行驶",
-    "currentLocation": "当前位置",
+    "currentLocation": "我的位置",
     "routeDescriptionFallback": "路线",
     "via": "经由"
   },
@@ -78,6 +78,7 @@
     "scaleAttributionDescription": "OSM 署名和公制比例尺",
     "on": "开启",
     "open": "打开图层",
+    "switch": "切换底图",
     "layersHint": "切换底图时会保留当前路线和搜索状态。"
   },
   "settings": {

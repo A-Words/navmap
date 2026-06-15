@@ -420,6 +420,19 @@ export default function App() {
     }
   }, [activeRouteTarget, applyPlaceToRouteTarget, t]);
 
+  const handleMapLocate = useCallback(async () => {
+    setLocationError(null);
+
+    try {
+      const location = await locateCurrentPosition();
+      setRecentSearches((current) => addRecentSearch(location, current));
+      return location;
+    } catch (error) {
+      setLocationError(error instanceof Error ? error.message : t("route.locationDenied"));
+      return null;
+    }
+  }, [t]);
+
   const handleRouteSubmit = useCallback(async () => {
     routeAbortRef.current?.abort();
     const controller = new AbortController();
@@ -486,7 +499,6 @@ export default function App() {
           onDirectionsFromDetail={handleDirectionsFromDetail}
           onCloseDetail={handleCloseDetail}
           onLocate={handleLocate}
-          onLayerChange={setActiveLayer}
           onLanguageChange={handleLanguageChange}
           onThemePreferenceChange={setThemePreference}
           onRoutePointFocus={setActiveRouteTarget}
@@ -506,22 +518,11 @@ export default function App() {
           selectedPlace={selectedPlace}
           detailPlace={detailPlace}
           onCenterChange={handleCenterChange}
-          onLocate={handleLocate}
+          onLayerChange={setActiveLayer}
+          onLocate={handleMapLocate}
           railCollapsed={railCollapsed}
           panelOpen={panelOpen}
         />
-        <div className="layer-switcher" aria-label={t("layers.baseMap")}>
-          {(["standard", "terrain", "transit"] as const).map((layer) => (
-            <button
-              key={layer}
-              className={activeLayer === layer ? "is-active" : ""}
-              type="button"
-              onClick={() => setActiveLayer(layer)}
-            >
-              {t(`layers.${layer}`)}
-            </button>
-          ))}
-        </div>
         <span className="sr-only" aria-live="polite">
           {lastViewport
             ? `${t("map.centered")} ${lastViewport.center.lat.toFixed(4)}, ${lastViewport.center.lng.toFixed(

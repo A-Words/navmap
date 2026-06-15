@@ -1,6 +1,6 @@
 import maplibregl, { GeoJSONSource, Map as MapLibreMap, Marker } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { Compass, Crosshair, Layers, LocateFixed, Minus, Plus } from "lucide-react";
+import { Layers, LocateFixed, Minus, Plus } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DEFAULT_CENTER, osmRasterStyle } from "../config/mapServices";
@@ -12,10 +12,13 @@ type MapCanvasProps = {
   selectedPlace: SearchResult;
   detailPlace: SearchResult | null;
   onCenterChange: (center: LngLat, zoom: number) => void;
-  onLocate: () => void;
+  onLayerChange: (layer: LayerId) => void;
+  onLocate: () => Promise<SearchResult | null>;
   railCollapsed: boolean;
   panelOpen: boolean;
 };
+
+const layerOrder: LayerId[] = ["standard", "terrain", "transit"];
 
 export function MapCanvas({
   activeLayer,
@@ -23,6 +26,7 @@ export function MapCanvas({
   selectedPlace,
   detailPlace,
   onCenterChange,
+  onLayerChange,
   onLocate,
   railCollapsed,
   panelOpen,
@@ -216,13 +220,21 @@ export function MapCanvas({
 
   const zoomIn = () => mapRef.current?.zoomIn();
   const zoomOut = () => mapRef.current?.zoomOut();
-  const recenter = () => {
+  const cycleLayer = () => {
+    const currentIndex = layerOrder.indexOf(activeLayer);
+    onLayerChange(layerOrder[(currentIndex + 1) % layerOrder.length]);
+  };
+  const recenter = async () => {
+    const location = await onLocate();
+    if (!location) {
+      return;
+    }
+
     mapRef.current?.flyTo({
-      center: [plan.origin.coordinate.lng, plan.origin.coordinate.lat],
+      center: [location.coordinate.lng, location.coordinate.lat],
       zoom: 13,
       essential: true,
     });
-    onLocate();
   };
 
   return (
@@ -236,26 +248,20 @@ export function MapCanvas({
           </>
         ) : null}
       </svg>
-      <div className="map-toolbar" aria-label={t("map.controls")}>
-        <button type="button" aria-label={t("map.resetCompass")}>
-          <Compass size={18} aria-hidden="true" />
+      <div className="map-top-controls" aria-label={t("map.controls")}>
+        <button type="button" aria-label={`${t("layers.switch")}: ${t(`layers.${activeLayer}`)}`} onClick={cycleLayer}>
+          <Layers aria-hidden="true" />
         </button>
-        <div className="toolbar-group" role="group" aria-label={t("map.zoomControls")}>
-          <button type="button" aria-label={t("map.zoomIn")} onClick={zoomIn}>
-            <Plus size={19} aria-hidden="true" />
-          </button>
-          <button type="button" aria-label={t("map.zoomOut")} onClick={zoomOut}>
-            <Minus size={19} aria-hidden="true" />
-          </button>
-        </div>
         <button type="button" aria-label={t("map.currentLocation")} onClick={recenter}>
-          <LocateFixed size={18} aria-hidden="true" />
+          <LocateFixed aria-hidden="true" />
         </button>
-        <button type="button" aria-label={t("map.recenterRoute")}>
-          <Crosshair size={18} aria-hidden="true" />
+      </div>
+      <div className="map-zoom-controls" role="group" aria-label={t("map.zoomControls")}>
+        <button type="button" aria-label={t("map.zoomIn")} onClick={zoomIn}>
+          <Plus aria-hidden="true" />
         </button>
-        <button type="button" aria-label={t("layers.open")}>
-          <Layers size={18} aria-hidden="true" />
+        <button type="button" aria-label={t("map.zoomOut")} onClick={zoomOut}>
+          <Minus aria-hidden="true" />
         </button>
       </div>
       <footer className="map-status">

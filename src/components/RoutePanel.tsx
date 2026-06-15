@@ -25,7 +25,7 @@ import {
   Utensils,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -88,7 +88,6 @@ type RoutePanelProps = {
   onDirectionsFromDetail: () => void;
   onCloseDetail: () => void;
   onLocate: () => void;
-  onLayerChange: (layer: LayerId) => void;
   onLanguageChange: (language: Language) => void;
   onThemePreferenceChange: (preference: ThemePreference) => void;
   onRoutePointFocus: (target: RoutePointTarget) => void;
@@ -126,7 +125,6 @@ export function RoutePanel({
   onDirectionsFromDetail,
   onCloseDetail,
   onLocate,
-  onLayerChange,
   onLanguageChange,
   onThemePreferenceChange,
   onRoutePointFocus,
@@ -285,6 +283,8 @@ function RoutePlanner({
     avoidTolls: false,
     avoidFerries: false,
   });
+  const shouldShowLocationOption = (target: RoutePointTarget) =>
+    routeFieldFocused && activeRouteTarget === target && !getActiveDraft(routeDrafts, target).trim();
 
   return (
     <>
@@ -324,23 +324,26 @@ function RoutePlanner({
             onChange={(value) => onRoutePointChange("origin", value)}
             onSubmit={() => onRoutePointSubmit("origin")}
           />
+          {shouldShowLocationOption("origin") ? <CurrentLocationOption onLocate={onLocate} /> : null}
           {plan.waypoints.map((waypoint, index) => {
             const target = `waypoint-${index}` as const;
             return (
-              <RouteField
-                key={`${waypoint.id}-${index}`}
-                label={String(index + 1)}
-                tone="waypoint"
-                value={routeDrafts.waypoints[index] || waypoint.name}
-                placeholder={`${t("route.waypoint")} ${index + 1}`}
-                active={activeRouteTarget === target}
-                removable
-                onFocus={() => { onRoutePointFocus(target); setRouteFieldFocused(true); }}
-                onBlur={() => setRouteFieldFocused(false)}
-                onChange={(value) => onRoutePointChange(target, value)}
-                onSubmit={() => onRoutePointSubmit(target)}
-                onRemove={() => onRemoveWaypoint(index)}
-              />
+              <Fragment key={`${waypoint.id}-${index}`}>
+                <RouteField
+                  label={String(index + 1)}
+                  tone="waypoint"
+                  value={routeDrafts.waypoints[index] || waypoint.name}
+                  placeholder={`${t("route.waypoint")} ${index + 1}`}
+                  active={activeRouteTarget === target}
+                  removable
+                  onFocus={() => { onRoutePointFocus(target); setRouteFieldFocused(true); }}
+                  onBlur={() => setRouteFieldFocused(false)}
+                  onChange={(value) => onRoutePointChange(target, value)}
+                  onSubmit={() => onRoutePointSubmit(target)}
+                  onRemove={() => onRemoveWaypoint(index)}
+                />
+                {shouldShowLocationOption(target) ? <CurrentLocationOption onLocate={onLocate} /> : null}
+              </Fragment>
             );
           })}
           <RouteField
@@ -354,6 +357,7 @@ function RoutePlanner({
             onChange={(value) => onRoutePointChange("destination", value)}
             onSubmit={() => onRoutePointSubmit("destination")}
           />
+          {shouldShowLocationOption("destination") ? <CurrentLocationOption onLocate={onLocate} /> : null}
           <Button className="route-add-stop" variant="ghost" type="button" onClick={onAddWaypoint}>
             <Plus data-icon="inline-start" aria-hidden="true" />
             {t("route.addWaypoint")}
@@ -363,21 +367,6 @@ function RoutePlanner({
           </Button>
         </CardContent>
       </Card>
-
-      {routeFieldFocused &&
-      ((activeRouteTarget === "origin" && !routeDrafts.origin.trim()) ||
-        (activeRouteTarget === "destination" && !routeDrafts.destination.trim())) ? (
-        <Button
-          className="route-locate-btn"
-          variant="ghost"
-          type="button"
-          onMouseDown={(event) => event.preventDefault()}
-          onClick={onLocate}
-        >
-          <LocateFixed data-icon="inline-start" aria-hidden="true" />
-          {t("route.currentLocation")}
-        </Button>
-      ) : null}
 
       {routeFieldFocused && getActiveDraft(routeDrafts, activeRouteTarget).trim() && searchResults.length ? (
         <div className="search-results-card route-search-results" onMouseDown={(event) => event.preventDefault()}>
@@ -561,6 +550,25 @@ function PlaceDetailView({
         ) : null}
       </div>
     </div>
+  );
+}
+
+function CurrentLocationOption({ onLocate }: { onLocate: () => void }) {
+  const { t } = useTranslation();
+
+  return (
+    <Button
+      className="route-location-option"
+      variant="ghost"
+      type="button"
+      onMouseDown={(event) => event.preventDefault()}
+      onClick={onLocate}
+    >
+      <span className="route-location-glyph">
+        <LocateFixed data-icon="inline-start" aria-hidden="true" />
+      </span>
+      {t("route.currentLocation")}
+    </Button>
   );
 }
 

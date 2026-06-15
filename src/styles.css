@@ -580,22 +580,35 @@ button {
   background: #1f73f3;
 }
 
-.route-locate-btn {
-  justify-content: flex-start;
-  height: 40px;
-  gap: 8px;
-  color: var(--navmap-blue);
-  background: rgba(47, 130, 255, 0.1);
-  border-radius: 10px;
-}
-
-.route-locate-btn:hover {
-  color: #ffffff;
-  background: rgba(47, 130, 255, 0.2);
-}
-
 .route-search-results {
   margin-top: -4px;
+}
+
+.route-location-option {
+  justify-content: flex-start;
+  min-height: 58px;
+  gap: 12px;
+  padding: 8px 12px 8px 46px;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 720;
+  border-radius: 0;
+  background: transparent;
+}
+
+.route-location-option:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.route-location-glyph {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  color: #ffffff;
+  border-radius: 50%;
+  background: var(--navmap-blue);
 }
 
 .panel-card,
@@ -1250,22 +1263,32 @@ button {
   filter: saturate(1.08) hue-rotate(8deg);
 }
 
-.map-toolbar {
+.map-top-controls {
   position: absolute;
-  top: 28px;
-  right: 28px;
+  top: 22px;
+  left: 488px;
   z-index: 3;
   display: grid;
-  gap: 12px;
+  overflow: hidden;
+  border-radius: 14px;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(12px);
 }
 
-.toolbar-group {
+.map-zoom-controls {
+  position: absolute;
+  right: 28px;
+  bottom: 28px;
+  z-index: 3;
   display: grid;
   overflow: hidden;
-  border-radius: 10px;
+  border-radius: 14px;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(12px);
 }
 
-.map-toolbar button {
+.map-top-controls button,
+.map-zoom-controls button {
   display: grid;
   width: 44px;
   height: 44px;
@@ -1273,25 +1296,33 @@ button {
   color: rgba(255, 255, 255, 0.78);
   border: 0;
   background: rgba(0, 24, 26, 0.72);
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.22);
-  backdrop-filter: blur(12px);
 }
 
-.map-toolbar > button {
-  overflow: hidden;
-  border-radius: 10px;
+.map-top-controls button svg,
+.map-zoom-controls button svg {
+  width: 19px;
+  height: 19px;
 }
 
-.toolbar-group button {
-  border-radius: 0;
-  box-shadow: none;
-}
-
-.toolbar-group button + button {
+.map-top-controls button + button,
+.map-zoom-controls button + button {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.map-toolbar button:hover {
+.app-shell:not(.is-rail-collapsed) .map-top-controls {
+  left: 628px;
+}
+
+.app-shell.is-panel-collapsed .map-top-controls {
+  left: 88px;
+}
+
+.app-shell:not(.is-rail-collapsed).is-panel-collapsed .map-top-controls {
+  left: 228px;
+}
+
+.map-top-controls button:hover,
+.map-zoom-controls button:hover {
   color: #ffffff;
   background: rgba(0, 24, 26, 0.86);
 }
@@ -1375,42 +1406,6 @@ button {
 
 .route-marker.waypoint {
   background: var(--navmap-purple);
-}
-
-.layer-switcher {
-  position: absolute;
-  right: 72px;
-  bottom: 46px;
-  z-index: 4;
-  display: flex;
-  gap: 4px;
-  padding: 4px;
-  border-radius: 10px;
-  background: rgba(0, 24, 26, 0.72);
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(12px);
-}
-
-.layer-switcher button {
-  height: 30px;
-  padding: 0 10px;
-  color: rgba(255, 255, 255, 0.68);
-  font-size: 12px;
-  font-weight: 760;
-  text-transform: capitalize;
-  border: 0;
-  border-radius: 7px;
-  background: transparent;
-}
-
-.layer-switcher button:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.layer-switcher button.is-active {
-  color: #ffffff;
-  background: var(--navmap-blue);
 }
 
 .app-shell[data-color-scheme="light"] {
@@ -1565,14 +1560,13 @@ button {
   background: rgba(255, 255, 255, 0.62);
 }
 
-.app-shell[data-color-scheme="light"] .route-locate-btn {
-  color: #0a7cff;
-  background: rgba(10, 124, 255, 0.08);
+.app-shell[data-color-scheme="light"] .route-location-option {
+  color: #111827;
 }
 
-.app-shell[data-color-scheme="light"] .route-locate-btn:hover {
+.app-shell[data-color-scheme="light"] .route-location-option:hover {
   color: #111827;
-  background: rgba(10, 124, 255, 0.15);
+  background: rgba(17, 24, 39, 0.04);
 }
 
 .app-shell[data-color-scheme="light"] .route-options-popover {
@@ -1738,30 +1732,26 @@ button {
   border-color: rgba(17, 24, 39, 0.08);
 }
 
-.app-shell[data-color-scheme="light"] .map-toolbar button,
-.app-shell[data-color-scheme="light"] .layer-switcher {
-  color: #6f7778;
-  background: rgba(255, 255, 255, 0.86);
+.app-shell[data-color-scheme="light"] .map-top-controls,
+.app-shell[data-color-scheme="light"] .map-zoom-controls {
   box-shadow: 0 10px 24px rgba(17, 24, 39, 0.12);
 }
 
-.app-shell[data-color-scheme="light"] .toolbar-group button + button {
+.app-shell[data-color-scheme="light"] .map-top-controls button,
+.app-shell[data-color-scheme="light"] .map-zoom-controls button {
+  color: #6f7778;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.app-shell[data-color-scheme="light"] .map-top-controls button + button,
+.app-shell[data-color-scheme="light"] .map-zoom-controls button + button {
   border-color: rgba(17, 24, 39, 0.08);
 }
 
-.app-shell[data-color-scheme="light"] .map-toolbar button:hover,
-.app-shell[data-color-scheme="light"] .layer-switcher button:hover {
+.app-shell[data-color-scheme="light"] .map-top-controls button:hover,
+.app-shell[data-color-scheme="light"] .map-zoom-controls button:hover {
   color: #111827;
   background: rgba(255, 255, 255, 0.98);
-}
-
-.app-shell[data-color-scheme="light"] .layer-switcher button {
-  color: #6f7778;
-}
-
-.app-shell[data-color-scheme="light"] .layer-switcher button.is-active {
-  color: #ffffff;
-  background: #0a7cff;
 }
 
 .app-shell[data-color-scheme="light"] .map-status {
