@@ -25,7 +25,7 @@ import {
   Utensils,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -277,11 +277,60 @@ function RoutePlanner({
 }) {
   const { t } = useTranslation();
   const [showOptions, setShowOptions] = useState(false);
+  const [suggestionTarget, setSuggestionTarget] = useState<RoutePointTarget | null>(null);
   const [routeOptions, setRouteOptions] = useState({
     avoidHighways: false,
     avoidTolls: false,
     avoidFerries: false,
   });
+
+  useEffect(() => {
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target;
+
+      if (!(target instanceof Element)) {
+        setSuggestionTarget(null);
+        return;
+      }
+
+      if (!target.closest(".route-editor-card")) {
+        setSuggestionTarget(null);
+        return;
+      }
+
+      if (!target.closest(".route-point-slot, .route-field-suggestions")) {
+        setSuggestionTarget(null);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, []);
+
+  const handleFieldFocus = (target: RoutePointTarget) => {
+    setSuggestionTarget(target);
+    onRoutePointFocus(target);
+  };
+
+  const handleFieldChange = (target: RoutePointTarget, value: string) => {
+    setSuggestionTarget(target);
+    onRoutePointChange(target, value);
+  };
+
+  const handleFieldSubmit = (target: RoutePointTarget) => {
+    setSuggestionTarget(null);
+    onRoutePointSubmit(target);
+  };
+
+  const handleLocate = () => {
+    setSuggestionTarget(null);
+    onLocate();
+  };
+
+  const handleSelectPlace = (place: SearchResult) => {
+    setSuggestionTarget(null);
+    onSelectPlace(place);
+  };
 
   return (
     <>
@@ -317,16 +366,16 @@ function RoutePlanner({
               value={routeDrafts.origin}
               placeholder={t("routeFields.origin")}
               active={activeRouteTarget === "origin"}
-              onFocus={() => onRoutePointFocus("origin")}
-              onChange={(value) => onRoutePointChange("origin", value)}
-              onSubmit={() => onRoutePointSubmit("origin")}
+              onFocus={() => handleFieldFocus("origin")}
+              onChange={(value) => handleFieldChange("origin", value)}
+              onSubmit={() => handleFieldSubmit("origin")}
             />
             <RouteFieldSuggestions
-              active={activeRouteTarget === "origin"}
+              active={suggestionTarget === "origin"}
               query={getActiveDraft(routeDrafts, "origin")}
               searchResults={searchResults}
-              onLocate={onLocate}
-              onSelectPlace={onSelectPlace}
+              onLocate={handleLocate}
+              onSelectPlace={handleSelectPlace}
             />
           </div>
           {plan.waypoints.map((waypoint, index) => {
@@ -340,17 +389,17 @@ function RoutePlanner({
                   placeholder={`${t("route.waypoint")} ${index + 1}`}
                   active={activeRouteTarget === target}
                   removable
-                  onFocus={() => onRoutePointFocus(target)}
-                  onChange={(value) => onRoutePointChange(target, value)}
-                  onSubmit={() => onRoutePointSubmit(target)}
+                  onFocus={() => handleFieldFocus(target)}
+                  onChange={(value) => handleFieldChange(target, value)}
+                  onSubmit={() => handleFieldSubmit(target)}
                   onRemove={() => onRemoveWaypoint(index)}
                 />
                 <RouteFieldSuggestions
-                  active={activeRouteTarget === target}
+                  active={suggestionTarget === target}
                   query={getActiveDraft(routeDrafts, target)}
                   searchResults={searchResults}
-                  onLocate={onLocate}
-                  onSelectPlace={onSelectPlace}
+                  onLocate={handleLocate}
+                  onSelectPlace={handleSelectPlace}
                 />
               </div>
             );
@@ -362,16 +411,16 @@ function RoutePlanner({
               value={routeDrafts.destination}
               placeholder={t("routeFields.destination")}
               active={activeRouteTarget === "destination"}
-              onFocus={() => onRoutePointFocus("destination")}
-              onChange={(value) => onRoutePointChange("destination", value)}
-              onSubmit={() => onRoutePointSubmit("destination")}
+              onFocus={() => handleFieldFocus("destination")}
+              onChange={(value) => handleFieldChange("destination", value)}
+              onSubmit={() => handleFieldSubmit("destination")}
             />
             <RouteFieldSuggestions
-              active={activeRouteTarget === "destination"}
+              active={suggestionTarget === "destination"}
               query={getActiveDraft(routeDrafts, "destination")}
               searchResults={searchResults}
-              onLocate={onLocate}
-              onSelectPlace={onSelectPlace}
+              onLocate={handleLocate}
+              onSelectPlace={handleSelectPlace}
             />
           </div>
           <Button className="route-add-stop" variant="ghost" type="button" onClick={onAddWaypoint}>
@@ -1081,6 +1130,7 @@ function RouteField({
       <Input
         value={value}
         placeholder={placeholder}
+        onPointerDown={onFocus}
         onFocus={onFocus}
         onBlur={onBlur}
         onChange={(event) => onChange(event.target.value)}
