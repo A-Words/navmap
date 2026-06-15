@@ -277,14 +277,11 @@ function RoutePlanner({
 }) {
   const { t } = useTranslation();
   const [showOptions, setShowOptions] = useState(false);
-  const [routeFieldFocused, setRouteFieldFocused] = useState(false);
   const [routeOptions, setRouteOptions] = useState({
     avoidHighways: false,
     avoidTolls: false,
     avoidFerries: false,
   });
-  const shouldShowLocationOption = (target: RoutePointTarget) =>
-    routeFieldFocused && activeRouteTarget === target && !getActiveDraft(routeDrafts, target).trim();
 
   return (
     <>
@@ -319,12 +316,17 @@ function RoutePlanner({
             value={routeDrafts.origin}
             placeholder={t("routeFields.origin")}
             active={activeRouteTarget === "origin"}
-            onFocus={() => { onRoutePointFocus("origin"); setRouteFieldFocused(true); }}
-            onBlur={() => setRouteFieldFocused(false)}
+            onFocus={() => onRoutePointFocus("origin")}
             onChange={(value) => onRoutePointChange("origin", value)}
             onSubmit={() => onRoutePointSubmit("origin")}
           />
-          {shouldShowLocationOption("origin") ? <CurrentLocationOption onLocate={onLocate} /> : null}
+          <RouteFieldSuggestions
+            active={activeRouteTarget === "origin"}
+            query={getActiveDraft(routeDrafts, "origin")}
+            searchResults={searchResults}
+            onLocate={onLocate}
+            onSelectPlace={onSelectPlace}
+          />
           {plan.waypoints.map((waypoint, index) => {
             const target = `waypoint-${index}` as const;
             return (
@@ -336,13 +338,18 @@ function RoutePlanner({
                   placeholder={`${t("route.waypoint")} ${index + 1}`}
                   active={activeRouteTarget === target}
                   removable
-                  onFocus={() => { onRoutePointFocus(target); setRouteFieldFocused(true); }}
-                  onBlur={() => setRouteFieldFocused(false)}
+                  onFocus={() => onRoutePointFocus(target)}
                   onChange={(value) => onRoutePointChange(target, value)}
                   onSubmit={() => onRoutePointSubmit(target)}
                   onRemove={() => onRemoveWaypoint(index)}
                 />
-                {shouldShowLocationOption(target) ? <CurrentLocationOption onLocate={onLocate} /> : null}
+                <RouteFieldSuggestions
+                  active={activeRouteTarget === target}
+                  query={getActiveDraft(routeDrafts, target)}
+                  searchResults={searchResults}
+                  onLocate={onLocate}
+                  onSelectPlace={onSelectPlace}
+                />
               </Fragment>
             );
           })}
@@ -352,12 +359,17 @@ function RoutePlanner({
             value={routeDrafts.destination}
             placeholder={t("routeFields.destination")}
             active={activeRouteTarget === "destination"}
-            onFocus={() => { onRoutePointFocus("destination"); setRouteFieldFocused(true); }}
-            onBlur={() => setRouteFieldFocused(false)}
+            onFocus={() => onRoutePointFocus("destination")}
             onChange={(value) => onRoutePointChange("destination", value)}
             onSubmit={() => onRoutePointSubmit("destination")}
           />
-          {shouldShowLocationOption("destination") ? <CurrentLocationOption onLocate={onLocate} /> : null}
+          <RouteFieldSuggestions
+            active={activeRouteTarget === "destination"}
+            query={getActiveDraft(routeDrafts, "destination")}
+            searchResults={searchResults}
+            onLocate={onLocate}
+            onSelectPlace={onSelectPlace}
+          />
           <Button className="route-add-stop" variant="ghost" type="button" onClick={onAddWaypoint}>
             <Plus data-icon="inline-start" aria-hidden="true" />
             {t("route.addWaypoint")}
@@ -367,16 +379,6 @@ function RoutePlanner({
           </Button>
         </CardContent>
       </Card>
-
-      {routeFieldFocused && getActiveDraft(routeDrafts, activeRouteTarget).trim() && searchResults.length ? (
-        <div className="search-results-card route-search-results" onMouseDown={(event) => event.preventDefault()}>
-          <div className="place-list">
-            {searchResults.map((place) => (
-              <SearchResultRow key={place.id} place={place} onSelectPlace={onSelectPlace} />
-            ))}
-          </div>
-        </div>
-      ) : null}
 
       {searchState === "loading" ? <p className="panel-message">{t("search.searching")}</p> : null}
       {searchState === "error" ? <p className="panel-message">{searchError}</p> : null}
@@ -553,7 +555,49 @@ function PlaceDetailView({
   );
 }
 
-function CurrentLocationOption({ onLocate }: { onLocate: () => void }) {
+function RouteFieldSuggestions({
+  active,
+  query,
+  searchResults,
+  onLocate,
+  onSelectPlace,
+}: {
+  active: boolean;
+  query: string;
+  searchResults: SearchResult[];
+  onLocate: () => void;
+  onSelectPlace: (place: SearchResult) => void;
+}) {
+  const trimmedQuery = query.trim();
+
+  if (!active) {
+    return null;
+  }
+
+  if (!trimmedQuery) {
+    return (
+      <div className="route-field-suggestions" onMouseDown={(event) => event.preventDefault()}>
+        <CurrentLocationSuggestion onLocate={onLocate} />
+      </div>
+    );
+  }
+
+  if (!searchResults.length) {
+    return null;
+  }
+
+  return (
+    <div className="route-field-suggestions" onMouseDown={(event) => event.preventDefault()}>
+      <div className="place-list route-suggestion-list">
+        {searchResults.map((place) => (
+          <SearchResultRow key={place.id} place={place} onSelectPlace={onSelectPlace} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CurrentLocationSuggestion({ onLocate }: { onLocate: () => void }) {
   const { t } = useTranslation();
 
   return (

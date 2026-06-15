@@ -430,9 +430,10 @@ button {
 .route-editor-card {
   position: relative;
   overflow: visible;
+  --route-editor-surface: rgba(43, 41, 39, 0.96);
   border: 0;
   border-radius: 14px;
-  background: rgba(43, 41, 39, 0.96);
+  background: var(--route-editor-surface);
   color: #ffffff;
 }
 
@@ -580,14 +581,19 @@ button {
   background: #1f73f3;
 }
 
-.route-search-results {
-  margin-top: -4px;
+.route-field-suggestions {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  margin: 0 -12px;
+  background: var(--route-editor-surface);
 }
 
 .route-location-option {
   justify-content: flex-start;
   min-height: 58px;
   gap: 12px;
+  width: 100%;
   padding: 8px 12px 8px 46px;
   color: #ffffff;
   font-size: 15px;
@@ -609,6 +615,55 @@ button {
   color: #ffffff;
   border-radius: 50%;
   background: var(--navmap-blue);
+}
+
+.route-suggestion-list {
+  gap: 0;
+}
+
+.route-field-suggestions .place-row {
+  min-height: 78px;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 13px 18px 13px 46px;
+  color: #ffffff;
+  border-radius: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.095);
+}
+
+.route-field-suggestions .place-row:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.065);
+}
+
+.route-field-suggestions .place-row strong {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 820;
+  letter-spacing: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.route-field-suggestions .place-row small {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  color: #8b929a;
+  font-size: 14px;
+  font-weight: 620;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.route-field-suggestions .place-row-secondary {
+  color: #6f7780;
+  font-size: 13px;
 }
 
 .panel-card,
@@ -1266,7 +1321,7 @@ button {
 .map-top-controls {
   position: absolute;
   top: 22px;
-  left: 488px;
+  right: 28px;
   z-index: 3;
   display: grid;
   overflow: hidden;
@@ -1307,18 +1362,6 @@ button {
 .map-top-controls button + button,
 .map-zoom-controls button + button {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.app-shell:not(.is-rail-collapsed) .map-top-controls {
-  left: 628px;
-}
-
-.app-shell.is-panel-collapsed .map-top-controls {
-  left: 88px;
-}
-
-.app-shell:not(.is-rail-collapsed).is-panel-collapsed .map-top-controls {
-  left: 228px;
 }
 
 .map-top-controls button:hover,
@@ -1516,7 +1559,8 @@ button {
 }
 
 .app-shell[data-color-scheme="light"] .route-editor-card {
-  background: rgba(255, 255, 255, 0.98);
+  --route-editor-surface: rgba(255, 255, 255, 0.98);
+  background: var(--route-editor-surface);
   color: #111827;
   box-shadow: 0 14px 30px rgba(34, 64, 42, 0.08);
 }
@@ -1567,6 +1611,28 @@ button {
 .app-shell[data-color-scheme="light"] .route-location-option:hover {
   color: #111827;
   background: rgba(17, 24, 39, 0.04);
+}
+
+.app-shell[data-color-scheme="light"] .route-field-suggestions .place-row,
+.app-shell[data-color-scheme="light"] .route-field-suggestions .place-row strong {
+  color: #111827;
+}
+
+.app-shell[data-color-scheme="light"] .route-field-suggestions .place-row {
+  border-color: rgba(17, 24, 39, 0.09);
+}
+
+.app-shell[data-color-scheme="light"] .route-field-suggestions .place-row:hover {
+  color: #111827;
+  background: rgba(29, 37, 39, 0.04);
+}
+
+.app-shell[data-color-scheme="light"] .route-field-suggestions .place-row small {
+  color: #747c7d;
+}
+
+.app-shell[data-color-scheme="light"] .route-field-suggestions .place-row-secondary {
+  color: #8a9293;
 }
 
 .app-shell[data-color-scheme="light"] .route-options-popover {
