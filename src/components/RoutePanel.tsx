@@ -441,8 +441,12 @@ function RoutePlanner({
       {routeState === "error" ? <p className="panel-message">{routeError}</p> : null}
       {locationError ? <p className="panel-message">{locationError}</p> : null}
 
-      <RouteSummaryCard plan={plan} />
-      <StepsSection instructions={plan.route.instructions} />
+      {routeState === "success" ? (
+        <>
+          <RouteSummaryCard plan={plan} />
+          <StepsSection instructions={plan.route.instructions} />
+        </>
+      ) : null}
     </>
   );
 }
